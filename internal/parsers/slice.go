@@ -6,6 +6,8 @@ import (
 	"sanitiser/internal/models"
 )
 
+// ParseSlice parses a given value and returns a Slice.
+// If value is a struct/pointer/slice/array, it will be parsed recursively.
 func ParseSlice(sliceValue reflect.Value) models.Slice {
 	var slice models.Slice
 	for i := 0; i < sliceValue.Len(); i++ {

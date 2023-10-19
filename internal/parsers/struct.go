@@ -7,6 +7,8 @@ import (
 	"sanitiser/internal/options"
 )
 
+// ParseStruct parses a given value and returns a Struct.
+// All fields of pointer/slice/array/struct types will be parsed recursively.
 func ParseStruct(structValue reflect.Value) models.Struct {
 	var s models.Struct
 	var v models.Value

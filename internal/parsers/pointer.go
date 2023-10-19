@@ -6,6 +6,8 @@ import (
 	"sanitiser/internal/models"
 )
 
+// ParsePtr parses a given value and returns a Ptr.
+// If the value is nil, it returns a Ptr with a nil Value.
 func ParsePtr(ptrValue reflect.Value) models.Ptr {
 	if ptrValue.IsNil() {
 		return models.Ptr{Value: models.Value{Value: nil, Kind: reflect.Ptr}}
