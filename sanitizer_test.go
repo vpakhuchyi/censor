@@ -283,9 +283,16 @@ func Test_sanitizedPointer(t *testing.T) {
 			val: new(bool),
 			exp: `&false`,
 		},
-		"pointer_to_float": {
+		"pointer_to_float64": {
 			val: new(float64),
-			exp: `&0.000000`,
+			exp: `&0`,
+		},
+		"pointer_to_float32": {
+			val: func() *float32 {
+				var v float32 = 1.2459
+				return &v
+			}(),
+			exp: `&1.2459`,
 		},
 		"pointer_to_slice": {
 			val: &[]string{"tag1", "tag2"},

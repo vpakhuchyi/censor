@@ -123,7 +123,7 @@ func FormatPtr(ptr models.Ptr) string {
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		val = fmt.Sprintf(`%d`, ptr.Value.Value)
 	case reflect.Float32, reflect.Float64:
-		val = fmt.Sprintf(`%f`, ptr.Value.Value)
+		val = FormatFloat(ptr.Value)
 	case reflect.Ptr:
 		val = FormatPtr(ptr.Value.Value.(models.Ptr))
 	case reflect.Bool:
