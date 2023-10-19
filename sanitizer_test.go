@@ -91,10 +91,10 @@ func Test_sanitizedStruct(t *testing.T) {
 				Rune:    'a',
 				Byte:    1,
 				Float64: 1.12341,
-				Float32: 1.22345,
+				Float32: 1.389,
 				String:  "string",
 			},
-			exp: `{"Int64": -53645354, "Int32": -346456, "Int16": -23452, "Int8": -101, "Int": -456345655, "Uint64": 53645354, "Uint32": 346456, "Uint16": 23452, "Uint8": 101, "Uint": 456345655, "Bool": true, "Rune": 97, "Byte": 1, "Float64": 1.123410, "Float32": 1.223450, "String": "string"}`,
+			exp: `{"Int64": -53645354, "Int32": -346456, "Int16": -23452, "Int8": -101, "Int": -456345655, "Uint64": 53645354, "Uint32": 346456, "Uint16": 23452, "Uint8": 101, "Uint": 456345655, "Bool": true, "Rune": 97, "Byte": 1, "Float64": 1.12341, "Float32": 1.389, "String": "string"}`,
 		},
 		"struct_with_complex_fields": {
 			val: structWithComplexFields{
@@ -114,7 +114,7 @@ func Test_sanitizedStruct(t *testing.T) {
 				StructSlice:  []address{{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"}, {City: "Denver", State: "DN", Street: "65 Best St", Zip: "55502"}},
 				PointerSlice: []*int{new(int), new(int)},
 				ArraySlice:   [2]string{"tag1", "tag2"}},
-			exp: `{"StringSlice": ["tag1", "tag2"], "IntSlice": [1, 2, 3], "FloatSlice": [1.100000, 2.200000, 3.300220], "BoolSlice": [true, false], "StructSlice": [{"City": "San Francisco", "State": "CA", "Street": "[******]", "Zip": "[******]"}, {"City": "Denver", "State": "DN", "Street": "[******]", "Zip": "[******]"}], "PointerSlice": [&0, &0], "ArraySlice": ["tag1", "tag2"]}`,
+			exp: `{"StringSlice": ["tag1", "tag2"], "IntSlice": [1, 2, 3], "FloatSlice": [1.1, 2.2, 3.30022], "BoolSlice": [true, false], "StructSlice": [{"City": "San Francisco", "State": "CA", "Street": "[******]", "Zip": "[******]"}, {"City": "Denver", "State": "DN", "Street": "[******]", "Zip": "[******]"}], "PointerSlice": [&0, &0], "ArraySlice": ["tag1", "tag2"]}`,
 		},
 		"empty_struct": {
 			val: struct{}{},
@@ -159,7 +159,7 @@ func Test_sanitizedSlice(t *testing.T) {
 		},
 		"slice_of_floats": {
 			val: []float64{1.1, 2.2, 3.30022},
-			exp: `[1.100000, 2.200000, 3.300220]`,
+			exp: `[1.1, 2.2, 3.30022]`,
 		},
 		"slice_of_bools": {
 			val: []bool{true, false},
@@ -223,7 +223,7 @@ func Test_sanitizedArray(t *testing.T) {
 		},
 		"array_of_floats": {
 			val: [3]float64{1.1, 2.2, 3.30022},
-			exp: `[1.100000, 2.200000, 3.300220]`,
+			exp: `[1.1, 2.2, 3.30022]`,
 		},
 		"array_of_bools": {
 			val: [2]bool{true, false},
@@ -246,7 +246,7 @@ func Test_sanitizedArray(t *testing.T) {
 		},
 		"array_of_slices": {
 			val: [2][]float32{{1.1, 2.2, 3.30022}, {1.1, 2.2, 3.30022}},
-			exp: `[[1.100000, 2.200000, 3.300220], [1.100000, 2.200000, 3.300220]]`,
+			exp: `[[1.1, 2.2, 3.30022], [1.1, 2.2, 3.30022]]`,
 		},
 	}
 
@@ -339,7 +339,7 @@ func Test_sanitizedPrimitives(t *testing.T) {
 		"bool":    {val: true, exp: `true`},
 		"string":  {val: "hello", exp: `"hello"`},
 		"float64": {val: 12.235325, exp: `12.235325`},
-		"float32": {val: -9.654670, exp: `-9.654670`},
+		"float32": {val: -9.654670, exp: `-9.65467`},
 	}
 
 	for name, tt := range tests {

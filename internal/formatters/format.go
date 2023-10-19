@@ -27,7 +27,7 @@ func FormatStruct(s models.Struct) string {
 				reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 				buf.WriteString(formatIntField(f.Name, f.Value.Value))
 			case reflect.Float32, reflect.Float64:
-				buf.WriteString(formatFloatField(f.Name, f.Value.Value))
+				buf.WriteString(formatFloatField(f.Name, f.Value))
 			case reflect.Struct:
 				buf.WriteString(fmt.Sprintf(`"%s": %s`, f.Name, FormatStruct(f.Value.Value.(models.Struct))))
 			case reflect.Slice, reflect.Array:
@@ -120,7 +120,11 @@ func FormatInteger(v models.Value) string {
 }
 
 func FormatFloat(v models.Value) string {
-	return fmt.Sprintf(`%f`, v.Value)
+	if v.Kind == reflect.Float32 {
+		return fmt.Sprintf(`%.7g`, v.Value)
+	}
+
+	return fmt.Sprintf(`%.15g`, v.Value)
 }
 
 func FormatSimple(v models.Value) string {
@@ -131,8 +135,8 @@ func formatIntField(name string, value any) string {
 	return fmt.Sprintf(`"%s": %d`, name, value)
 }
 
-func formatFloatField(name string, value any) string {
-	return fmt.Sprintf(`"%s": %f`, name, value)
+func formatFloatField(name string, value models.Value) string {
+	return fmt.Sprintf(`"%s": %s`, name, FormatFloat(value))
 }
 
 func formatStringField(name string, value any) string {
