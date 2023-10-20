@@ -28,10 +28,9 @@ const masked = "[******]"
 // - pointer - pointed structure/arrays/slices are formatted recursively.
 func FormatStruct(s models.Struct) string {
 	var buf strings.Builder
-	buf.WriteString("{")
+	buf.WriteString(fmt.Sprintf("%s{", s.Name))
 
 	fields := s.Fields
-
 	for i := 0; i < len(s.Fields); i++ {
 		f := fields[i]
 

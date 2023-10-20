@@ -1,7 +1,9 @@
 package parsers
 
 import (
+	"fmt"
 	"reflect"
+	"strings"
 
 	"github.com/vpakhuchyi/sanitiser/internal/models"
 	"github.com/vpakhuchyi/sanitiser/internal/options"
@@ -10,9 +12,8 @@ import (
 // ParseStruct parses a given value and returns a Struct.
 // All fields of pointer/slice/array/struct types will be parsed recursively.
 func ParseStruct(structValue reflect.Value) models.Struct {
-	var s models.Struct
 	var v models.Value
-
+	s := models.Struct{Name: getStructName(structValue)}
 	for i := 0; i < structValue.NumField(); i++ {
 		field := structValue.Field(i)
 
@@ -39,4 +40,16 @@ func ParseStruct(structValue reflect.Value) models.Struct {
 	}
 
 	return s
+}
+
+func getStructName(structValue reflect.Value) string {
+	t := structValue.Type()
+	pkg := strings.Split(t.PkgPath(), "/")
+
+	// If the package is the main package, then the path will be an empty string.
+	if len(pkg) == 1 && pkg[0] == "" {
+		return t.Name()
+	}
+
+	return fmt.Sprintf("%s.%s", pkg[len(pkg)-1], t.Name())
 }
