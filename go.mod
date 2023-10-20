@@ -1,4 +1,4 @@
-module sanitiser
+module github.com/vpakhuchyi/sanitiser
 
 go 1.21.0
 
