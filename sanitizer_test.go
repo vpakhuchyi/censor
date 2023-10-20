@@ -60,10 +60,11 @@ type structWithContainersFields struct {
 }
 
 type structWithComplexFields struct {
-	Slice  []address  `json:"slice" log:"display"`
-	Array  [2]address `json:"array" log:"display"`
-	Ptr    *address   `json:"ptr" log:"display"`
-	Struct address    `json:"struct" log:"display"`
+	Slice       []address `json:"slice" log:"display"`
+	MaskedSlice []address
+	Array       [2]address `json:"array" log:"display"`
+	Ptr         *address   `json:"ptr" log:"display"`
+	Struct      address    `json:"struct" log:"display"`
 }
 
 type container struct {
@@ -98,12 +99,13 @@ func Test_sanitizedStruct(t *testing.T) {
 		},
 		"struct_with_complex_fields": {
 			val: structWithComplexFields{
-				Slice:  []address{{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"}, {City: "Denver", State: "DN", Street: "65 Best St", Zip: "55502"}},
-				Array:  [2]address{{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"}, {City: "Denver", State: "DN", Street: "65 Best St", Zip: "55502"}},
-				Ptr:    &address{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"},
-				Struct: address{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"},
+				Slice:       []address{{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"}, {City: "Denver", State: "DN", Street: "65 Best St", Zip: "55502"}},
+				MaskedSlice: []address{{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"}, {City: "Denver", State: "DN", Street: "65 Best St", Zip: "55502"}},
+				Array:       [2]address{{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"}, {City: "Denver", State: "DN", Street: "65 Best St", Zip: "55502"}},
+				Ptr:         &address{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"},
+				Struct:      address{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"},
 			},
-			exp: `{"Slice": [{"City": "San Francisco", "State": "CA", "Street": "[******]", "Zip": "[******]"}, {"City": "Denver", "State": "DN", "Street": "[******]", "Zip": "[******]"}], "Array": [{"City": "San Francisco", "State": "CA", "Street": "[******]", "Zip": "[******]"}, {"City": "Denver", "State": "DN", "Street": "[******]", "Zip": "[******]"}], "Ptr": &{"City": "San Francisco", "State": "CA", "Street": "[******]", "Zip": "[******]"}, "Struct": {"City": "San Francisco", "State": "CA", "Street": "[******]", "Zip": "[******]"}}`,
+			exp: `{"Slice": [{"City": "San Francisco", "State": "CA", "Street": "[******]", "Zip": "[******]"}, {"City": "Denver", "State": "DN", "Street": "[******]", "Zip": "[******]"}], "MaskedSlice": "[******]", "Array": [{"City": "San Francisco", "State": "CA", "Street": "[******]", "Zip": "[******]"}, {"City": "Denver", "State": "DN", "Street": "[******]", "Zip": "[******]"}], "Ptr": &{"City": "San Francisco", "State": "CA", "Street": "[******]", "Zip": "[******]"}, "Struct": {"City": "San Francisco", "State": "CA", "Street": "[******]", "Zip": "[******]"}}`,
 		},
 		"struct_with_containers_fields": {
 			val: structWithContainersFields{
