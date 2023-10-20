@@ -42,6 +42,9 @@ func ParseStruct(structValue reflect.Value) models.Struct {
 	return s
 }
 
+// getStructName returns a name of the struct.
+// It uses the last part of the package path and the struct name.
+// If the package is the main package, then the path will be an empty string.
 func getStructName(structValue reflect.Value) string {
 	t := structValue.Type()
 	pkg := strings.Split(t.PkgPath(), "/")
