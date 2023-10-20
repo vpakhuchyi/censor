@@ -3,9 +3,9 @@ package main
 import (
 	"reflect"
 
-	"sanitiser/internal/formatters"
-	"sanitiser/internal/models"
-	"sanitiser/internal/parsers"
+	"github.com/vpakhuchyi/sanitiser/internal/formatters"
+	"github.com/vpakhuchyi/sanitiser/internal/models"
+	"github.com/vpakhuchyi/sanitiser/internal/parsers"
 )
 
 // Format takes any value and returns a string representation of it.

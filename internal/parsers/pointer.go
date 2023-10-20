@@ -3,7 +3,7 @@ package parsers
 import (
 	"reflect"
 
-	"sanitiser/internal/models"
+	"github.com/vpakhuchyi/sanitiser/internal/models"
 )
 
 // ParsePtr parses a given value and returns a Ptr.

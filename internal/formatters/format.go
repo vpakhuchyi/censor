@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"strings"
 
-	"sanitiser/internal/models"
+	"github.com/vpakhuchyi/sanitiser/internal/models"
 )
 
 const masked = "[******]"

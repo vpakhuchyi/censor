@@ -3,7 +3,7 @@ package models
 import (
 	"reflect"
 
-	"sanitiser/internal/options"
+	"github.com/vpakhuchyi/sanitiser/internal/options"
 )
 
 type Field struct {

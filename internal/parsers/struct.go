@@ -3,8 +3,8 @@ package parsers
 import (
 	"reflect"
 
-	"sanitiser/internal/models"
-	"sanitiser/internal/options"
+	"github.com/vpakhuchyi/sanitiser/internal/models"
+	"github.com/vpakhuchyi/sanitiser/internal/options"
 )
 
 // ParseStruct parses a given value and returns a Struct.
