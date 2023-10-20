@@ -8,7 +8,7 @@ import (
 	"sanitiser/internal/parsers"
 )
 
-// Sanitise takes any value and returns a string representation of it.
+// Format takes any value and returns a string representation of it.
 // It uses reflection to parse the value and then uses formatters to format it.
 // Examples can be found here https://github.com/vpakhuchyi/sanitiser#readme
 //
@@ -35,11 +35,11 @@ import (
 // - Int/Int8/Int16/Int32/Int64/Rune
 // - Uint/Uint8/Uint16/Uint32/Uint64/Byte
 // - Bool
-func Sanitise(val any) string {
-	return sanitized(val)
+func Format(val any) string {
+	return sanitise(val)
 }
 
-func sanitized(val any) string {
+func sanitise(val any) string {
 	v := reflect.ValueOf(val)
 
 	var parsed any

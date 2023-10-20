@@ -126,7 +126,7 @@ func Test_sanitizedStruct(t *testing.T) {
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			got := sanitized(tt.val)
+			got := sanitise(tt.val)
 			require.Equal(t, tt.exp, got)
 		})
 	}
@@ -186,7 +186,7 @@ func Test_sanitizedSlice(t *testing.T) {
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			got := sanitized(tt.val)
+			got := sanitise(tt.val)
 			require.Equal(t, tt.exp, got)
 		})
 	}
@@ -254,7 +254,7 @@ func Test_sanitizedArray(t *testing.T) {
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			got := sanitized(tt.val)
+			got := sanitise(tt.val)
 			require.Equal(t, tt.exp, got)
 		})
 	}
@@ -322,7 +322,7 @@ func Test_sanitizedPointer(t *testing.T) {
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			got := sanitized(tt.val)
+			got := sanitise(tt.val)
 			require.Equal(t, tt.exp, got)
 		})
 	}
@@ -353,7 +353,7 @@ func Test_sanitizedPrimitives(t *testing.T) {
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			got := sanitized(tt.val)
+			got := sanitise(tt.val)
 			require.Equal(t, tt.exp, got)
 		})
 	}

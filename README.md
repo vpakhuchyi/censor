@@ -22,9 +22,9 @@ go get -u github.com/vpakhuchyi/sanitiser
 
 ## Usage
 
-### Sanitise
+### Format
 
-The `Sanitise` function is at the heart of this library, providing a versatile method to convert various types into a formatted string.
+The `Format` function is at the heart of this library, providing a versatile method to convert various types into a formatted string.
 
 ## Examples
 ### Struct with Complex Types
@@ -71,7 +71,7 @@ func main() {
 		Struct: address{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"},
 	}
 
-	fmt.Println(sanitiser.Sanitise(v))
+	fmt.Println(sanitiser.Format(v))
 }
 
 Output: `{"Slice": [{"City": "San Francisco", "State": "CA", "Street": "451 Main St", "Zip": "[******]"}, {"City": "Denver", "State": "DN", "Street": "65 Best St", "Zip": "[******]"}], "MaskedSlice": "[******]", "Array": [{"City": "San Francisco", "State": "CA", "Street": "451 Main St", "Zip": "[******]"}, {"City": "Denver", "State": "DN", "Street": "65 Best St", "Zip": "[******]"}], "Ptr": &{"City": "San Francisco", "State": "CA", "Street": "451 Main St", "Zip": "[******]"}, "Struct": {"City": "San Francisco", "State": "CA", "Street": "451 Main St", "Zip": "[******]"}}`
@@ -127,7 +127,7 @@ func main() {
 		String:  "string",
 	}
 	
-	fmt.Println(sanitiser.Sanitise(v))
+	fmt.Println(sanitiser.Format(v))
 }
 
 Output: `{"Int64": -53645354, "Int32": -346456, "Int16": -23452, "Int8": -101, "Int": -456345655, "Uint64": 53645354, "Uint32": 346456, "Uint16": 23452, "Uint8": 101, "Uint": 456345655, "Bool": true, "Rune": 97, "Byte": 1, "Float64": 1.12341, "Float32": 1.389, "String": "string"}`
