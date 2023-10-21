@@ -19,6 +19,8 @@ func ParseSlice(sliceValue reflect.Value) models.Slice {
 			slice.Values = append(slice.Values, models.Value{Value: ParsePtr(elem), Kind: reflect.Pointer})
 		case reflect.Slice, reflect.Array:
 			slice.Values = append(slice.Values, models.Value{Value: ParseSlice(elem), Kind: elem.Kind()})
+		case reflect.Map:
+			slice.Values = append(slice.Values, models.Value{Value: ParseMap(elem), Kind: elem.Kind()})
 		default:
 			slice.Values = append(slice.Values, models.Value{Value: elem.Interface(), Kind: elem.Kind()})
 		}

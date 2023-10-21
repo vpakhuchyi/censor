@@ -74,23 +74,7 @@ func FormatSlice(slice models.Slice) string {
 
 	values := slice.Values
 	for i := 0; i < len(values); i++ {
-		switch values[i].Kind {
-		case reflect.String:
-			buf.WriteString(FormatString(values[i]))
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			buf.WriteString(FormatInteger(values[i]))
-		case reflect.Float32, reflect.Float64:
-			buf.WriteString(FormatFloat(values[i]))
-		case reflect.Struct:
-			buf.WriteString(FormatStruct(values[i].Value.(models.Struct)))
-		case reflect.Slice, reflect.Array:
-			buf.WriteString(FormatSlice(values[i].Value.(models.Slice)))
-		case reflect.Pointer:
-			buf.WriteString(FormatPtr(values[i].Value.(models.Ptr)))
-		default:
-			buf.WriteString(fmt.Sprintf(`%v`, values[i].Value))
-		}
-
+		writeValue(&buf, values[i])
 		if i < len(values)-1 {
 			buf.WriteString(", ")
 		}
@@ -110,26 +94,53 @@ func FormatPtr(ptr models.Ptr) string {
 		return "nil"
 	}
 
-	var val string
-	switch ptr.Value.Kind {
-	case reflect.Struct:
-		val = FormatStruct(ptr.Value.Value.(models.Struct))
-	case reflect.Slice, reflect.Array:
-		val = FormatSlice(ptr.Value.Value.(models.Slice))
-	case reflect.String:
-		val = fmt.Sprintf(`"%s"`, ptr.Value.Value)
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		val = fmt.Sprintf(`%d`, ptr.Value.Value)
-	case reflect.Float32, reflect.Float64:
-		val = FormatFloat(ptr.Value)
-	case reflect.Ptr:
-		val = FormatPtr(ptr.Value.Value.(models.Ptr))
-	case reflect.Bool:
-		val = fmt.Sprintf(`%v`, ptr.Value.Value)
+	buf := strings.Builder{}
+	buf.WriteString("&")
+	writeValue(&buf, ptr.Value)
+
+	return buf.String()
+}
+
+// FormatMap formats a map into a string.
+// If the map contains nested complex types, they are formatted recursively.
+// Keys are sorted to make the output deterministic.
+// The map type is added to the output to indicate the map type.
+//
+// Supported types:
+//
+// [basic types]
+// - string
+// - int, int8, int16, int32, int64
+// - uint, uint8, uint16, uint32, uint64
+// - float32, float64
+// - bool
+// - byte - represented as uint8
+// - rune - represented as int32
+//
+// [complex types]
+// - struct - formatted recursively
+// - slice - struct values are formatted recursively
+// - array - struct values are formatted recursively
+// - pointer - pointed structure/arrays/slices are formatted recursively.
+// - map - struct/slice/array/pointer values are formatted recursively.
+func FormatMap(m models.Map) string {
+	var buf strings.Builder
+	buf.WriteString(m.Type + "[")
+
+	kvs := m.Values
+	for i := 0; i < len(kvs); i++ {
+		writeValue(&buf, kvs[i].Key)
+		buf.WriteString(": ")
+		writeValue(&buf, kvs[i].Value)
+
+		if i < len(kvs)-1 {
+			buf.WriteString(", ")
+		}
 	}
 
-	return "&" + val
+	buf.WriteString("]")
+
+	return buf.String()
 }
 
 // FormatString formats a value as a string.
@@ -173,4 +184,26 @@ func formatFloatField(name string, value models.Value) string {
 
 func formatStringField(name string, value any) string {
 	return fmt.Sprintf(`"%s": "%s"`, name, value)
+}
+
+func writeValue(buf *strings.Builder, v models.Value) {
+	switch v.Kind {
+	case reflect.String:
+		buf.WriteString(FormatString(v))
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		buf.WriteString(FormatInteger(v))
+	case reflect.Float32, reflect.Float64:
+		buf.WriteString(FormatFloat(v))
+	case reflect.Struct:
+		buf.WriteString(FormatStruct(v.Value.(models.Struct)))
+	case reflect.Slice, reflect.Array:
+		buf.WriteString(FormatSlice(v.Value.(models.Slice)))
+	case reflect.Pointer:
+		buf.WriteString(FormatPtr(v.Value.(models.Ptr)))
+	case reflect.Map:
+		buf.WriteString(FormatMap(v.Value.(models.Map)))
+	default:
+		buf.WriteString(fmt.Sprintf(`%v`, v.Value))
+	}
 }

@@ -50,6 +50,8 @@ func sanitise(val any) string {
 		parsed = parsers.ParseSlice(v)
 	case reflect.Ptr:
 		parsed = parsers.ParsePtr(v)
+	case reflect.Map:
+		parsed = parsers.ParseMap(v)
 	default:
 		parsed = models.Value{Value: v.Interface(), Kind: v.Kind()}
 	}
@@ -70,6 +72,8 @@ func sanitise(val any) string {
 		return formatters.FormatInteger(parsed.(models.Value))
 	case reflect.Bool:
 		return formatters.FormatBool(parsed.(models.Value))
+	case reflect.Map:
+		return formatters.FormatMap(parsed.(models.Map))
 	}
 
 	return formatters.FormatSimple(parsed.(models.Value))
