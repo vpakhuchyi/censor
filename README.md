@@ -2,13 +2,13 @@
 
 **Sanitiser** is a powerful Go library with the primary objective of formatting any given value into a string while effectively masking sensitive information. Leveraging reflection for in-depth analysis and employing formatters, it ensures accurate and readable output.
 
-## Installation
+### Installation
 
 ```bash
 go get -u github.com/vpakhuchyi/sanitiser
 ```
 
-# Supported Types
+### Supported Types
 
 | Type                                                                     | Description                                                                                                                                                                                                                                     |
 |--------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -21,14 +21,12 @@ go get -u github.com/vpakhuchyi/sanitiser
 | int/int8/int16/int32/int64/rune<br/>uint/uint8/uint16/uint32/uint64/byte | All integer types are supported, offering a wide range of options for your data.                                                                                                                                                                |
 | bool                                                                     | Boolean values are handled with no additional formatting.                                                                                                                                                                                       |
 
-## Usage
-
-### Format
+### Usage
 
 The `Format` function is at the heart of this library, providing a versatile method to convert various types into a formatted string.
 
-## Examples
-### Struct with Complex Types
+### Examples
+#### Struct with Complex Types
 
 ```go
 package main
@@ -85,7 +83,7 @@ Output: `main.structWithComplexFields{"Slice": [main.address{"City": "San Franci
 ```
 
 
-### Struct with Basic Types
+#### Struct with Basic Types
 ```go
 package main
 
