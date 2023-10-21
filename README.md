@@ -35,7 +35,7 @@ package main
 
 import (
 	"fmt"
-	
+
 	"github.com/vpakhuchyi/sanitiser"
 )
 
@@ -49,9 +49,10 @@ type address struct {
 type structWithComplexFields struct {
 	Slice       []address `log:"display"`
 	MaskedSlice []address
-	Array       [2]address `log:"display"`
-	Ptr         *address  `log:"display"`
-	Struct      address   `log:"display"`
+	Map         map[string]address `json:"map" log:"display"`
+	Array       [2]address         `log:"display"`
+	Ptr         *address           `log:"display"`
+	Struct      address            `log:"display"`
 }
 
 func main() {
@@ -64,6 +65,10 @@ func main() {
 			{City: "New York", State: "NY", Street: "123 Park Ave", Zip: "10001"},
 			{City: "Chicago", State: "IL", Street: "789 Lake St", Zip: "60601"},
 		},
+		Map: map[string]address{
+			"home":   {City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"},
+			"office": {City: "Denver", State: "DN", Street: "65 Best St", Zip: "55502"},
+		},
 		Array: [2]address{
 			{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"},
 			{City: "Denver", State: "DN", Street: "65 Best St", Zip: "55502"},
@@ -75,7 +80,8 @@ func main() {
 	fmt.Println(sanitiser.Format(v))
 }
 
-Output: `{"Slice": [{"City": "San Francisco", "State": "CA", "Street": "451 Main St", "Zip": "[******]"}, {"City": "Denver", "State": "DN", "Street": "65 Best St", "Zip": "[******]"}], "MaskedSlice": "[******]", "Array": [{"City": "San Francisco", "State": "CA", "Street": "451 Main St", "Zip": "[******]"}, {"City": "Denver", "State": "DN", "Street": "65 Best St", "Zip": "[******]"}], "Ptr": &{"City": "San Francisco", "State": "CA", "Street": "451 Main St", "Zip": "[******]"}, "Struct": {"City": "San Francisco", "State": "CA", "Street": "451 Main St", "Zip": "[******]"}}`
+Output: `main.structWithComplexFields{"Slice": [main.address{"City": "San Francisco", "State": "CA", "Street": "[******]", "Zip": "[******]"}, main.address{"City": "Denver", "State": "DN", "Street": "[******]", "Zip": "[******]"}], "MaskedSlice": "[******]", "Map": map[string]main.address["home": main.address{"City": "San Francisco", "State": "CA", "Street": "[******]", "Zip": "[******]"}, "office": main.address{"City": "Denver", "State": "DN", "Street": "[******]", "Zip": "[******]"}], "Array": [main.address{"City": "San Francisco", "State": "CA", "Street": "[******]", "Zip": "[******]"}, main.address{"City": "Denver", "State": "DN", "Street": "[******]", "Zip": "[******]"}], "Ptr": &main.address{"City": "San Francisco", "State": "CA", "Street": "[******]", "Zip": "[******]"}, "Struct": main.address{"City": "San Francisco", "State": "CA", "Street": "[******]", "Zip": "[******]"}}`
+
 ```
 
 
