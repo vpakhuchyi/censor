@@ -62,9 +62,10 @@ type structWithContainersFields struct {
 type structWithComplexFields struct {
 	Slice       []address `json:"slice" log:"display"`
 	MaskedSlice []address
-	Array       [2]address `json:"array" log:"display"`
-	Ptr         *address   `json:"ptr" log:"display"`
-	Struct      address    `json:"struct" log:"display"`
+	Map         map[string]address `json:"map" log:"display"`
+	Array       [2]address         `json:"array" log:"display"`
+	Ptr         *address           `json:"ptr" log:"display"`
+	Struct      address            `json:"struct" log:"display"`
 }
 
 type container struct {
@@ -101,11 +102,15 @@ func Test_sanitizedStruct(t *testing.T) {
 			val: structWithComplexFields{
 				Slice:       []address{{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"}, {City: "Denver", State: "DN", Street: "65 Best St", Zip: "55502"}},
 				MaskedSlice: []address{{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"}, {City: "Denver", State: "DN", Street: "65 Best St", Zip: "55502"}},
-				Array:       [2]address{{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"}, {City: "Denver", State: "DN", Street: "65 Best St", Zip: "55502"}},
-				Ptr:         &address{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"},
-				Struct:      address{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"},
+				Map: map[string]address{
+					"address1": {City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"},
+					"address2": {City: "Denver", State: "DN", Street: "65 Best St", Zip: "55502"},
+				},
+				Array:  [2]address{{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"}, {City: "Denver", State: "DN", Street: "65 Best St", Zip: "55502"}},
+				Ptr:    &address{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"},
+				Struct: address{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"},
 			},
-			exp: `sanitiser.structWithComplexFields{"Slice": [sanitiser.address{"City": "San Francisco", "State": "CA", "Street": "[******]", "Zip": "[******]"}, sanitiser.address{"City": "Denver", "State": "DN", "Street": "[******]", "Zip": "[******]"}], "MaskedSlice": "[******]", "Array": [sanitiser.address{"City": "San Francisco", "State": "CA", "Street": "[******]", "Zip": "[******]"}, sanitiser.address{"City": "Denver", "State": "DN", "Street": "[******]", "Zip": "[******]"}], "Ptr": &sanitiser.address{"City": "San Francisco", "State": "CA", "Street": "[******]", "Zip": "[******]"}, "Struct": sanitiser.address{"City": "San Francisco", "State": "CA", "Street": "[******]", "Zip": "[******]"}}`,
+			exp: `sanitiser.structWithComplexFields{"Slice": [sanitiser.address{"City": "San Francisco", "State": "CA", "Street": "[******]", "Zip": "[******]"}, sanitiser.address{"City": "Denver", "State": "DN", "Street": "[******]", "Zip": "[******]"}], "MaskedSlice": "[******]", "Map": map[string]sanitiser.address["address1": sanitiser.address{"City": "San Francisco", "State": "CA", "Street": "[******]", "Zip": "[******]"}, "address2": sanitiser.address{"City": "Denver", "State": "DN", "Street": "[******]", "Zip": "[******]"}], "Array": [sanitiser.address{"City": "San Francisco", "State": "CA", "Street": "[******]", "Zip": "[******]"}, sanitiser.address{"City": "Denver", "State": "DN", "Street": "[******]", "Zip": "[******]"}], "Ptr": &sanitiser.address{"City": "San Francisco", "State": "CA", "Street": "[******]", "Zip": "[******]"}, "Struct": sanitiser.address{"City": "San Francisco", "State": "CA", "Street": "[******]", "Zip": "[******]"}}`,
 		},
 		"struct_with_containers_fields": {
 			val: structWithContainersFields{

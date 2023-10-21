@@ -51,6 +51,8 @@ func FormatStruct(s models.Struct) string {
 				buf.WriteString(fmt.Sprintf(`"%s": %s`, f.Name, FormatPtr(f.Value.Value.(models.Ptr))))
 			case reflect.Bool:
 				buf.WriteString(fmt.Sprintf(`"%s": %v`, f.Name, f.Value.Value))
+			case reflect.Map:
+				buf.WriteString(fmt.Sprintf(`"%s": %s`, f.Name, FormatMap(f.Value.Value.(models.Map))))
 			}
 		} else {
 			buf.WriteString(fmt.Sprintf(`"%s": "%s"`, f.Name, masked))
