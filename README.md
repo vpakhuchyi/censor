@@ -1,14 +1,20 @@
 # Sanitiser
 
-**Sanitiser** is a powerful Go library with the primary objective of formatting any given value into a string while effectively masking sensitive information. Leveraging reflection for in-depth analysis and employing formatters, it ensures accurate and readable output.
+[![GoReportCard example](https://goreportcard.com/badge/github.com/vpakhuchyi/sanitiser)](https://goreportcard.com/report/github.com/vpakhuchyi/sanitiser)
+![coverage](https://raw.githubusercontent.com/vpakhuchyi/sanitiser/badges/.badges/main/coverage.svg)
+[![GoDoc](https://godoc.org/github.com/vpakhuchyi/sanitiser?status.svg)](https://godoc.org/github.com/vpakhuchyi/sanitiser)
 
-## Installation
+**Sanitiser** is a powerful Go library with the primary objective of formatting any given value into a string while
+effectively masking sensitive information. Leveraging reflection for in-depth analysis and employing formatters, it
+ensures accurate and readable output.
+
+### Installation
 
 ```bash
 go get -u github.com/vpakhuchyi/sanitiser
 ```
 
-# Supported Types
+### Supported Types
 
 | Type                                                                     | Description                                                                                                                                                                                                                                     |
 |--------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -21,14 +27,53 @@ go get -u github.com/vpakhuchyi/sanitiser
 | int/int8/int16/int32/int64/rune<br/>uint/uint8/uint16/uint32/uint64/byte | All integer types are supported, offering a wide range of options for your data.                                                                                                                                                                |
 | bool                                                                     | Boolean values are handled with no additional formatting.                                                                                                                                                                                       |
 
-## Usage
+### Usage
 
-### Format
+The `Format` function is at the heart of this library, providing a versatile method to convert various types into a
+formatted string.
 
-The `Format` function is at the heart of this library, providing a versatile method to convert various types into a formatted string.
+### Examples
 
-## Examples
-### Struct with Complex Types
+Here are some examples of how to use the `Format` function.
+
+#### 1. Simple Struct
+
+By default, all fields within a struct will be masked.
+This allows to avoid accidental logging of newly added fields that might contain sensitive information.
+That's why `Street` field is masked - it doesn't have `log:"display"` tag.
+
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/vpakhuchyi/sanitiser"
+)
+
+type address struct {
+	City   string `log:"display"`
+	State  string `log:"display"`
+	Street string
+	Zip    int `log:"display"`
+}
+
+func main() {
+	v := address{
+		City:   "San Francisco",
+		State:  "CA",
+		Street: "451 Main St",
+		Zip:    "55501",
+	}
+
+	fmt.Println(sanitiser.Format(v))
+}
+
+Output: `main.address{"City": "San Francisco", "State": "CA", "Street": "[******]", "Zip": 55501}`
+
+```
+
+#### 2. Struct with Complex Types
 
 ```go
 package main
@@ -84,14 +129,14 @@ Output: `main.structWithComplexFields{"Slice": [main.address{"City": "San Franci
 
 ```
 
+#### 3. Struct with Basic Types
 
-### Struct with Basic Types
 ```go
 package main
 
 import (
 	"fmt"
-	
+
 	"github.com/vpakhuchyi/sanitiser"
 )
 
@@ -133,9 +178,9 @@ func main() {
 		Float32: 1.389,
 		String:  "string",
 	}
-	
+
 	fmt.Println(sanitiser.Format(v))
 }
 
-Output: `{"Int64": -53645354, "Int32": -346456, "Int16": -23452, "Int8": -101, "Int": -456345655, "Uint64": 53645354, "Uint32": 346456, "Uint16": 23452, "Uint8": 101, "Uint": 456345655, "Bool": true, "Rune": 97, "Byte": 1, "Float64": 1.12341, "Float32": 1.389, "String": "string"}`
+Output: `main.structWithPrimitives{"Int64": -53645354, "Int32": -346456, "Int16": -23452, "Int8": -101, "Int": -456345655, "Uint64": 53645354, "Uint32": 346456, "Uint16": 23452, "Uint8": 101, "Uint": 456345655, "Bool": true, "Rune": 97, "Byte": 1, "Float64": 1.12341, "Float32": 1.389, "String": "string"}`
 ```
