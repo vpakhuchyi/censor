@@ -8,20 +8,20 @@ import (
 )
 
 type person struct {
-	ID           string     `json:"id" log:"display"`
-	Name         string     `json:"name"`
-	Age          int        `json:"age" log:"display"`
-	Email        string     `json:"email"`
-	StringArray  [3]string  `json:"string_array" log:"display"`
-	String       []string   `json:"strings" log:"display"`
-	Integers     []int      `json:"integers" log:"display"`
-	Floats       []float64  `json:"floats" log:"display"`
-	Bools        []bool     `json:"bools" log:"display"`
-	Addresses    []address  `json:"addresses" log:"display"`
-	Address      address    `json:"address" log:"display"`
-	TaxAddress   *address   `json:"tax_address" log:"display"`
-	TaxAddresses []*address `json:"tax_addresses" log:"display"`
-	Container    container  `json:"container" log:"display"`
+	ID           string `log:"display"`
+	Name         string
+	Age          int `log:"display"`
+	Email        string
+	StringArray  [3]string  `log:"display"`
+	String       []string   `log:"display"`
+	Integers     []int      `log:"display"`
+	Floats       []float64  `log:"display"`
+	Bools        []bool     `log:"display"`
+	Addresses    []address  `log:"display"`
+	Address      address    `log:"display"`
+	TaxAddress   *address   `log:"display"`
+	TaxAddresses []*address `log:"display"`
+	Container    container  `log:"display"`
 }
 
 type address struct {
@@ -32,45 +32,45 @@ type address struct {
 }
 
 type structWithPrimitives struct {
-	Int64   int64   `json:"int64" log:"display"`
-	Int32   int32   `json:"int32" log:"display"`
-	Int16   int16   `json:"int16" log:"display"`
-	Int8    int8    `json:"int8" log:"display"`
-	Int     int     `json:"int" log:"display"`
-	Uint64  uint64  `json:"uint64" log:"display"`
-	Uint32  uint32  `json:"uint32" log:"display"`
-	Uint16  uint16  `json:"uint16" log:"display"`
-	Uint8   uint8   `json:"uint8" log:"display"`
-	Uint    uint    `json:"uint" log:"display"`
-	Bool    bool    `json:"bool" log:"display"`
-	Rune    rune    `json:"rune" log:"display"`
-	Byte    byte    `json:"byte" log:"display"`
-	Float64 float64 `json:"float64" log:"display"`
-	Float32 float32 `json:"float32" log:"display"`
-	String  string  `json:"string" log:"display"`
+	Int64   int64   `log:"display"`
+	Int32   int32   `log:"display"`
+	Int16   int16   `log:"display"`
+	Int8    int8    `log:"display"`
+	Int     int     `log:"display"`
+	Uint64  uint64  `log:"display"`
+	Uint32  uint32  `log:"display"`
+	Uint16  uint16  `log:"display"`
+	Uint8   uint8   `log:"display"`
+	Uint    uint    `log:"display"`
+	Bool    bool    `log:"display"`
+	Rune    rune    `log:"display"`
+	Byte    byte    `log:"display"`
+	Float64 float64 `log:"display"`
+	Float32 float32 `log:"display"`
+	String  string  `log:"display"`
 }
 
 type structWithContainersFields struct {
-	StringSlice  []string  `json:"string_slice" log:"display"`
-	IntSlice     []int     `json:"int_slice" log:"display"`
-	FloatSlice   []float64 `json:"float_slice" log:"display"`
-	BoolSlice    []bool    `json:"bool_slice" log:"display"`
-	StructSlice  []address `json:"struct_slice" log:"display"`
-	PointerSlice []*int    `json:"pointer_slice" log:"display"`
-	ArraySlice   [2]string `json:"array_slice" log:"display"`
+	StringSlice  []string  `log:"display"`
+	IntSlice     []int     `log:"display"`
+	FloatSlice   []float64 `log:"display"`
+	BoolSlice    []bool    `log:"display"`
+	StructSlice  []address `log:"display"`
+	PointerSlice []*int    `log:"display"`
+	ArraySlice   [2]string `log:"display"`
 }
 
 type structWithComplexFields struct {
-	Slice       []address `json:"slice" log:"display"`
+	Slice       []address `log:"display"`
 	MaskedSlice []address
-	Map         map[string]address `json:"map" log:"display"`
-	Array       [2]address         `json:"array" log:"display"`
-	Ptr         *address           `json:"ptr" log:"display"`
-	Struct      address            `json:"struct" log:"display"`
+	Map         map[string]address `log:"display"`
+	Array       [2]address         `log:"display"`
+	Ptr         *address           `log:"display"`
+	Struct      address            `log:"display"`
 }
 
 type container struct {
-	Persons []person `json:"persons" log:"display"`
+	Persons []person `log:"display"`
 }
 
 func Test_sanitizedStruct(t *testing.T) {

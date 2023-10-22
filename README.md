@@ -94,7 +94,7 @@ type address struct {
 type structWithComplexFields struct {
 	Slice       []address `log:"display"`
 	MaskedSlice []address
-	Map         map[string]address `json:"map" log:"display"`
+	Map         map[string]address `log:"display"`
 	Array       [2]address         `log:"display"`
 	Ptr         *address           `log:"display"`
 	Struct      address            `log:"display"`
