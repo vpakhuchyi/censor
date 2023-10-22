@@ -2,6 +2,7 @@ package sanitiser
 
 import (
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/require"
 )
@@ -364,6 +365,32 @@ func Test_sanitizedPrimitives(t *testing.T) {
 	}
 }
 
+func Test_sanitizedUnsupported(t *testing.T) {
+	tests := map[string]struct {
+		val any
+		exp string
+	}{
+		"complex64":  {val: complex64(1.1), exp: `[unsupported kind of value: complex64]`},
+		"complex128": {val: complex128(1.1), exp: `[unsupported kind of value: complex128]`},
+		"chan":       {val: make(chan int), exp: `[unsupported kind of value: chan]`},
+		"func":       {val: func() {}, exp: `[unsupported kind of value: func]`},
+		"unsafe.Pointer": {
+			val: func() unsafe.Pointer {
+				var v int
+				return unsafe.Pointer(&v)
+			}(),
+			exp: `[unsupported kind of value: unsafe.Pointer]`,
+		},
+	}
+
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := Format(tt.val)
+			require.Equal(t, tt.exp, got)
+		})
+	}
+}
+
 func Test_sanitizedMap(t *testing.T) {
 	tests := map[string]struct {
 		val any
@@ -445,7 +472,7 @@ func Test_sanitizedMap(t *testing.T) {
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			got := sanitise(tt.val)
+			got := Format(tt.val)
 			require.Equal(t, tt.exp, got)
 		})
 	}

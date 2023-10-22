@@ -166,9 +166,9 @@ func FormatFloat(v models.Value) string {
 	return fmt.Sprintf(`%.15g`, v.Value)
 }
 
-// FormatSimple formats a value as a string using the default fmt.Sprintf rules.
-func FormatSimple(v models.Value) string {
-	return fmt.Sprintf(`%v`, v.Value)
+// FormatDefault formats a value using the default fmt package formatting.
+func FormatDefault(v models.Value) string {
+	return fmt.Sprintf(`%v`, v.Kind)
 }
 
 // FormatBool formats a value as a boolean.
