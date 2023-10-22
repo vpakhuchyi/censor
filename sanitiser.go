@@ -1,5 +1,51 @@
 package sanitiser
 
+/*
+	This package provides a function to sanitise any value into a string representation.
+	By default, all struct fields are masked (including any kind of nested structs),
+	unless the field has the `display` tag.
+
+	Examples can be found here: https://github.com/vpakhuchyi/sanitiser#readme.
+
+	Supported types:
+
+	|---------------------------------------------------------------------------------------|
+	|         		   	| By default, all fields values will be masked. 				 	|
+	| Struct		   	| To override this behaviour, use the `log:"display"` tag. 	 		|
+	|				   	| All nested fields must be tagged as well. 					 	|
+	|				  	| Struct/Slice/Array/Pointer/Map values will be parsed recursively	|
+	|---------------------------------------------------------------------------------------|
+	| Slice/Array    	| Struct/Slice/Array/Pointer/Map values will be parsed recursively 	|
+	|---------------------------------------------------------------------------------------|
+	| Pointer          	| Struct/Slice/Array/Pointer/Map values will be parsed recursively 	|
+	|---------------------------------------------------------------------------------------|
+	| Map              	| Struct/Slice/Array/Pointer/Map values will be parsed recursively 	|
+	|---------------------------------------------------------------------------------------|
+	| String           	| Formatted value will be wrapped in double quotes. 			  	|
+	|---------------------------------------------------------------------------------------|
+	| Float64          	| Formatted value will have up to 15 precision digits. 		  		|
+	|---------------------------------------------------------------------------------------|
+	| Float32          	| Formatted value will have up to 7 precision digits. 		  		|
+	|---------------------------------------------------------------------------------------|
+	| Int/Int8/Int16/  	| 															  		|
+	| Int32/Int64/Rune 	| 														 	   		|
+	| Uint/Uint8/Uint16	| 	Default fmt package formatting is used. 				   		|
+	| Uint32/Uint64/   	| 																	|
+	| Byte             	| 																	|
+	|---------------------------------------------------------------------------------------|
+	| Bool             	| Formatted value will be either "true" or "false". 				|
+	|---------------------------------------------------------------------------------------|
+
+	Unsupported types:
+
+	|-----------------------------------------------|
+	| Chan         	| Complex64   	| Complex128	|
+	| Interface    	| Func     		|       	 	|
+	|-----------------------------------------------|
+
+	Note: unsupported types will be replaced with "[unsupported type]" string.
+*/
+
 import (
 	"fmt"
 	"reflect"
@@ -12,45 +58,9 @@ import (
 // unsupportedKind is returned when the value is of unsupported kind.
 const unsupportedKind = `[unsupported kind of value: %v]`
 
-// Format takes any value and returns a string representation of it.
-// It uses reflection to parse the value and then uses formatters to format it.
-// Examples can be found here https://github.com/vpakhuchyi/sanitiser#readme
-//
-// Supported types:
-//
-// |----------------------------------------------------------------------------------------|
-// |         		   	| By default, all fields values will be masked. 				 	|
-// | Struct		   		| To override this behaviour, use the `log:"display"` tag. 	 		|
-// |				   	| All nested fields must be tagged as well. 					 	|
-// |				  	| Struct/Slice/Array/Pointer/Map values will be parsed recursively	|
-// |----------------------------------------------------------------------------------------|
-// | Slice/Array    	| Struct/Slice/Array/Pointer/Map values will be parsed recursively 	|
-// |----------------------------------------------------------------------------------------|
-// | Pointer          	| Struct/Slice/Array/Pointer/Map values will be parsed recursively 	|
-// |----------------------------------------------------------------------------------------|
-// | Map              	| Struct/Slice/Array/Pointer/Map values will be parsed recursively 	|
-// |----------------------------------------------------------------------------------------|
-// | String           	| Formatted value will be wrapped in double quotes. 			  	|
-// |----------------------------------------------------------------------------------------|
-// | Float64          	| Formatted value will have up to 15 precision digits. 		  		|
-// |----------------------------------------------------------------------------------------|
-// | Float32          	| Formatted value will have up to 7 precision digits. 		  		|
-// |----------------------------------------------------------------------------------------|
-// | Int/Int8/Int16/  	| 															  		|
-// | Int32/Int64/Rune 	| 														 	   		|
-// | Uint/Uint8/Uint16	| 	Default fmt package formatting is used. 				   		|
-// | Uint32/Uint64/   	| 																	|
-// | Byte             	| 																	|
-// |----------------------------------------------------------------------------------------|
-// | Bool             	| Formatted value will be either "true" or "false". 				|
-// |----------------------------------------------------------------------------------------|
-//
-// Unsupported types:
-// |------------------------------------------------|
-// | Chan         	| Complex64   	| Complex128	|
-// | Interface    	| Func     		|       	 	|
-// |------------------------------------------------|
-// Note: unsupported types will be replaced with "[unsupported type]" string.
+// Format takes any value and returns a string representation of it masking struct fields by default.
+// To override this behaviour, use the `log:"display"` tag.
+// Formatting is done recursively for all nested structs/slices/arrays/pointers/maps.
 func Format(val any) string {
 	return sanitise(val)
 }
