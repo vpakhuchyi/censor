@@ -40,25 +40,25 @@ func (f *Formatter) Struct(s models.Struct) string {
 		if field.Opts.Display {
 			switch field.Kind {
 			case reflect.String:
-				buf.WriteString(f.formatStringField(field.Name, field.Value.Value))
+				buf.WriteString(formatField(field.Name, f.String(field.Value)))
 			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 				reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-				buf.WriteString(f.formatIntField(field.Name, field.Value.Value))
+				buf.WriteString(formatField(field.Name, f.Integer(field.Value)))
 			case reflect.Float32, reflect.Float64:
-				buf.WriteString(f.formatFloatField(field.Name, field.Value))
+				buf.WriteString(formatField(field.Name, f.Float(field.Value)))
 			case reflect.Struct:
-				buf.WriteString(fmt.Sprintf(`"%s": %s`, field.Name, f.Struct(field.Value.Value.(models.Struct))))
+				buf.WriteString(formatField(field.Name, f.Struct(field.Value.Value.(models.Struct))))
 			case reflect.Slice, reflect.Array:
-				buf.WriteString(fmt.Sprintf(`"%s": %s`, field.Name, f.Slice(field.Value.Value.(models.Slice))))
+				buf.WriteString(formatField(field.Name, f.Slice(field.Value.Value.(models.Slice))))
 			case reflect.Pointer:
-				buf.WriteString(fmt.Sprintf(`"%s": %s`, field.Name, f.Ptr(field.Value.Value.(models.Ptr))))
+				buf.WriteString(formatField(field.Name, f.Ptr(field.Value.Value.(models.Ptr))))
 			case reflect.Bool:
-				buf.WriteString(fmt.Sprintf(`"%s": %v`, field.Name, field.Value.Value))
+				buf.WriteString(formatField(field.Name, f.Bool(field.Value)))
 			case reflect.Map:
-				buf.WriteString(fmt.Sprintf(`"%s": %s`, field.Name, f.Map(field.Value.Value.(models.Map))))
+				buf.WriteString(formatField(field.Name, f.Map(field.Value.Value.(models.Map))))
 			}
 		} else {
-			buf.WriteString(fmt.Sprintf(`"%s": "%s"`, field.Name, f.MaskValue))
+			buf.WriteString(formatField(field.Name, f.MaskValue))
 		}
 
 		if i < len(fields)-1 {
@@ -71,14 +71,6 @@ func (f *Formatter) Struct(s models.Struct) string {
 	return buf.String()
 }
 
-func (f *Formatter) formatIntField(name string, value any) string {
-	return fmt.Sprintf(`"%s": %d`, name, value)
-}
-
-func (f *Formatter) formatFloatField(name string, value models.Value) string {
-	return fmt.Sprintf(`"%s": %s`, name, f.Float(value))
-}
-
-func (f *Formatter) formatStringField(name string, value any) string {
-	return fmt.Sprintf(`"%s": "%s"`, name, value)
+func formatField(name, val string) string {
+	return fmt.Sprintf(`%s: %s`, name, val)
 }

@@ -21,7 +21,7 @@ package sanitiser
 	|-------------------------------------------------------------------------------------------|
 	| Map              	| Struct/Slice/Array/Pointer/Map values will be parsed recursively  |
 	|-------------------------------------------------------------------------------------------|
-	| String           	| Formatted value will be wrapped in double quotes. 		    |
+	| String           	| Default fmt package formatting is used. 		   				|
 	|-------------------------------------------------------------------------------------------|
 	| Float64          	| Formatted value will have up to 15 precision digits. 		    |
 	|-------------------------------------------------------------------------------------------|
@@ -33,7 +33,7 @@ package sanitiser
 	| Uint32/Uint64/   	| 								    |
 	| Byte             	| 								    |
 	|-------------------------------------------------------------------------------------------|
-	| Bool             	| Formatted value will be either "true" or "false". 		    |
+	| Bool             	| Default fmt package formatting is used. 		    			|
 	|-------------------------------------------------------------------------------------------|
 
 	Unsupported types:

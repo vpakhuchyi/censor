@@ -14,7 +14,22 @@ import (
 func (p *Parser) Struct(structValue reflect.Value) models.Struct {
 	var v models.Value
 	s := models.Struct{Name: getStructName(structValue)}
+
 	for i := 0; i < structValue.NumField(); i++ {
+		var fieldName string
+		if p.UseJSONTagName {
+			tagValue := structValue.Type().Field(i).Tag.Get("json")
+
+			// If the tag is not present, then such a field will be ignored.
+			if tagValue == "" {
+				continue
+			}
+
+			fieldName = tagValue
+		} else {
+			fieldName = structValue.Type().Field(i).Name
+		}
+
 		f := structValue.Field(i)
 
 		switch f.Kind() {
@@ -32,19 +47,13 @@ func (p *Parser) Struct(structValue reflect.Value) models.Struct {
 
 		tag := structValue.Type().Field(i).Tag.Get(p.SanitiserFieldTag)
 
-		field := models.Field{
-			Name:  structValue.Type().Field(i).Name,
+		s.Fields = append(s.Fields, models.Field{
+			Name:  fieldName,
 			Tag:   tag,
 			Value: v,
 			Opts:  options.Parse(tag),
 			Kind:  f.Kind(),
-		}
-
-		if p.UseJSONTagName {
-			field.Name = structValue.Type().Field(i).Tag.Get("json")
-		}
-
-		s.Fields = append(s.Fields, field)
+		})
 	}
 
 	return s
