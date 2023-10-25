@@ -1,7 +1,7 @@
 package parser
 
 // DefaultSanitiserFieldTag is a default tag name for sanitiser fields.
-const DefaultSanitiserFieldTag = "log"
+const DefaultSanitiserFieldTag = "sanitiser"
 
 // Parser is a struct that contains options for parsing.
 type Parser struct {

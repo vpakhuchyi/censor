@@ -26,7 +26,9 @@ Here are some examples of how to use the `Format` function.
 #### 1. Simple Struct
 
 By default, all fields within a struct will be masked.
-This allows to avoid accidental logging of newly added fields that might contain sensitive information.
+In case you use Sanitiser for logging, such an approach will help you to hide sensitive information.
+Even if you add new fields to the struct, they will be masked automatically
+
 ```go
 package main
 
@@ -37,9 +39,9 @@ import (
 )
 
 type address struct {
-	City   string
-	State  string
-	Zip    int
+	City  string
+	State string
+	Zip   int
 }
 
 func main() {
@@ -50,7 +52,8 @@ func main() {
 Output: `main.address{City: [******], State: [******], Zip: [******]}`
 ```
 
-If you want to display some fields, you have to use `log:"display"` tag:
+If you want to display some fields, you have to use `sanitiser:"display"` tag:
+
 ```go
 package main
 
@@ -61,9 +64,9 @@ import (
 )
 
 type address struct {
-	City   string `log:"display"`
-	State  string `log:"display"`
-	Zip    int
+	City  string `sanitiser:"display"`
+	State string `sanitiser:"display"`
+	Zip   int
 }
 
 func main() {
@@ -75,6 +78,7 @@ Output: `main.address{City: Kharkiv, State: KH, Zip: [******]}`
 ```
 
 It's possible to override the default tag to use your own:
+
 ```go
 package main
 
@@ -85,9 +89,9 @@ import (
 )
 
 type address struct {
-	City   string `custom:"display"`
-	State  string `custom:"display"`
-	Zip    int
+	City  string `custom:"display"`
+	State string `custom:"display"`
+	Zip   int
 }
 
 func main() {
@@ -98,6 +102,7 @@ func main() {
 
 Output: `main.address{City: Kharkiv, State: KH, Zip: [******]}`
 ```
+
 #### 2. Struct with Complex Types
 
 ```go
@@ -110,16 +115,16 @@ import (
 )
 
 type address struct {
-	City   string `log:"display"`
-	State  string `log:"display"`
-	Zip    int 
+	City  string `sanitiser:"display"`
+	State string `sanitiser:"display"`
+	Zip   int
 }
 
 type structWithComplexFields struct {
-	Slice       []address `log:"display"`
+	Slice       []address `sanitiser:"display"`
 	MaskedSlice []address
-	Ptr         *address  `log:"display"`
-	Struct      address   `log:"display"`
+	Ptr         *address `sanitiser:"display"`
+	Struct      address  `sanitiser:"display"`
 }
 
 func main() {
@@ -145,7 +150,8 @@ Output: `main.structWithComplexFields{Slice: [main.address{City: Kharkiv, State:
 
 #### 3. Local instance usage
 
-In previous examples, we used packege-level functions. But it's possible to create local instance of sanitiser and use it:
+In previous examples, we used package-level functions. But it's possible to create local instance of sanitiser and use
+it:
 
 ```go
 package main
@@ -157,9 +163,9 @@ import (
 )
 
 type address struct {
-	City   string `log:"display"`
-	State  string `log:"display"`
-	Zip    int
+	City  string `sanitiser:"display"`
+	State string `sanitiser:"display"`
+	Zip   int
 }
 
 func main() {
@@ -170,7 +176,6 @@ func main() {
 
 Output: `main.address{City: Kharkiv, State: KH, Zip: [******]}`
 ```
-
 
 ### Configuration
 
@@ -184,16 +189,16 @@ import (
 )
 
 type address struct {
-	City  string `log:"display"`
-	State string `log:"display"`
+	City  string `sanitiser:"display"`
+	State string `sanitiser:"display"`
 	Zip   int
 }
 
 type structWithComplexFields struct {
-	Slice       []address   `json:"slice" custom:"display"`
+	Slice       []address `json:"slice" custom:"display"`
 	MaskedSlice []address
-	Ptr         *address    `json:"ptr" log:"display"`
-	Struct      address     `log:"display"`
+	Ptr         *address `json:"ptr" sanitiser:"display"`
+	Struct      address  `sanitiser:"display"`
 }
 
 func main() {
@@ -202,17 +207,17 @@ func main() {
 
 	// Set custom mask value.
 	s.SetMaskValue("[REDACTED]") // pkg-level function: sanitiser.SetMaskValue("[REDACTED]")
-	
+
 	// Use JSON tag name instead of struct field name.
 	// Note: fields with absent JSON tag will be ignored.
 	s.UseJSONTagName(true) // pkg-level function: sanitiser.UseJSONTagName(true)
-	
+
 	// Hide struct name.
 	// It hides the struct name (including a package name) from the output.
 	s.HideStructName(true) // pkg-level function: sanitiser.HideStructName(true)
-	
+
 	// Set custom field tag.
-	// It may be useful if a default tag (`log`) is already used in your project.
+	// It may be useful if a default tag (`sanitiser`) is already used in your project.
 	s.SetFieldTag("custom") // pkg-level function: sanitiser.SetFieldTag("custom")
 
 	v := structWithComplexFields{
@@ -237,14 +242,13 @@ Output: `{slice: [{city: Kharkiv, state: KH, zip: [REDACTED]}, {city: Dnipro, st
 
 ### Supported Types
 
-| Type                                                                     | Description                                                                                                                                                                                                                                     |
-|--------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| struct                                                                   | By default, all fields within a struct will be masked. If you need to override this behavior for specific fields, you can use the `log:"display"` tag. It's important to note that all nested fields must also be tagged for proper displaying. |
-| map                                                                      | Map values are recursively parsed, ensuring the output is properly formatted.                                                                                                                                                                   |
-| slice/array                                                              | These types are recursively parsed, ensuring the output is properly formatted.                                                                                                                                                                  |
-| pointer                                                                  | Pointer values, just like slices and arrays, are recursively parsed.                                                                                                                                                                            |
-| string                                                                   | String values are handled with no additional formatting.                                                                                                                                                                                        |
-| float64/float32                                                          | Floating-point types are formatted to include up to 15 (float64) and 7 (float32) precision digits respectively.                                                                                                                                 |
-| int/int8/int16/int32/int64/rune<br/>uint/uint8/uint16/uint32/uint64/byte | All integer types are supported, offering a wide range of options for your data.                                                                                                                                                                |
-| bool                                                                     | Boolean values are handled with no additional formatting.                                                                                                                                                                                       |
-|--------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Type                                                                     | Description                                                                                                                                                                                                                                           |
+|--------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| struct                                                                   | By default, all fields within a struct will be masked. If you need to override this behavior for specific fields, you can use the `sanitiser:"display"` tag. It's important to note that all nested fields must also be tagged for proper displaying. |
+| map                                                                      | Map values are recursively parsed, ensuring the output is properly formatted.                                                                                                                                                                         |
+| slice/array                                                              | These types are recursively parsed, ensuring the output is properly formatted.                                                                                                                                                                        |
+| pointer                                                                  | Pointer values, just like slices and arrays, are recursively parsed.                                                                                                                                                                                  |
+| string                                                                   | String values are handled with no additional formatting.                                                                                                                                                                                              |
+| float64/float32                                                          | Floating-point types are formatted to include up to 15 (float64) and 7 (float32) precision digits respectively.                                                                                                                                       |
+| int/int8/int16/int32/int64/rune<br/>uint/uint8/uint16/uint32/uint64/byte | All integer types are supported, offering a wide range of options for your data.                                                                                                                                                                      |
+| bool                                                                     | Boolean values are handled with no additional formatting.                                                                                                                                                                                             |

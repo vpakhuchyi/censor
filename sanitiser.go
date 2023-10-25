@@ -11,7 +11,7 @@ package sanitiser
 
 	|-------------------------------------------------------------------------------------------|
 	|         		| By default, all fields values will be masked. 		    |
-	| Struct		| To override this behaviour, use the `log:"display"` tag. 	    |
+	| Struct		| To override this behaviour, use the `sanitiser:"display"` tag. 	    |
 	|			| All nested fields must be tagged as well. 			    |
 	|			| Struct/Slice/Array/Pointer/Map values will be parsed recursively  |
 	|-------------------------------------------------------------------------------------------|
@@ -82,7 +82,7 @@ func New() *Processor {
 }
 
 // Format takes any value and returns a string representation of it masking struct fields by default.
-// To override this behaviour, use the `log:"display"` tag.
+// To override this behaviour, use the `sanitiser:"display"` tag.
 // Formatting is done recursively for all nested structs/slices/arrays/pointers/maps.
 func (p *Processor) Format(val any) string {
 	return p.sanitise(val)
@@ -119,7 +119,7 @@ func (p *Processor) SetFieldTag(tag string) {
 
 // Format takes any value and returns a string representation of it masking struct fields by default.
 // It uses the global globalInstance of Processor.
-// To override this behaviour, use the `log:"display"` tag.
+// To override this behaviour, use the `sanitiser:"display"` tag.
 // Formatting is done recursively for all nested structs/slices/arrays/pointers/maps.
 func Format(val any) string {
 	return globalInstance.sanitise(val)

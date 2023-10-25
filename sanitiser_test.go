@@ -437,7 +437,7 @@ func Test_InstanceConfiguration(t *testing.T) {
 		p.HideStructName(true)
 
 		type testStruct struct {
-			Name string `log:"display"`
+			Name string `sanitiser:"display"`
 			Age  int
 		}
 
@@ -448,7 +448,7 @@ func Test_InstanceConfiguration(t *testing.T) {
 
 	t.Run("Show struct name", func(t *testing.T) {
 		type testStruct struct {
-			Name string `log:"display"`
+			Name string `sanitiser:"display"`
 			Age  int
 		}
 
@@ -462,7 +462,7 @@ func Test_InstanceConfiguration(t *testing.T) {
 		p.UseJSONTagName(true)
 
 		type testStruct struct {
-			Name  string `json:"name" log:"display"`
+			Name  string `json:"name" sanitiser:"display"`
 			Age   int    `json:"age"`
 			Email string
 		}
@@ -491,7 +491,7 @@ func Test_InstanceConfiguration(t *testing.T) {
 		p.SetMaskValue(`[REDACTED]`)
 
 		type testStruct struct {
-			Name string `log:"display"`
+			Name string `sanitiser:"display"`
 			Age  int
 		}
 
@@ -508,7 +508,7 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 		HideStructName(true)
 
 		type testStruct struct {
-			Name string `log:"display"`
+			Name string `sanitiser:"display"`
 			Age  int
 		}
 
@@ -521,7 +521,7 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 		t.Cleanup(func() { SetGlobalInstance(New()) })
 
 		type testStruct struct {
-			Name string `log:"display"`
+			Name string `sanitiser:"display"`
 			Age  int
 		}
 
@@ -536,7 +536,7 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 		UseJSONTagName(true)
 
 		type testStruct struct {
-			Name string `json:"name" log:"display"`
+			Name string `json:"name" sanitiser:"display"`
 			Age  int    `json:"age"`
 		}
 
@@ -566,7 +566,7 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 		SetMaskValue(`[REDACTED]`)
 
 		type testStruct struct {
-			Name string `log:"display"`
+			Name string `sanitiser:"display"`
 			Age  int
 		}
 
