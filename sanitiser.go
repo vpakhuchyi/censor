@@ -37,10 +37,11 @@ package sanitiser
 
 	Unsupported types:
 
+	|------------|------------|------------|
 	| Chan       | Complex64  | Complex128 |
 	|------------|------------|------------|
 	| Interface  | Func       | Uintptr    |
-
+	|------------|------------|------------|
 
 	Note: unsupported types will be replaced with "[unsupported type]" string.
 */
