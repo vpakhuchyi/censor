@@ -9,39 +9,38 @@ package sanitiser
 
 	Supported types:
 
-	|-------------------------------------------------------------------------------------------|
-	|         		| By default, all fields values will be masked. 		    |
-	| Struct		| To override this behaviour, use the `sanitiser:"display"` tag. 	    |
-	|			| All nested fields must be tagged as well. 			    |
-	|			| Struct/Slice/Array/Pointer/Map values will be parsed recursively  |
-	|-------------------------------------------------------------------------------------------|
-	| Slice/Array    	| Struct/Slice/Array/Pointer/Map values will be parsed recursively  |
-	|-------------------------------------------------------------------------------------------|
-	| Pointer          	| Struct/Slice/Array/Pointer/Map values will be parsed recursively  |
-	|-------------------------------------------------------------------------------------------|
-	| Map              	| Struct/Slice/Array/Pointer/Map values will be parsed recursively  |
-	|-------------------------------------------------------------------------------------------|
-	| String           	| Default fmt package formatting is used. 		   				|
-	|-------------------------------------------------------------------------------------------|
-	| Float64          	| Formatted value will have up to 15 precision digits. 		    |
-	|-------------------------------------------------------------------------------------------|
-	| Float32          	| Formatted value will have up to 7 precision digits. 		    |
-	|-------------------------------------------------------------------------------------------|
-	| Int/Int8/Int16/  	| 								    |
-	| Int32/Int64/Rune 	| 								    |
-	| Uint/Uint8/Uint16	| Default fmt package formatting is used. 		    	    |
-	| Uint32/Uint64/   	| 								    |
-	| Byte             	| 								    |
-	|-------------------------------------------------------------------------------------------|
-	| Bool             	| Default fmt package formatting is used. 		    			|
-	|-------------------------------------------------------------------------------------------|
+	|----------------------|-----------------------------------------------------------------------|
+	|                      | By default, all fields values will be masked.	                       |
+	| Struct               | To override this behaviour, use the `sanitiser:"display"` tag.        |
+	|                      | All nested fields must be tagged as well.                             |
+	|                      | Struct/Slice/Array/Pointer/Map values will be parsed recursively.     |
+	|----------------------|-----------------------------------------------------------------------|
+	| Slice/Array          | Struct/Slice/Array/Pointer/Map values will be parsed recursively.     |
+	|----------------------|-----------------------------------------------------------------------|
+	| Pointer              | Struct/Slice/Array/Pointer/Map values will be parsed recursively.     |
+	|----------------------|-----------------------------------------------------------------------|
+	| Map                  | Struct/Slice/Array/Pointer/Map values will be parsed recursively.     |
+	|----------------------|-----------------------------------------------------------------------|
+	| String               | Default fmt package formatting is used.                               |
+	|----------------------|-----------------------------------------------------------------------|
+	| Float64              | Formatted value will have up to 15 precision digits.                  |
+	|----------------------|-----------------------------------------------------------------------|
+	| Float32              | Formatted value will have up to 7 precision digits.                   |
+	|----------------------|-----------------------------------------------------------------------|
+	| Int/Int8/Int16/      |                                                                       |
+	| Int32/Int64/Rune     |                                                                       |
+	| Uint/Uint8/Uint16    | Default fmt package formatting is used.                               |
+	| Uint32/Uint64/Byte   |                                                                       |
+	|----------------------|-----------------------------------------------------------------------|
+	| Bool                 | Default fmt package formatting is used.                               |
+	|----------------------|-----------------------------------------------------------------------|
 
 	Unsupported types:
 
-	|-----------------------------------------------|
-	| Chan         	| Complex64   	| Complex128	|
-	| Interface    	| Func     	|       	|
-	|-----------------------------------------------|
+	| Chan       | Complex64  | Complex128 |
+	|------------|------------|------------|
+	| Interface  | Func       | Uintptr    |
+
 
 	Note: unsupported types will be replaced with "[unsupported type]" string.
 */
@@ -182,7 +181,7 @@ func (p *Processor) sanitise(val any) string {
 		reflect.Float32, reflect.Float64, reflect.String, reflect.Bool:
 		parsed = models.Value{Value: v.Interface(), Kind: v.Kind()}
 	case reflect.Chan, reflect.Func, reflect.UnsafePointer,
-		reflect.Complex64, reflect.Complex128:
+		reflect.Complex64, reflect.Complex128, reflect.Interface, reflect.Uintptr:
 		/*
 			Note: this case covers all unsupported types.
 			In such a case, we return a string with a message about the unsupported type.
