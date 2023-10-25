@@ -7,73 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type person struct {
-	ID           string `log:"display"`
-	Name         string
-	Age          int `log:"display"`
-	Email        string
-	StringArray  [3]string  `log:"display"`
-	String       []string   `log:"display"`
-	Integers     []int      `log:"display"`
-	Floats       []float64  `log:"display"`
-	Bools        []bool     `log:"display"`
-	Addresses    []address  `log:"display"`
-	Address      address    `log:"display"`
-	TaxAddress   *address   `log:"display"`
-	TaxAddresses []*address `log:"display"`
-	Container    container  `log:"display"`
-}
-
-type address struct {
-	City   string `json:"city" log:"display"`
-	State  string `json:"state" log:"display"`
-	Street string `json:"street"`
-	Zip    string `json:"zip"`
-}
-
-type structWithPrimitives struct {
-	Int64   int64   `log:"display"`
-	Int32   int32   `log:"display"`
-	Int16   int16   `log:"display"`
-	Int8    int8    `log:"display"`
-	Int     int     `log:"display"`
-	Uint64  uint64  `log:"display"`
-	Uint32  uint32  `log:"display"`
-	Uint16  uint16  `log:"display"`
-	Uint8   uint8   `log:"display"`
-	Uint    uint    `log:"display"`
-	Bool    bool    `log:"display"`
-	Rune    rune    `log:"display"`
-	Byte    byte    `log:"display"`
-	Float64 float64 `log:"display"`
-	Float32 float32 `log:"display"`
-	String  string  `log:"display"`
-}
-
-type structWithContainersFields struct {
-	StringSlice  []string  `log:"display"`
-	IntSlice     []int     `log:"display"`
-	FloatSlice   []float64 `log:"display"`
-	BoolSlice    []bool    `log:"display"`
-	StructSlice  []address `log:"display"`
-	PointerSlice []*int    `log:"display"`
-	ArraySlice   [2]string `log:"display"`
-}
-
-type structWithComplexFields struct {
-	Slice       []address `log:"display"`
-	MaskedSlice []address
-	Map         map[string]address `log:"display"`
-	Array       [2]address         `log:"display"`
-	Ptr         *address           `log:"display"`
-	Struct      address            `log:"display"`
-}
-
-type container struct {
-	Persons []person `log:"display"`
-}
-
-func Test_sanitizedStruct(t *testing.T) {
+func Test_FormatStruct(t *testing.T) {
 	tests := map[string]struct {
 		val any
 		exp string
@@ -132,13 +66,13 @@ func Test_sanitizedStruct(t *testing.T) {
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			got := sanitise(tt.val)
+			got := Format(tt.val)
 			require.Equal(t, tt.exp, got)
 		})
 	}
 }
 
-func Test_sanitizedSlice(t *testing.T) {
+func Test_FormatSlice(t *testing.T) {
 	tests := map[string]struct {
 		val any
 		exp string
@@ -192,13 +126,13 @@ func Test_sanitizedSlice(t *testing.T) {
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			got := sanitise(tt.val)
+			got := Format(tt.val)
 			require.Equal(t, tt.exp, got)
 		})
 	}
 }
 
-func Test_sanitizedArray(t *testing.T) {
+func Test_FormatArray(t *testing.T) {
 	tests := map[string]struct {
 		val any
 		exp string
@@ -260,13 +194,13 @@ func Test_sanitizedArray(t *testing.T) {
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			got := sanitise(tt.val)
+			got := Format(tt.val)
 			require.Equal(t, tt.exp, got)
 		})
 	}
 }
 
-func Test_sanitizedPointer(t *testing.T) {
+func Test_FormatPointer(t *testing.T) {
 	tests := map[string]struct {
 		val any
 		exp string
@@ -328,13 +262,13 @@ func Test_sanitizedPointer(t *testing.T) {
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			got := sanitise(tt.val)
+			got := Format(tt.val)
 			require.Equal(t, tt.exp, got)
 		})
 	}
 }
 
-func Test_sanitizedPrimitives(t *testing.T) {
+func Test_FormatPrimitives(t *testing.T) {
 	tests := map[string]struct {
 		val any
 		exp string
@@ -359,13 +293,13 @@ func Test_sanitizedPrimitives(t *testing.T) {
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			got := sanitise(tt.val)
+			got := globalInstance.sanitise(tt.val)
 			require.Equal(t, tt.exp, got)
 		})
 	}
 }
 
-func Test_sanitizedUnsupported(t *testing.T) {
+func Test_FormatUnsupported(t *testing.T) {
 	tests := map[string]struct {
 		val any
 		exp string
@@ -391,7 +325,7 @@ func Test_sanitizedUnsupported(t *testing.T) {
 	}
 }
 
-func Test_sanitizedMap(t *testing.T) {
+func Test_FormatMap(t *testing.T) {
 	tests := map[string]struct {
 		val any
 		exp string
@@ -476,4 +410,180 @@ func Test_sanitizedMap(t *testing.T) {
 			require.Equal(t, tt.exp, got)
 		})
 	}
+}
+
+func Test_InstanceFormatPrimitives(t *testing.T) {
+	tests := map[string]struct {
+		val any
+		exp string
+	}{
+		"int":     {val: -33453435, exp: `-33453435`},
+		"uint":    {val: 33453435, exp: `33453435`},
+		"string":  {val: "hello", exp: `"hello"`},
+		"float64": {val: 12.235325, exp: `12.235325`},
+	}
+
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := New().Format(tt.val)
+			require.Equal(t, tt.exp, got)
+		})
+	}
+}
+
+func Test_InstanceConfiguration(t *testing.T) {
+	t.Run("Hide struct name", func(t *testing.T) {
+		p := New()
+		p.HideStructName(true)
+
+		type testStruct struct {
+			Name string `log:"display"`
+			Age  int
+		}
+
+		exp := `{"Name": "John", "Age": "[******]"}`
+		got := p.Format(testStruct{Name: "John", Age: 30})
+		require.Equal(t, exp, got)
+	})
+
+	t.Run("Show struct name", func(t *testing.T) {
+		type testStruct struct {
+			Name string `log:"display"`
+			Age  int
+		}
+
+		exp := `sanitiser.testStruct{"Name": "John", "Age": "[******]"}`
+		got := New().Format(testStruct{Name: "John", Age: 30})
+		require.Equal(t, exp, got)
+	})
+
+	t.Run("Use JSON tag name", func(t *testing.T) {
+		p := New()
+		p.UseJSONTagName(true)
+
+		type testStruct struct {
+			Name string `json:"name" log:"display"`
+			Age  int    `json:"age"`
+		}
+
+		exp := `sanitiser.testStruct{"name": "John", "age": "[******]"}`
+		got := p.Format(testStruct{Name: "John", Age: 30})
+		require.Equal(t, exp, got)
+	})
+
+	t.Run("Use custom sanitiser field tag", func(t *testing.T) {
+		p := New()
+		p.SetFieldTag("custom")
+
+		type testStruct struct {
+			Name string `json:"name" custom:"display"`
+			Age  int    `json:"age"`
+		}
+
+		exp := `sanitiser.testStruct{"Name": "John", "Age": "[******]"}`
+		got := p.Format(testStruct{Name: "John", Age: 30})
+		require.Equal(t, exp, got)
+	})
+
+	t.Run("Custom mask value", func(t *testing.T) {
+		p := New()
+		p.SetMaskValue(`[REDACTED]`)
+
+		type testStruct struct {
+			Name string `log:"display"`
+			Age  int
+		}
+
+		exp := `sanitiser.testStruct{"Name": "John", "Age": "[REDACTED]"}`
+		got := p.Format(testStruct{Name: "John", Age: 30})
+		require.Equal(t, exp, got)
+	})
+}
+
+func Test_GlobalInstanceConfiguration(t *testing.T) {
+	t.Run("Hide struct name", func(t *testing.T) {
+		t.Cleanup(func() { SetGlobalInstance(New()) })
+
+		HideStructName(true)
+
+		type testStruct struct {
+			Name string `log:"display"`
+			Age  int
+		}
+
+		exp := `{"Name": "John", "Age": "[******]"}`
+		got := Format(testStruct{Name: "John", Age: 30})
+		require.Equal(t, exp, got)
+	})
+
+	t.Run("Show struct name", func(t *testing.T) {
+		t.Cleanup(func() { SetGlobalInstance(New()) })
+
+		type testStruct struct {
+			Name string `log:"display"`
+			Age  int
+		}
+
+		exp := `sanitiser.testStruct{"Name": "John", "Age": "[******]"}`
+		got := Format(testStruct{Name: "John", Age: 30})
+		require.Equal(t, exp, got)
+	})
+
+	t.Run("Use JSON tag name", func(t *testing.T) {
+		t.Cleanup(func() { SetGlobalInstance(New()) })
+
+		UseJSONTagName(true)
+
+		type testStruct struct {
+			Name string `json:"name" log:"display"`
+			Age  int    `json:"age"`
+		}
+
+		exp := `sanitiser.testStruct{"name": "John", "age": "[******]"}`
+		got := Format(testStruct{Name: "John", Age: 30})
+		require.Equal(t, exp, got)
+	})
+
+	t.Run("Use custom sanitiser field tag", func(t *testing.T) {
+		t.Cleanup(func() { SetGlobalInstance(New()) })
+
+		SetFieldTag("custom")
+
+		type testStruct struct {
+			Name string `json:"name" custom:"display"`
+			Age  int    `json:"age"`
+		}
+
+		exp := `sanitiser.testStruct{"Name": "John", "Age": "[******]"}`
+		got := Format(testStruct{Name: "John", Age: 30})
+		require.Equal(t, exp, got)
+	})
+
+	t.Run("Custom mask value", func(t *testing.T) {
+		t.Cleanup(func() { SetGlobalInstance(New()) })
+
+		SetMaskValue(`[REDACTED]`)
+
+		type testStruct struct {
+			Name string `log:"display"`
+			Age  int
+		}
+
+		exp := `sanitiser.testStruct{"Name": "John", "Age": "[REDACTED]"}`
+		got := Format(testStruct{Name: "John", Age: 30})
+		require.Equal(t, exp, got)
+	})
+}
+
+func Test_GetGlobalInstance(t *testing.T) {
+	require.EqualValues(t, globalInstance, GetGlobalInstance())
+}
+
+func Test_SetGlobalInstance(t *testing.T) {
+	p := New()
+	p.SetFieldTag("custom")
+
+	SetGlobalInstance(p)
+
+	require.EqualValues(t, globalInstance, p)
 }

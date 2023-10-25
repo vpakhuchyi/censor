@@ -1,4 +1,4 @@
-package parsers
+package parser
 
 import (
 	"fmt"
@@ -9,36 +9,42 @@ import (
 	"github.com/vpakhuchyi/sanitiser/internal/options"
 )
 
-// ParseStruct parses a given value and returns a Struct.
+// Struct parses a given value and returns a Struct.
 // All fields of pointer/slice/array/struct/map types will be parsed recursively.
-func ParseStruct(structValue reflect.Value) models.Struct {
+func (p *Parser) Struct(structValue reflect.Value) models.Struct {
 	var v models.Value
 	s := models.Struct{Name: getStructName(structValue)}
 	for i := 0; i < structValue.NumField(); i++ {
-		field := structValue.Field(i)
+		f := structValue.Field(i)
 
-		switch field.Kind() {
+		switch f.Kind() {
 		case reflect.Struct:
-			v = models.Value{Value: ParseStruct(field), Kind: reflect.Struct}
+			v = models.Value{Value: p.Struct(f), Kind: reflect.Struct}
 		case reflect.Pointer:
-			v = models.Value{Value: ParsePtr(field), Kind: reflect.Pointer}
+			v = models.Value{Value: p.Ptr(f), Kind: reflect.Pointer}
 		case reflect.Slice, reflect.Array:
-			v = models.Value{Value: ParseSlice(field), Kind: field.Kind()}
+			v = models.Value{Value: p.Slice(f), Kind: f.Kind()}
 		case reflect.Map:
-			v = models.Value{Value: ParseMap(field), Kind: field.Kind()}
+			v = models.Value{Value: p.Map(f), Kind: f.Kind()}
 		default:
-			v = models.Value{Value: field.Interface(), Kind: field.Kind()}
+			v = models.Value{Value: f.Interface(), Kind: f.Kind()}
 		}
 
-		tag := structValue.Type().Field(i).Tag.Get(models.FieldTag)
+		tag := structValue.Type().Field(i).Tag.Get(p.SanitiserFieldTag)
 
-		s.Fields = append(s.Fields, models.Field{
+		field := models.Field{
 			Name:  structValue.Type().Field(i).Name,
 			Tag:   tag,
 			Value: v,
 			Opts:  options.Parse(tag),
-			Kind:  field.Kind(),
-		})
+			Kind:  f.Kind(),
+		}
+
+		if p.UseJSONTagName {
+			field.Name = structValue.Type().Field(i).Tag.Get("json")
+		}
+
+		s.Fields = append(s.Fields, field)
 	}
 
 	return s

@@ -1,4 +1,4 @@
-package parsers
+package parser
 
 import (
 	"fmt"
@@ -8,9 +8,9 @@ import (
 	"github.com/vpakhuchyi/sanitiser/internal/models"
 )
 
-// ParseMap parses a given value and returns a Map.
+// Map parses a given value and returns a Map.
 // If value is a struct/pointer/slice/array/map, it will be parsed recursively.
-func ParseMap(mapValue reflect.Value) models.Map {
+func (p *Parser) Map(mapValue reflect.Value) models.Map {
 	m := models.Map{Type: mapValue.Type().String()}
 	iter := mapValue.MapRange()
 
@@ -21,24 +21,24 @@ func ParseMap(mapValue reflect.Value) models.Map {
 
 		switch value.Kind() {
 		case reflect.Struct:
-			pair.Value = models.Value{Value: ParseStruct(value), Kind: value.Kind()}
+			pair.Value = models.Value{Value: p.Struct(value), Kind: value.Kind()}
 		case reflect.Pointer:
-			pair.Value = models.Value{Value: ParsePtr(value), Kind: value.Kind()}
+			pair.Value = models.Value{Value: p.Ptr(value), Kind: value.Kind()}
 		case reflect.Slice, reflect.Array:
-			pair.Value = models.Value{Value: ParseSlice(value), Kind: value.Kind()}
+			pair.Value = models.Value{Value: p.Slice(value), Kind: value.Kind()}
 		case reflect.Map:
-			pair.Value = models.Value{Value: ParseMap(value), Kind: value.Kind()}
+			pair.Value = models.Value{Value: p.Map(value), Kind: value.Kind()}
 		default:
 			pair.Value = models.Value{Value: value.Interface(), Kind: value.Kind()}
 		}
 
 		switch key.Kind() {
 		case reflect.Struct:
-			pair.Key = models.Value{Value: ParseStruct(key), Kind: key.Kind()}
+			pair.Key = models.Value{Value: p.Struct(key), Kind: key.Kind()}
 		case reflect.Pointer:
-			pair.Key = models.Value{Value: ParsePtr(key), Kind: key.Kind()}
+			pair.Key = models.Value{Value: p.Ptr(key), Kind: key.Kind()}
 		case reflect.Array:
-			pair.Key = models.Value{Value: ParseSlice(key), Kind: key.Kind()}
+			pair.Key = models.Value{Value: p.Slice(key), Kind: key.Kind()}
 		default:
 			pair.Key = models.Value{Value: key.Interface(), Kind: key.Kind()}
 		}
