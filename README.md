@@ -4,7 +4,7 @@
 ![coverage](https://raw.githubusercontent.com/vpakhuchyi/sanitiser/badges/.badges/main/coverage.svg)
 [![GoDoc](https://godoc.org/github.com/vpakhuchyi/sanitiser?status.svg)](https://godoc.org/github.com/vpakhuchyi/sanitiser)
 
-**Sanitiser** is a powerful Go library with the primary objective of formatting any given value into a string while
+**Sanitiser** is a Go library with the primary objective of formatting any given value into a string while
 effectively masking sensitive information. Leveraging reflection for in-depth analysis and employing formatters, it
 ensures accurate and readable output.
 
@@ -18,6 +18,44 @@ go get -u github.com/vpakhuchyi/sanitiser
 
 The `Format` function is at the heart of this library, providing a versatile method to convert various types into a
 formatted string.
+
+Most popular use case is to use `Format` function with logging tools:
+
+```go
+package main
+
+import (
+	"log/slog"
+
+	"github.com/vpakhuchyi/sanitiser"
+)
+
+// Let's imagine that we have a request that looks like this:
+type request struct {
+	UserID   string `sanitiser:"display"` // We want to display this field in the log.
+	Email    string // We don't want to display this field in the log.
+	FullName string // We don't want to display this field in the log.
+	Password string // We don't want to display this field in the log.
+}
+
+func main() {
+	// Our request contain personal information that we don't want to log.
+	// So we can use sanitiser to hide sensitive information but still be able to log the request.
+	r := request{
+		UserID:   "123",
+		Email:    "example@ggmail.com",
+		FullName: "Frodo Smith",
+		Password: "encoded_password",
+	}
+
+	// In case we use slog.Logger, we can use sanitiser to format the request before logging it.
+	slog.Info("Request", "payload", sanitiser.Format(r))
+}
+
+Output: `2038/10/25 12:00:01 INFO Request payload="main.request{UserID: 123, Email: [******], FullName: [******], Password: [******]}"`
+
+```
+
 
 ### Examples
 
