@@ -31,7 +31,7 @@ func Test_FormatStruct(t *testing.T) {
 				Float32: 1.389,
 				String:  "string",
 			},
-			exp: `sanitiser.structWithPrimitives{Int64: -53645354, Int32: -346456, Int16: -23452, Int8: -101, Int: -456345655, Uint64: 53645354, Uint32: 346456, Uint16: 23452, Uint8: 101, Uint: 456345655, Bool: true, Rune: 97, Byte: 1, Float64: 1.12341, Float32: 1.389, String: string}`,
+			exp: `{Int64: -53645354, Int32: -346456, Int16: -23452, Int8: -101, Int: -456345655, Uint64: 53645354, Uint32: 346456, Uint16: 23452, Uint8: 101, Uint: 456345655, Bool: true, Rune: 97, Byte: 1, Float64: 1.12341, Float32: 1.389, String: string}`,
 		},
 		"struct_with_complex_fields": {
 			val: structWithComplexFields{
@@ -45,7 +45,7 @@ func Test_FormatStruct(t *testing.T) {
 				Ptr:    &address{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"},
 				Struct: address{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"},
 			},
-			exp: `sanitiser.structWithComplexFields{Slice: [sanitiser.address{City: San Francisco, State: CA, Street: [******], Zip: [******]}, sanitiser.address{City: Denver, State: DN, Street: [******], Zip: [******]}], MaskedSlice: [******], Map: map[string]sanitiser.address[address1: sanitiser.address{City: San Francisco, State: CA, Street: [******], Zip: [******]}, address2: sanitiser.address{City: Denver, State: DN, Street: [******], Zip: [******]}], Array: [sanitiser.address{City: San Francisco, State: CA, Street: [******], Zip: [******]}, sanitiser.address{City: Denver, State: DN, Street: [******], Zip: [******]}], Ptr: &sanitiser.address{City: San Francisco, State: CA, Street: [******], Zip: [******]}, Struct: sanitiser.address{City: San Francisco, State: CA, Street: [******], Zip: [******]}}`,
+			exp: `{Slice: [{City: San Francisco, State: CA, Street: [******], Zip: [******]}, {City: Denver, State: DN, Street: [******], Zip: [******]}], MaskedSlice: [******], Map: map[string]sanitiser.address[address1: {City: San Francisco, State: CA, Street: [******], Zip: [******]}, address2: {City: Denver, State: DN, Street: [******], Zip: [******]}], Array: [{City: San Francisco, State: CA, Street: [******], Zip: [******]}, {City: Denver, State: DN, Street: [******], Zip: [******]}], Ptr: &{City: San Francisco, State: CA, Street: [******], Zip: [******]}, Struct: {City: San Francisco, State: CA, Street: [******], Zip: [******]}}`,
 		},
 		"struct_with_containers_fields": {
 			val: structWithContainersFields{
@@ -56,7 +56,7 @@ func Test_FormatStruct(t *testing.T) {
 				StructSlice:  []address{{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"}, {City: "Denver", State: "DN", Street: "65 Best St", Zip: "55502"}},
 				PointerSlice: []*int{new(int), new(int)},
 				ArraySlice:   [2]string{"tag1", "tag2"}},
-			exp: `sanitiser.structWithContainersFields{StringSlice: [tag1, tag2], IntSlice: [1, 2, 3], FloatSlice: [1.1, 2.2, 3.30022], BoolSlice: [true, false], StructSlice: [sanitiser.address{City: San Francisco, State: CA, Street: [******], Zip: [******]}, sanitiser.address{City: Denver, State: DN, Street: [******], Zip: [******]}], PointerSlice: [&0, &0], ArraySlice: [tag1, tag2]}`,
+			exp: `{StringSlice: [tag1, tag2], IntSlice: [1, 2, 3], FloatSlice: [1.1, 2.2, 3.30022], BoolSlice: [true, false], StructSlice: [{City: San Francisco, State: CA, Street: [******], Zip: [******]}, {City: Denver, State: DN, Street: [******], Zip: [******]}], PointerSlice: [&0, &0], ArraySlice: [tag1, tag2]}`,
 		},
 		"empty_struct": {
 			val: struct{}{},
@@ -82,14 +82,14 @@ func Test_FormatSlice(t *testing.T) {
 				{Street: "451 Main St", City: "San Francisco", State: "CA", Zip: "55501"},
 				{Street: "65 Best St", City: "Denver", State: "DN", Zip: "55502"},
 			},
-			exp: `[&sanitiser.address{City: San Francisco, State: CA, Street: [******], Zip: [******]}, &sanitiser.address{City: Denver, State: DN, Street: [******], Zip: [******]}]`,
+			exp: `[&{City: San Francisco, State: CA, Street: [******], Zip: [******]}, &{City: Denver, State: DN, Street: [******], Zip: [******]}]`,
 		},
 		"slice_of_structs": {
 			val: []address{
 				{Street: "451 Main St", City: "San Francisco", State: "CA", Zip: "55501"},
 				{Street: "65 Best St", City: "Denver", State: "DN", Zip: "55502"},
 			},
-			exp: `[sanitiser.address{City: San Francisco, State: CA, Street: [******], Zip: [******]}, sanitiser.address{City: Denver, State: DN, Street: [******], Zip: [******]}]`,
+			exp: `[{City: San Francisco, State: CA, Street: [******], Zip: [******]}, {City: Denver, State: DN, Street: [******], Zip: [******]}]`,
 		},
 		"slices_of_strings": {
 			val: []string{"tag1", "tag2"},
@@ -112,7 +112,7 @@ func Test_FormatSlice(t *testing.T) {
 				{Street: "451 Main St", City: "San Francisco", State: "CA", Zip: "55501"},
 				nil,
 			},
-			exp: `[&sanitiser.address{City: San Francisco, State: CA, Street: [******], Zip: [******]}, nil]`,
+			exp: `[&{City: San Francisco, State: CA, Street: [******], Zip: [******]}, nil]`,
 		},
 		"empty_slice": {
 			val: []string{},
@@ -142,14 +142,14 @@ func Test_FormatArray(t *testing.T) {
 				{Street: "451 Main St", City: "San Francisco", State: "CA", Zip: "55501"},
 				{Street: "65 Best St", City: "Denver", State: "DN", Zip: "55502"},
 			},
-			exp: `[&sanitiser.address{City: San Francisco, State: CA, Street: [******], Zip: [******]}, &sanitiser.address{City: Denver, State: DN, Street: [******], Zip: [******]}]`,
+			exp: `[&{City: San Francisco, State: CA, Street: [******], Zip: [******]}, &{City: Denver, State: DN, Street: [******], Zip: [******]}]`,
 		},
 		"array_of_structs": {
 			val: [2]address{
 				{Street: "451 Main St", City: "San Francisco", State: "CA", Zip: "55501"},
 				{Street: "65 Best St", City: "Denver", State: "DN", Zip: "55502"},
 			},
-			exp: `[sanitiser.address{City: San Francisco, State: CA, Street: [******], Zip: [******]}, sanitiser.address{City: Denver, State: DN, Street: [******], Zip: [******]}]`,
+			exp: `[{City: San Francisco, State: CA, Street: [******], Zip: [******]}, {City: Denver, State: DN, Street: [******], Zip: [******]}]`,
 		},
 		"array_of_strings": {
 			val: [2]string{"tag1", "tag2"},
@@ -176,7 +176,7 @@ func Test_FormatArray(t *testing.T) {
 				{Street: "451 Main St", City: "San Francisco", State: "CA", Zip: "55501"},
 				nil,
 			},
-			exp: `[&sanitiser.address{City: San Francisco, State: CA, Street: [******], Zip: [******]}, nil]`,
+			exp: `[&{City: San Francisco, State: CA, Street: [******], Zip: [******]}, nil]`,
 		},
 		"empty_slice": {
 			val: [0]string{},
@@ -207,7 +207,7 @@ func Test_FormatPointer(t *testing.T) {
 	}{
 		"pointer_to_struct": {
 			val: &address{Street: "451 Main St", City: "San Francisco", State: "CA", Zip: "55501"},
-			exp: `&sanitiser.address{City: San Francisco, State: CA, Street: [******], Zip: [******]}`,
+			exp: `&{City: San Francisco, State: CA, Street: [******], Zip: [******]}`,
 		},
 		"nil_pointer": {
 			val: (*address)(nil),
@@ -249,7 +249,7 @@ func Test_FormatPointer(t *testing.T) {
 				a := &address{Street: "451 Main St", City: "San Francisco", State: "CA", Zip: "55501"}
 				return &a
 			}(),
-			exp: `&&sanitiser.address{City: San Francisco, State: CA, Street: [******], Zip: [******]}`,
+			exp: `&&{City: San Francisco, State: CA, Street: [******], Zip: [******]}`,
 		},
 		"pointer_to_pointer_to_slice": {
 			val: func() **[]string {
@@ -352,7 +352,7 @@ func Test_FormatMap(t *testing.T) {
 		},
 		"map_string_struct": {
 			val: map[string]address{"key1": {Street: "451 Main St", City: "San Francisco", State: "CA", Zip: "55501"}, "key2": {Street: "65 Best St", City: "Denver", State: "DN", Zip: "55502"}},
-			exp: `map[string]sanitiser.address[key1: sanitiser.address{City: San Francisco, State: CA, Street: [******], Zip: [******]}, key2: sanitiser.address{City: Denver, State: DN, Street: [******], Zip: [******]}]`,
+			exp: `map[string]sanitiser.address[key1: {City: San Francisco, State: CA, Street: [******], Zip: [******]}, key2: {City: Denver, State: DN, Street: [******], Zip: [******]}]`,
 		},
 		"map_string_slice": {
 			val: map[string][]string{"key1": {"tag1", "tag2"}, "key2": {"tag3", "tag4"}},
@@ -364,7 +364,7 @@ func Test_FormatMap(t *testing.T) {
 		},
 		"map_string_pointer_to_struct": {
 			val: map[string]*address{"key1": {Street: "451 Main St", City: "San Francisco", State: "CA", Zip: "55501"}, "key2": {Street: "65 Best St", City: "Denver", State: "DN", Zip: "55502"}},
-			exp: `map[string]*sanitiser.address[key1: &sanitiser.address{City: San Francisco, State: CA, Street: [******], Zip: [******]}, key2: &sanitiser.address{City: Denver, State: DN, Street: [******], Zip: [******]}]`,
+			exp: `map[string]*sanitiser.address[key1: &{City: San Francisco, State: CA, Street: [******], Zip: [******]}, key2: &{City: Denver, State: DN, Street: [******], Zip: [******]}]`,
 		},
 		"map_string_map_string": {
 			val: map[string]map[string]string{"key1": {"key1": "value1", "key2": "value2"}, "key2": {"key3": "value3", "key4": "value4"}},
@@ -396,11 +396,11 @@ func Test_FormatMap(t *testing.T) {
 		},
 		"map_pointer_to_struct_string": {
 			val: map[*address]string{{Street: "451 Main St", City: "San Francisco", State: "CA", Zip: "55501"}: "value1", {Street: "65 Best St", City: "Denver", State: "DN", Zip: "55502"}: "value2"},
-			exp: `map[*sanitiser.address]string[&sanitiser.address{City: Denver, State: DN, Street: [******], Zip: [******]}: value2, &sanitiser.address{City: San Francisco, State: CA, Street: [******], Zip: [******]}: value1]`,
+			exp: `map[*sanitiser.address]string[&{City: Denver, State: DN, Street: [******], Zip: [******]}: value2, &{City: San Francisco, State: CA, Street: [******], Zip: [******]}: value1]`,
 		},
 		"map_struct_string": {
 			val: map[address]string{{Street: "451 Main St", City: "San Francisco", State: "CA", Zip: "55501"}: "value1", {Street: "65 Best St", City: "Denver", State: "DN", Zip: "55502"}: "value2"},
-			exp: `map[sanitiser.address]string[sanitiser.address{City: Denver, State: DN, Street: [******], Zip: [******]}: value2, sanitiser.address{City: San Francisco, State: CA, Street: [******], Zip: [******]}: value1]`,
+			exp: `map[sanitiser.address]string[{City: Denver, State: DN, Street: [******], Zip: [******]}: value2, {City: San Francisco, State: CA, Street: [******], Zip: [******]}: value1]`,
 		},
 	}
 
@@ -432,27 +432,27 @@ func Test_InstanceFormatPrimitives(t *testing.T) {
 }
 
 func Test_InstanceConfiguration(t *testing.T) {
-	t.Run("Hide struct name", func(t *testing.T) {
+	t.Run("Display struct name", func(t *testing.T) {
 		p := New()
-		p.HideStructName(true)
+		p.DisplayStructName(true)
 
-		type testStruct struct {
-			Name string `sanitiser:"display"`
-			Age  int
-		}
-
-		exp := `{Name: John, Age: [******]}`
-		got := p.Format(testStruct{Name: "John", Age: 30})
-		require.Equal(t, exp, got)
-	})
-
-	t.Run("Show struct name", func(t *testing.T) {
 		type testStruct struct {
 			Name string `sanitiser:"display"`
 			Age  int
 		}
 
 		exp := `sanitiser.testStruct{Name: John, Age: [******]}`
+		got := p.Format(testStruct{Name: "John", Age: 30})
+		require.Equal(t, exp, got)
+	})
+
+	t.Run("Hide struct name", func(t *testing.T) {
+		type testStruct struct {
+			Name string `sanitiser:"display"`
+			Age  int
+		}
+
+		exp := `{Name: John, Age: [******]}`
 		got := New().Format(testStruct{Name: "John", Age: 30})
 		require.Equal(t, exp, got)
 	})
@@ -467,7 +467,7 @@ func Test_InstanceConfiguration(t *testing.T) {
 			Email string
 		}
 
-		exp := `sanitiser.testStruct{name: John, age: [******]}`
+		exp := `{name: John, age: [******]}`
 		got := p.Format(testStruct{Name: "John", Age: 30})
 		require.Equal(t, exp, got)
 	})
@@ -481,7 +481,7 @@ func Test_InstanceConfiguration(t *testing.T) {
 			Age  int    `json:"age"`
 		}
 
-		exp := `sanitiser.testStruct{Name: John, Age: [******]}`
+		exp := `{Name: John, Age: [******]}`
 		got := p.Format(testStruct{Name: "John", Age: 30})
 		require.Equal(t, exp, got)
 	})
@@ -495,30 +495,17 @@ func Test_InstanceConfiguration(t *testing.T) {
 			Age  int
 		}
 
-		exp := `sanitiser.testStruct{Name: John, Age: [REDACTED]}`
+		exp := `{Name: John, Age: [REDACTED]}`
 		got := p.Format(testStruct{Name: "John", Age: 30})
 		require.Equal(t, exp, got)
 	})
 }
 
 func Test_GlobalInstanceConfiguration(t *testing.T) {
-	t.Run("Hide struct name", func(t *testing.T) {
+	t.Run("Display struct name", func(t *testing.T) {
 		t.Cleanup(func() { SetGlobalInstance(New()) })
 
-		HideStructName(true)
-
-		type testStruct struct {
-			Name string `sanitiser:"display"`
-			Age  int
-		}
-
-		exp := `{Name: John, Age: [******]}`
-		got := Format(testStruct{Name: "John", Age: 30})
-		require.Equal(t, exp, got)
-	})
-
-	t.Run("Show struct name", func(t *testing.T) {
-		t.Cleanup(func() { SetGlobalInstance(New()) })
+		DisplayStructName(true)
 
 		type testStruct struct {
 			Name string `sanitiser:"display"`
@@ -526,6 +513,19 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 		}
 
 		exp := `sanitiser.testStruct{Name: John, Age: [******]}`
+		got := Format(testStruct{Name: "John", Age: 30})
+		require.Equal(t, exp, got)
+	})
+
+	t.Run("Hifr struct name", func(t *testing.T) {
+		t.Cleanup(func() { SetGlobalInstance(New()) })
+
+		type testStruct struct {
+			Name string `sanitiser:"display"`
+			Age  int
+		}
+
+		exp := `{Name: John, Age: [******]}`
 		got := Format(testStruct{Name: "John", Age: 30})
 		require.Equal(t, exp, got)
 	})
@@ -540,7 +540,7 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 			Age  int    `json:"age"`
 		}
 
-		exp := `sanitiser.testStruct{name: John, age: [******]}`
+		exp := `{name: John, age: [******]}`
 		got := Format(testStruct{Name: "John", Age: 30})
 		require.Equal(t, exp, got)
 	})
@@ -555,7 +555,7 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 			Age  int    `json:"age"`
 		}
 
-		exp := `sanitiser.testStruct{Name: John, Age: [******]}`
+		exp := `{Name: John, Age: [******]}`
 		got := Format(testStruct{Name: "John", Age: 30})
 		require.Equal(t, exp, got)
 	})
@@ -570,7 +570,7 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 			Age  int
 		}
 
-		exp := `sanitiser.testStruct{Name: John, Age: [REDACTED]}`
+		exp := `{Name: John, Age: [REDACTED]}`
 		got := Format(testStruct{Name: "John", Age: 30})
 		require.Equal(t, exp, got)
 	})

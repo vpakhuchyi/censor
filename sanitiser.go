@@ -101,10 +101,10 @@ func (p *Processor) UseJSONTagName(v bool) {
 	p.parser.UseJSONTagName = v
 }
 
-// HideStructName sets whether to hide the name of the struct.
+// DisplayStructName sets whether to display the name of the struct.
 // By default, this option is disabled.
-func (p *Processor) HideStructName(v bool) {
-	p.formatter.HideStructName = v
+func (p *Processor) DisplayStructName(v bool) {
+	p.formatter.DisplayStructName = v
 }
 
 // SetFieldTag sets a tag name for sanitiser fields.
@@ -150,11 +150,11 @@ func UseJSONTagName(v bool) {
 	globalInstance.parser.UseJSONTagName = v
 }
 
-// HideStructName sets whether to hide the name of the struct.
+// DisplayStructName sets whether to display the name of the struct.
 // It applies this change to the global globalInstance of Processor.
 // By default, this option is disabled.
-func HideStructName(v bool) {
-	globalInstance.formatter.HideStructName = v
+func DisplayStructName(v bool) {
+	globalInstance.formatter.DisplayStructName = v
 }
 
 // SetFieldTag sets a tag name for sanitiser fields.

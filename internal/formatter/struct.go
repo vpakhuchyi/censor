@@ -27,11 +27,11 @@ import (
 func (f *Formatter) Struct(s models.Struct) string {
 	var buf strings.Builder
 
-	if f.HideStructName {
-		s.Name = ""
+	if f.DisplayStructName {
+		buf.WriteString(fmt.Sprintf("%s", s.Name))
 	}
 
-	buf.WriteString(fmt.Sprintf("%s{", s.Name))
+	buf.WriteString("{")
 
 	fields := s.Fields
 	for i := 0; i < len(s.Fields); i++ {

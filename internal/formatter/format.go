@@ -16,16 +16,16 @@ type Formatter struct {
 	// MaskValue is used to mask struct fields with sensitive data.
 	// The default value is stored in DefaultMaskValue constant.
 	MaskValue string
-	// HideStructName is used to hide struct name in the output.
+	// DisplayStructName is used to hide struct name in the output.
 	// The default value is false.
-	HideStructName bool
+	DisplayStructName bool
 }
 
 // New returns a new instance of Formatter with default configuration.
 func New() *Formatter {
 	return &Formatter{
-		MaskValue:      DefaultMaskValue,
-		HideStructName: false,
+		MaskValue:         DefaultMaskValue,
+		DisplayStructName: false,
 	}
 }
 

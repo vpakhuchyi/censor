@@ -87,7 +87,7 @@ func main() {
 	fmt.Println(sanitiser.Format(a))
 }
 
-Output: `main.address{City: [******], State: [******], Zip: [******]}`
+Output: `{City: [******], State: [******], Zip: [******]}`
 ```
 
 If you want to display some fields, you have to use `sanitiser:"display"` tag:
@@ -112,7 +112,7 @@ func main() {
 	fmt.Println(sanitiser.Format(a))
 }
 
-Output: `main.address{City: Kharkiv, State: KH, Zip: [******]}`
+Output: `{City: Kharkiv, State: KH, Zip: [******]}`
 ```
 
 It's possible to override the default tag to use your own:
@@ -138,7 +138,7 @@ func main() {
 	fmt.Println(sanitiser.Format(a))
 }
 
-Output: `main.address{City: Kharkiv, State: KH, Zip: [******]}`
+Output: `{City: Kharkiv, State: KH, Zip: [******]}`
 ```
 
 #### 2. Struct with Complex Types
@@ -182,7 +182,7 @@ func main() {
 	fmt.Println(sanitiser.Format(v))
 }
 
-Output: `main.structWithComplexFields{Slice: [main.address{City: Kharkiv, State: KH, Zip: [******]}, main.address{City: Dnipro, State: DN, Zip: [******]}], MaskedSlice: [******], Ptr: &main.address{City: Kharkiv, State: KH, Zip: [******]}, Struct: main.address{City: Kharkiv, State: KH, Zip: [******]}}`
+Output: `{Slice: [{City: Kharkiv, State: KH, Zip: [******]}, {City: Dnipro, State: DN, Zip: [******]}], MaskedSlice: [******], Ptr: &{City: Kharkiv, State: KH, Zip: [******]}, Struct: {City: Kharkiv, State: KH, Zip: [******]}}`
 
 ```
 
@@ -212,7 +212,7 @@ func main() {
 	fmt.Println(s.Format(a))
 }
 
-Output: `main.address{City: Kharkiv, State: KH, Zip: [******]}`
+Output: `{City: Kharkiv, State: KH, Zip: [******]}`
 ```
 
 ### Configuration
@@ -250,9 +250,9 @@ func main() {
 	// Note: fields with absent JSON tag will be ignored.
 	s.UseJSONTagName(true) // pkg-level function: sanitiser.UseJSONTagName(true)
 
-	// Hide struct name.
-	// It hides the struct name (including a package name) from the output.
-	s.HideStructName(true) // pkg-level function: sanitiser.HideStructName(true)
+	// Display struct name.
+	// It displays the struct name (including a package name) in the output.
+	s.DisplayStructName(true) // pkg-level function: sanitiser.DisplayStructName(false)
 
 	// Set custom field tag.
 	// It may be useful if a default tag (`sanitiser`) is already used in your project.
@@ -274,7 +274,7 @@ func main() {
 	fmt.Println(s.Format(v))
 }
 
-Output: `{slice: [{city: Kharkiv, state: KH, zip: [REDACTED]}, {city: Dnipro, state: DN, zip: [REDACTED]}], ptr: [REDACTED]}`
+Output: `main.structWithComplexFields{slice: [main.address{city: Kharkiv, state: KH, zip: [REDACTED]}, main.address{city: Dnipro, state: DN, zip: [REDACTED]}], ptr: [REDACTED]}`
 
 ```
 
