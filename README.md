@@ -4,9 +4,19 @@
 ![coverage](https://raw.githubusercontent.com/vpakhuchyi/sanitiser/badges/.badges/main/coverage.svg)
 [![GoDoc](https://godoc.org/github.com/vpakhuchyi/sanitiser?status.svg)](https://godoc.org/github.com/vpakhuchyi/sanitiser)
 
-**Sanitiser** is a Go library with the primary objective of formatting any given value into a string while
-effectively masking sensitive information. Leveraging reflection for in-depth analysis and employing formatters, it
-ensures accurate and readable output.
+**Sanitiser** is a Go library focused on formatting values into strings, emphasizing the protection
+of sensitive information. Through advanced reflection and specialized formatters, it provides precise,
+easily readable output. Ideal for safeguarding confidential data or enhancing data presentation in Go projects.
+
+<!-- TOC -->
+
+* [Sanitiser](#sanitiser)
+    * [Installation](#installation)
+    * [Usage](#usage)
+    * [Configuration](#configuration)
+    * [Supported Types](#supported-types)
+
+<!-- TOC -->
 
 ### Installation
 
@@ -56,233 +66,18 @@ Output: `2038/10/25 12:00:01 INFO Request payload="{UserID: 123, Email: [******]
 
 ```
 
-
-### Examples
-
-Here are some examples of how to use the `Format` function.
-
-#### 1. Simple Struct
-
-By default, all fields within a struct will be masked.
-In case you use Sanitiser for logging, such an approach will help you to hide sensitive information.
-Even if you add new fields to the struct, they will be masked automatically
-
-```go
-package main
-
-import (
-	"fmt"
-
-	"github.com/vpakhuchyi/sanitiser"
-)
-
-type address struct {
-	City  string
-	State string
-	Zip   int
-}
-
-func main() {
-	a := address{City: "Kharkiv", State: "KH", Zip: 55501}
-	fmt.Println(sanitiser.Format(a))
-}
-
-Output: `{City: [******], State: [******], Zip: [******]}`
-```
-
-If you want to display some fields, you have to use `sanitiser:"display"` tag:
-
-```go
-package main
-
-import (
-	"fmt"
-
-	"github.com/vpakhuchyi/sanitiser"
-)
-
-type address struct {
-	City  string `sanitiser:"display"`
-	State string `sanitiser:"display"`
-	Zip   int
-}
-
-func main() {
-	a := address{City: "Kharkiv", State: "KH", Zip: 55501}
-	fmt.Println(sanitiser.Format(a))
-}
-
-Output: `{City: Kharkiv, State: KH, Zip: [******]}`
-```
-
-It's possible to override the default tag to use your own:
-
-```go
-package main
-
-import (
-	"fmt"
-
-	"github.com/vpakhuchyi/sanitiser"
-)
-
-type address struct {
-	City  string `custom:"display"`
-	State string `custom:"display"`
-	Zip   int
-}
-
-func main() {
-	sanitiser.SetFieldTag("custom")
-	a := address{City: "Kharkiv", State: "KH", Zip: 55501}
-	fmt.Println(sanitiser.Format(a))
-}
-
-Output: `{City: Kharkiv, State: KH, Zip: [******]}`
-```
-
-#### 2. Struct with Complex Types
-
-```go
-package main
-
-import (
-	"fmt"
-
-	"github.com/vpakhuchyi/sanitiser"
-)
-
-type address struct {
-	City  string `sanitiser:"display"`
-	State string `sanitiser:"display"`
-	Zip   int
-}
-
-type structWithComplexFields struct {
-	Slice       []address `sanitiser:"display"`
-	MaskedSlice []address
-	Ptr         *address `sanitiser:"display"`
-	Struct      address  `sanitiser:"display"`
-}
-
-func main() {
-	v := structWithComplexFields{
-		Slice: []address{
-			{City: "Kharkiv", State: "KH", Zip: 55501},
-			{City: "Dnipro", State: "DN", Zip: 55502},
-		},
-		MaskedSlice: []address{
-			{City: "Lviv", State: "LV", Zip: 10001},
-			{City: "Kyiv", State: "KY", Zip: 60601},
-		},
-		Ptr:    &address{City: "Kharkiv", State: "KH", Zip: 55501},
-		Struct: address{City: "Kharkiv", State: "KH", Zip: 55501},
-	}
-
-	fmt.Println(sanitiser.Format(v))
-}
-
-Output: `{Slice: [{City: Kharkiv, State: KH, Zip: [******]}, {City: Dnipro, State: DN, Zip: [******]}], MaskedSlice: [******], Ptr: &{City: Kharkiv, State: KH, Zip: [******]}, Struct: {City: Kharkiv, State: KH, Zip: [******]}}`
-
-```
-
-#### 3. Local instance usage
-
-In previous examples, we used package-level functions. But it's possible to create local instance of sanitiser and use
-it:
-
-```go
-package main
-
-import (
-	"fmt"
-
-	"github.com/vpakhuchyi/sanitiser"
-)
-
-type address struct {
-	City  string `sanitiser:"display"`
-	State string `sanitiser:"display"`
-	Zip   int
-}
-
-func main() {
-	s := sanitiser.New()
-	a := address{City: "Kharkiv", State: "KH", Zip: 55501}
-	fmt.Println(s.Format(a))
-}
-
-Output: `{City: Kharkiv, State: KH, Zip: [******]}`
-```
-
 ### Configuration
 
-```go
-package main
+All configuration options can be set using the `sanitiser` package-level functions as shown below.
+At the same time you can create a new instance of `sanitiser.Sanitiser` and use its methods to configure it.
 
-import (
-	"fmt"
-
-	"github.com/vpakhuchyi/sanitiser"
-)
-
-type address struct {
-	City  string `sanitiser:"display"`
-	State string `sanitiser:"display"`
-	Zip   int
-}
-
-type structWithComplexFields struct {
-	Slice       []address `json:"slice" custom:"display"`
-	MaskedSlice []address
-	Map         map[string]address `json:"map" custom:"display"`
-	Ptr         *address           `json:"ptr" sanitiser:"display"`
-	Struct      address            `sanitiser:"display"`
-}
-
-func main() {
-	// Create local instance of sanitiser.
-	s := sanitiser.New()
-
-	// Set custom mask value.
-	s.SetMaskValue("[REDACTED]") // pkg-level function: sanitiser.SetMaskValue("[REDACTED]")
-
-	// Use JSON tag name instead of struct field name.
-	// Note: fields with absent JSON tag will be ignored.
-	s.UseJSONTagName(true) // pkg-level function: sanitiser.UseJSONTagName(true)
-
-	// Display struct name.
-	// It displays the struct name (including a package name) in the output.
-	s.DisplayStructName(true) // pkg-level function: sanitiser.DisplayStructName(false)
-
-	// Set custom field tag.
-	// It may be useful if a default tag (`sanitiser`) is already used in your project.
-	s.SetFieldTag("custom") // pkg-level function: sanitiser.SetFieldTag("custom")
-
-	// Display map type.
-	// It displays the map type in the output.
-	s.DisplayMapType(true) // pkg-level function: sanitiser.DisplayMapType(false)
-
-	v := structWithComplexFields{
-		Slice: []address{
-			{City: "Kharkiv", State: "KH", Zip: 55501},
-			{City: "Dnipro", State: "DN", Zip: 55502},
-		},
-		MaskedSlice: []address{
-			{City: "Lviv", State: "LV", Zip: 10001},
-			{City: "Kyiv", State: "KY", Zip: 60601},
-		},
-		Map:    map[string]address{"home": {City: "Kharkiv", State: "KH", Zip: 55501}},
-		Ptr:    &address{City: "Kharkiv", State: "KH", Zip: 55501},
-		Struct: address{City: "Kharkiv", State: "KH", Zip: 55501},
-	}
-
-	fmt.Println(s.Format(v))
-}
-
-Output: `main.structWithComplexFields{slice: [main.address{city: Kharkiv, state: KH, zip: [REDACTED]}, main.address{city: Dnipro, state: DN, zip: [REDACTED]}], map: map[string]main.address[home: main.address{city: Kharkiv, state: KH, zip: [REDACTED]}], ptr: [REDACTED]}`
-
-```
+| Global option                       | Description                                            |
+|-------------------------------------|--------------------------------------------------------|
+| sanitiser.SetMaskValue(s string)    | Set custom mask value instead of default `[REDACTED]`. |
+| sanitiser.SetFieldTag(s string)     | Set custom field tag instead of default `sanitiser`.   |
+| sanitiser.UseJSONTagName(b bool)    | Use JSON tag name instead of struct field name.        |
+| sanitiser.DisplayStructName(b bool) | Display struct name in the output.                     |
+| sanitiser.DisplayMapType(b bool)    | Display map type in the output.                        |
 
 ### Supported Types
 
