@@ -71,13 +71,13 @@ Output: `2038/10/25 12:00:01 INFO Request payload="{UserID: 123, Email: [******]
 All configuration options can be set using the `sanitiser` package-level functions as shown below.
 At the same time you can create a new instance of `sanitiser.Sanitiser` and use its methods to configure it.
 
-| Global option                       | Description                                            |
-|-------------------------------------|--------------------------------------------------------|
-| sanitiser.SetMaskValue(s string)    | Set custom mask value instead of default `[REDACTED]`. |
-| sanitiser.SetFieldTag(s string)     | Set custom field tag instead of default `sanitiser`.   |
-| sanitiser.UseJSONTagName(b bool)    | Use JSON tag name instead of struct field name.        |
-| sanitiser.DisplayStructName(b bool) | Display struct name in the output.                     |
-| sanitiser.DisplayMapType(b bool)    | Display map type in the output.                        |
+| Global option                       | Description                                          |
+|-------------------------------------|------------------------------------------------------|
+| sanitiser.SetMaskValue(s string)    | Set custom mask value instead of default `[******]`. |
+| sanitiser.SetFieldTag(s string)     | Set custom field tag instead of default `sanitiser`. |
+| sanitiser.UseJSONTagName(b bool)    | Use JSON tag name instead of struct field name.      |
+| sanitiser.DisplayStructName(b bool) | Display struct name in the output.                   |
+| sanitiser.DisplayMapType(b bool)    | Display map type in the output.                      |
 
 ### Supported Types
 
