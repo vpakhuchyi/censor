@@ -9,7 +9,7 @@ import (
 // Map formats a map into a string.
 // If the map contains nested complex types, they are formatted recursively.
 // Keys are sorted to make the output deterministic.
-// The map type is added to the output to indicate the map type.
+// The map type can be added to the output to indicate the map type using the DisplayMapType option.
 //
 // Supported types:
 //
@@ -30,7 +30,12 @@ import (
 // - map - struct/slice/array/pointer values are formatted recursively.
 func (f *Formatter) Map(m models.Map) string {
 	var buf strings.Builder
-	buf.WriteString(m.Type + "[")
+
+	if f.DisplayMapType {
+		buf.WriteString(m.Type + "[")
+	} else {
+		buf.WriteString("map[")
+	}
 
 	kvs := m.Values
 	for i := 0; i < len(kvs); i++ {

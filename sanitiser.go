@@ -113,6 +113,12 @@ func (p *Processor) SetFieldTag(tag string) {
 	p.parser.SanitiserFieldTag = tag
 }
 
+// DisplayMapType sets whether to display map type in the output.
+// By default, this option is disabled.
+func (p *Processor) DisplayMapType(v bool) {
+	p.formatter.DisplayMapType = v
+}
+
 /*
 	Pkg-level functions that work with the global globalInstance of Processor.
 */
@@ -162,6 +168,13 @@ func DisplayStructName(v bool) {
 // The default value is stored in the parser.DefaultSanitiserFieldTag constant.
 func SetFieldTag(tag string) {
 	globalInstance.parser.SanitiserFieldTag = tag
+}
+
+// DisplayMapType sets whether to display map type in the output.
+// It applies this change to the global globalInstance of Processor.
+// By default, this option is disabled.
+func DisplayMapType(v bool) {
+	globalInstance.formatter.DisplayMapType = v
 }
 
 func (p *Processor) sanitise(val any) string {

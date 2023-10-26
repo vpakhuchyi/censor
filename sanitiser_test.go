@@ -45,7 +45,7 @@ func Test_FormatStruct(t *testing.T) {
 				Ptr:    &address{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"},
 				Struct: address{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"},
 			},
-			exp: `{Slice: [{City: San Francisco, State: CA, Street: [******], Zip: [******]}, {City: Denver, State: DN, Street: [******], Zip: [******]}], MaskedSlice: [******], Map: map[string]sanitiser.address[address1: {City: San Francisco, State: CA, Street: [******], Zip: [******]}, address2: {City: Denver, State: DN, Street: [******], Zip: [******]}], Array: [{City: San Francisco, State: CA, Street: [******], Zip: [******]}, {City: Denver, State: DN, Street: [******], Zip: [******]}], Ptr: &{City: San Francisco, State: CA, Street: [******], Zip: [******]}, Struct: {City: San Francisco, State: CA, Street: [******], Zip: [******]}}`,
+			exp: `{Slice: [{City: San Francisco, State: CA, Street: [******], Zip: [******]}, {City: Denver, State: DN, Street: [******], Zip: [******]}], MaskedSlice: [******], Map: map[address1: {City: San Francisco, State: CA, Street: [******], Zip: [******]}, address2: {City: Denver, State: DN, Street: [******], Zip: [******]}], Array: [{City: San Francisco, State: CA, Street: [******], Zip: [******]}, {City: Denver, State: DN, Street: [******], Zip: [******]}], Ptr: &{City: San Francisco, State: CA, Street: [******], Zip: [******]}, Struct: {City: San Francisco, State: CA, Street: [******], Zip: [******]}}`,
 		},
 		"struct_with_containers_fields": {
 			val: structWithContainersFields{
@@ -332,75 +332,75 @@ func Test_FormatMap(t *testing.T) {
 	}{
 		"map_string_string": {
 			val: map[string]string{"key1": "value1", "key2": "value2"},
-			exp: `map[string]string[key1: value1, key2: value2]`,
+			exp: `map[key1: value1, key2: value2]`,
 		},
 		"map_string_int": {
 			val: map[string]int{"key1": 1, "key2": 2},
-			exp: `map[string]int[key1: 1, key2: 2]`,
+			exp: `map[key1: 1, key2: 2]`,
 		},
 		"map_string_float64": {
 			val: map[string]float64{"key1": -1.12342342, "key2": 2.24567},
-			exp: `map[string]float64[key1: -1.12342342, key2: 2.24567]`,
+			exp: `map[key1: -1.12342342, key2: 2.24567]`,
 		},
 		"map_string_float32": {
 			val: map[string]float32{"key1": -6457.2342, "key2": -13.1234},
-			exp: `map[string]float32[key1: -6457.234, key2: -13.1234]`,
+			exp: `map[key1: -6457.234, key2: -13.1234]`,
 		},
 		"map_string_bool": {
 			val: map[string]bool{"key1": true, "key2": false},
-			exp: `map[string]bool[key1: true, key2: false]`,
+			exp: `map[key1: true, key2: false]`,
 		},
 		"map_string_struct": {
 			val: map[string]address{"key1": {Street: "451 Main St", City: "San Francisco", State: "CA", Zip: "55501"}, "key2": {Street: "65 Best St", City: "Denver", State: "DN", Zip: "55502"}},
-			exp: `map[string]sanitiser.address[key1: {City: San Francisco, State: CA, Street: [******], Zip: [******]}, key2: {City: Denver, State: DN, Street: [******], Zip: [******]}]`,
+			exp: `map[key1: {City: San Francisco, State: CA, Street: [******], Zip: [******]}, key2: {City: Denver, State: DN, Street: [******], Zip: [******]}]`,
 		},
 		"map_string_slice": {
 			val: map[string][]string{"key1": {"tag1", "tag2"}, "key2": {"tag3", "tag4"}},
-			exp: `map[string][]string[key1: [tag1, tag2], key2: [tag3, tag4]]`,
+			exp: `map[key1: [tag1, tag2], key2: [tag3, tag4]]`,
 		},
 		"map_string_array": {
 			val: map[string][2]string{"key1": {"tag1", "tag2"}, "key2": {"tag3", "tag4"}},
-			exp: `map[string][2]string[key1: [tag1, tag2], key2: [tag3, tag4]]`,
+			exp: `map[key1: [tag1, tag2], key2: [tag3, tag4]]`,
 		},
 		"map_string_pointer_to_struct": {
 			val: map[string]*address{"key1": {Street: "451 Main St", City: "San Francisco", State: "CA", Zip: "55501"}, "key2": {Street: "65 Best St", City: "Denver", State: "DN", Zip: "55502"}},
-			exp: `map[string]*sanitiser.address[key1: &{City: San Francisco, State: CA, Street: [******], Zip: [******]}, key2: &{City: Denver, State: DN, Street: [******], Zip: [******]}]`,
+			exp: `map[key1: &{City: San Francisco, State: CA, Street: [******], Zip: [******]}, key2: &{City: Denver, State: DN, Street: [******], Zip: [******]}]`,
 		},
 		"map_string_map_string": {
 			val: map[string]map[string]string{"key1": {"key1": "value1", "key2": "value2"}, "key2": {"key3": "value3", "key4": "value4"}},
-			exp: `map[string]map[string]string[key1: map[string]string[key1: value1, key2: value2], key2: map[string]string[key3: value3, key4: value4]]`,
+			exp: `map[key1: map[key1: value1, key2: value2], key2: map[key3: value3, key4: value4]]`,
 		},
 		"map_string_slice_of_map_string": {
 			val: map[string][]map[string]string{"key1": {{"key1": "value1", "key2": "value2"}, {"key3": "value3", "key4": "value4"}}, "key2": {{"key5": "value5", "key6": "value6"}, {"key7": "value7", "key8": "value8"}}},
-			exp: `map[string][]map[string]string[key1: [map[string]string[key1: value1, key2: value2], map[string]string[key3: value3, key4: value4]], key2: [map[string]string[key5: value5, key6: value6], map[string]string[key7: value7, key8: value8]]]`,
+			exp: `map[key1: [map[key1: value1, key2: value2], map[key3: value3, key4: value4]], key2: [map[key5: value5, key6: value6], map[key7: value7, key8: value8]]]`,
 		},
 		"map_float64_string": {
 			val: map[float64]string{1.1: "value1", 2.2: "value2"},
-			exp: `map[float64]string[1.1: value1, 2.2: value2]`,
+			exp: `map[1.1: value1, 2.2: value2]`,
 		},
 		"map_float32_string": {
 			val: map[float32]string{1.1: "value1", 2.2: "value2"},
-			exp: `map[float32]string[1.1: value1, 2.2: value2]`,
+			exp: `map[1.1: value1, 2.2: value2]`,
 		},
 		"map_int_string": {
 			val: map[int]string{1: "value1", 2: "value2"},
-			exp: `map[int]string[1: value1, 2: value2]`,
+			exp: `map[1: value1, 2: value2]`,
 		},
 		"map_rune_string": {
 			val: map[rune]string{1: "value1", 2: "value2"},
-			exp: `map[int32]string[1: value1, 2: value2]`,
+			exp: `map[1: value1, 2: value2]`,
 		},
 		"map_array_string": {
 			val: map[[2]string]string{{"key1", "key2"}: "value1", {"key3", "key4"}: "value2"},
-			exp: `map[[2]string]string[[key1, key2]: value1, [key3, key4]: value2]`,
+			exp: `map[[key1, key2]: value1, [key3, key4]: value2]`,
 		},
 		"map_pointer_to_struct_string": {
 			val: map[*address]string{{Street: "451 Main St", City: "San Francisco", State: "CA", Zip: "55501"}: "value1", {Street: "65 Best St", City: "Denver", State: "DN", Zip: "55502"}: "value2"},
-			exp: `map[*sanitiser.address]string[&{City: Denver, State: DN, Street: [******], Zip: [******]}: value2, &{City: San Francisco, State: CA, Street: [******], Zip: [******]}: value1]`,
+			exp: `map[&{City: Denver, State: DN, Street: [******], Zip: [******]}: value2, &{City: San Francisco, State: CA, Street: [******], Zip: [******]}: value1]`,
 		},
 		"map_struct_string": {
 			val: map[address]string{{Street: "451 Main St", City: "San Francisco", State: "CA", Zip: "55501"}: "value1", {Street: "65 Best St", City: "Denver", State: "DN", Zip: "55502"}: "value2"},
-			exp: `map[sanitiser.address]string[{City: Denver, State: DN, Street: [******], Zip: [******]}: value2, {City: San Francisco, State: CA, Street: [******], Zip: [******]}: value1]`,
+			exp: `map[{City: Denver, State: DN, Street: [******], Zip: [******]}: value2, {City: San Francisco, State: CA, Street: [******], Zip: [******]}: value1]`,
 		},
 	}
 
@@ -499,6 +499,19 @@ func Test_InstanceConfiguration(t *testing.T) {
 		got := p.Format(testStruct{Name: "John", Age: 30})
 		require.Equal(t, exp, got)
 	})
+
+	t.Run("Display map type", func(t *testing.T) {
+		p := New()
+		p.DisplayMapType(true)
+
+		type testStruct struct {
+			M map[string]map[string]int `sanitiser:"display"`
+		}
+
+		exp := `{M: map[string]map[string]int[key1: map[string]int[key1: 1, key2: 2]]}`
+		got := p.Format(testStruct{M: map[string]map[string]int{"key1": {"key1": 1, "key2": 2}}})
+		require.Equal(t, exp, got)
+	})
 }
 
 func Test_GlobalInstanceConfiguration(t *testing.T) {
@@ -517,7 +530,7 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 		require.Equal(t, exp, got)
 	})
 
-	t.Run("Hifr struct name", func(t *testing.T) {
+	t.Run("Hide struct name", func(t *testing.T) {
 		t.Cleanup(func() { SetGlobalInstance(New()) })
 
 		type testStruct struct {
@@ -572,6 +585,20 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 
 		exp := `{Name: John, Age: [REDACTED]}`
 		got := Format(testStruct{Name: "John", Age: 30})
+		require.Equal(t, exp, got)
+	})
+
+	t.Run("Display map type", func(t *testing.T) {
+		t.Cleanup(func() { SetGlobalInstance(New()) })
+
+		DisplayMapType(true)
+
+		type testStruct struct {
+			M map[string]map[string]int `sanitiser:"display"`
+		}
+
+		exp := `{M: map[string]map[string]int[key1: map[string]int[key1: 1, key2: 2]]}`
+		got := Format(testStruct{M: map[string]map[string]int{"key1": {"key1": 1, "key2": 2}}})
 		require.Equal(t, exp, got)
 	})
 }

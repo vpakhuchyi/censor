@@ -52,7 +52,7 @@ func main() {
 	slog.Info("Request", "payload", sanitiser.Format(r))
 }
 
-Output: `2038/10/25 12:00:01 INFO Request payload="main.request{UserID: 123, Email: [******], FullName: [******], Password: [******]}"`
+Output: `2038/10/25 12:00:01 INFO Request payload="{UserID: 123, Email: [******], FullName: [******], Password: [******]}"`
 
 ```
 
@@ -235,8 +235,9 @@ type address struct {
 type structWithComplexFields struct {
 	Slice       []address `json:"slice" custom:"display"`
 	MaskedSlice []address
-	Ptr         *address `json:"ptr" sanitiser:"display"`
-	Struct      address  `sanitiser:"display"`
+	Map         map[string]address `json:"map" custom:"display"`
+	Ptr         *address           `json:"ptr" sanitiser:"display"`
+	Struct      address            `sanitiser:"display"`
 }
 
 func main() {
@@ -258,6 +259,10 @@ func main() {
 	// It may be useful if a default tag (`sanitiser`) is already used in your project.
 	s.SetFieldTag("custom") // pkg-level function: sanitiser.SetFieldTag("custom")
 
+	// Display map type.
+	// It displays the map type in the output.
+	s.DisplayMapType(true) // pkg-level function: sanitiser.DisplayMapType(false)
+
 	v := structWithComplexFields{
 		Slice: []address{
 			{City: "Kharkiv", State: "KH", Zip: 55501},
@@ -267,6 +272,7 @@ func main() {
 			{City: "Lviv", State: "LV", Zip: 10001},
 			{City: "Kyiv", State: "KY", Zip: 60601},
 		},
+		Map:    map[string]address{"home": {City: "Kharkiv", State: "KH", Zip: 55501}},
 		Ptr:    &address{City: "Kharkiv", State: "KH", Zip: 55501},
 		Struct: address{City: "Kharkiv", State: "KH", Zip: 55501},
 	}
@@ -274,7 +280,7 @@ func main() {
 	fmt.Println(s.Format(v))
 }
 
-Output: `main.structWithComplexFields{slice: [main.address{city: Kharkiv, state: KH, zip: [REDACTED]}, main.address{city: Dnipro, state: DN, zip: [REDACTED]}], ptr: [REDACTED]}`
+Output: `main.structWithComplexFields{slice: [main.address{city: Kharkiv, state: KH, zip: [REDACTED]}, main.address{city: Dnipro, state: DN, zip: [REDACTED]}], map: map[string]main.address[home: main.address{city: Kharkiv, state: KH, zip: [REDACTED]}], ptr: [REDACTED]}`
 
 ```
 

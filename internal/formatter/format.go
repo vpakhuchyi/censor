@@ -19,6 +19,9 @@ type Formatter struct {
 	// DisplayStructName is used to hide struct name in the output.
 	// The default value is false.
 	DisplayStructName bool
+	// DisplayMapType is used to display map type in the output.
+	// The default value is false.
+	DisplayMapType bool
 }
 
 // New returns a new instance of Formatter with default configuration.
@@ -26,6 +29,7 @@ func New() *Formatter {
 	return &Formatter{
 		MaskValue:         DefaultMaskValue,
 		DisplayStructName: false,
+		DisplayMapType:    false,
 	}
 }
 
