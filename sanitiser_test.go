@@ -305,16 +305,16 @@ func Test_FormatUnsupported(t *testing.T) {
 		val any
 		exp string
 	}{
-		"complex64":  {val: complex64(1.1), exp: `[unsupported kind of value: complex64]`},
-		"complex128": {val: complex128(1.1), exp: `[unsupported kind of value: complex128]`},
-		"chan":       {val: make(chan int), exp: `[unsupported kind of value: chan]`},
-		"func":       {val: func() {}, exp: `[unsupported kind of value: func]`},
+		"complex64":  {val: complex64(1.1), exp: ""},
+		"complex128": {val: complex128(1.1), exp: ""},
+		"chan":       {val: make(chan int), exp: ""},
+		"func":       {val: func() {}, exp: ""},
 		"unsafe.Pointer": {
 			val: func() unsafe.Pointer {
 				var v int
 				return unsafe.Pointer(&v)
 			}(),
-			exp: `[unsupported kind of value: unsafe.Pointer]`,
+			exp: "",
 		},
 	}
 

@@ -45,7 +45,7 @@ package sanitiser
 	| Uintptr    | Func       |            |
 	|------------|------------|------------|
 
-	Note: unsupported types will be replaced with "[unsupported type]" string.
+	Note: if a value of unsupported type is provided, an empty string will be returned.
 */
 
 import (
@@ -56,9 +56,6 @@ import (
 	"github.com/vpakhuchyi/sanitiser/internal/models"
 	"github.com/vpakhuchyi/sanitiser/internal/parser"
 )
-
-// unsupportedKind is returned when the value is of unsupported kind.
-const unsupportedKind = `[unsupported kind of value: %v]`
 
 // Processor is used to sanitise any value into a string representation.
 // Any configuration changes could be applied to the global globalInstance or to the globalInstance of this struct
@@ -185,6 +182,18 @@ func (p *Processor) sanitise(val any) string {
 	}
 
 	v := reflect.ValueOf(val)
+
+	// Handle a case when provided value is of one of non-supported types.
+	// In such a case, we return an empty string.
+	parsed := p.parse(v)
+	if v, ok := parsed.(string); ok && v == "" {
+		return v
+	}
+
+	return p.format(v.Kind(), parsed)
+}
+
+func (p *Processor) parse(v reflect.Value) any {
 	var parsed any
 	switch v.Kind() {
 	case reflect.Struct:
@@ -203,30 +212,34 @@ func (p *Processor) sanitise(val any) string {
 		reflect.Complex64, reflect.Complex128, reflect.Uintptr:
 		/*
 			Note: this case covers all unsupported types.
-			In such a case, we return a string with a message about the unsupported type.
+			In such a case, we return an empty string.
 		*/
-		return fmt.Sprintf(unsupportedKind, v.Kind())
+		return ""
 	}
 
-	switch v.Kind() {
+	return parsed
+}
+
+func (p *Processor) format(k reflect.Kind, v any) string {
+	switch k {
 	case reflect.Struct:
-		return p.formatter.Struct(parsed.(models.Struct))
+		return p.formatter.Struct(v.(models.Struct))
 	case reflect.Slice, reflect.Array:
-		return p.formatter.Slice(parsed.(models.Slice))
+		return p.formatter.Slice(v.(models.Slice))
 	case reflect.Pointer:
-		return p.formatter.Ptr(parsed.(models.Ptr))
+		return p.formatter.Ptr(v.(models.Ptr))
 	case reflect.String:
-		return p.formatter.String(parsed.(models.Value))
+		return p.formatter.String(v.(models.Value))
 	case reflect.Float32, reflect.Float64:
-		return p.formatter.Float(parsed.(models.Value))
+		return p.formatter.Float(v.(models.Value))
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return p.formatter.Integer(parsed.(models.Value))
+		return p.formatter.Integer(v.(models.Value))
 	case reflect.Bool:
-		return p.formatter.Bool(parsed.(models.Value))
+		return p.formatter.Bool(v.(models.Value))
 	case reflect.Map:
-		return p.formatter.Map(parsed.(models.Map))
+		return p.formatter.Map(v.(models.Map))
 	default:
-		return fmt.Sprintf(`%v`, parsed.(models.Value).Value)
+		return fmt.Sprintf(`%v`, v.(models.Value).Value)
 	}
 }
