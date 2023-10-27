@@ -1,5 +1,7 @@
 package sanitiser
 
+import "fmt"
+
 type person struct {
 	ID           string `sanitiser:"display"`
 	Name         string
@@ -60,8 +62,33 @@ type structWithComplexFields struct {
 	Array       [2]address         `sanitiser:"display"`
 	Ptr         *address           `sanitiser:"display"`
 	Struct      address            `sanitiser:"display"`
+	Interface   interface{}        `sanitiser:"display"`
+}
+
+type structWithInterface struct {
+	Interface interface{} `sanitiser:"display"`
 }
 
 type container struct {
 	Persons []person `sanitiser:"display"`
+}
+
+type Printer interface {
+	Print()
+}
+
+type printer struct {
+	Name string `sanitiser:"display"`
+}
+
+func (p *printer) Print() {
+	fmt.Println(p.Name)
+}
+
+type sensPrinter struct {
+	Name string
+}
+
+func (s *sensPrinter) Print() {
+	fmt.Println(s.Name)
 }

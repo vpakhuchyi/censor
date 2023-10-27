@@ -10,7 +10,7 @@ import (
 )
 
 // Struct parses a given value and returns a Struct.
-// All fields of pointer/slice/array/struct/map types will be parsed recursively.
+// All supported complex types will be parsed recursively.
 func (p *Parser) Struct(structValue reflect.Value) models.Struct {
 	var v models.Value
 	s := models.Struct{Name: getStructName(structValue)}
@@ -41,6 +41,8 @@ func (p *Parser) Struct(structValue reflect.Value) models.Struct {
 			v = models.Value{Value: p.Slice(f), Kind: f.Kind()}
 		case reflect.Map:
 			v = models.Value{Value: p.Map(f), Kind: f.Kind()}
+		case reflect.Interface:
+			v = models.Value{Value: p.Interface(f), Kind: f.Kind()}
 		default:
 			v = models.Value{Value: f.Interface(), Kind: f.Kind()}
 		}

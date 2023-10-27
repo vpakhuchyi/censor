@@ -21,6 +21,8 @@ package sanitiser
 	|----------------------|-----------------------------------------------------------------------|
 	| Map                  | Struct/Slice/Array/Pointer/Map values will be parsed recursively.     |
 	|----------------------|-----------------------------------------------------------------------|
+	| Interface            | Will be formatted using the same rules as for the value it contains.  |
+	|----------------------|-----------------------------------------------------------------------|
 	| String               | Default fmt package formatting is used.                               |
 	|----------------------|-----------------------------------------------------------------------|
 	| Float64              | Formatted value will have up to 15 precision digits.                  |
@@ -40,7 +42,7 @@ package sanitiser
 	|------------|------------|------------|
 	| Chan       | Complex64  | Complex128 |
 	|------------|------------|------------|
-	| Interface  | Func       | Uintptr    |
+	| Uintptr    | Func       |            |
 	|------------|------------|------------|
 
 	Note: unsupported types will be replaced with "[unsupported type]" string.
@@ -178,8 +180,11 @@ func DisplayMapType(v bool) {
 }
 
 func (p *Processor) sanitise(val any) string {
-	v := reflect.ValueOf(val)
+	if reflect.TypeOf(val) == nil {
+		return "nil"
+	}
 
+	v := reflect.ValueOf(val)
 	var parsed any
 	switch v.Kind() {
 	case reflect.Struct:
@@ -195,7 +200,7 @@ func (p *Processor) sanitise(val any) string {
 		reflect.Float32, reflect.Float64, reflect.String, reflect.Bool:
 		parsed = models.Value{Value: v.Interface(), Kind: v.Kind()}
 	case reflect.Chan, reflect.Func, reflect.UnsafePointer,
-		reflect.Complex64, reflect.Complex128, reflect.Interface, reflect.Uintptr:
+		reflect.Complex64, reflect.Complex128, reflect.Uintptr:
 		/*
 			Note: this case covers all unsupported types.
 			In such a case, we return a string with a message about the unsupported type.

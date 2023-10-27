@@ -41,11 +41,12 @@ func Test_FormatStruct(t *testing.T) {
 					"address1": {City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"},
 					"address2": {City: "Denver", State: "DN", Street: "65 Best St", Zip: "55502"},
 				},
-				Array:  [2]address{{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"}, {City: "Denver", State: "DN", Street: "65 Best St", Zip: "55502"}},
-				Ptr:    &address{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"},
-				Struct: address{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"},
+				Array:     [2]address{{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"}, {City: "Denver", State: "DN", Street: "65 Best St", Zip: "55502"}},
+				Ptr:       &address{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"},
+				Struct:    address{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"},
+				Interface: address{City: "San Francisco", State: "CA", Street: "451 Main St", Zip: "55501"},
 			},
-			exp: `{Slice: [{City: San Francisco, State: CA, Street: [******], Zip: [******]}, {City: Denver, State: DN, Street: [******], Zip: [******]}], MaskedSlice: [******], Map: map[address1: {City: San Francisco, State: CA, Street: [******], Zip: [******]}, address2: {City: Denver, State: DN, Street: [******], Zip: [******]}], Array: [{City: San Francisco, State: CA, Street: [******], Zip: [******]}, {City: Denver, State: DN, Street: [******], Zip: [******]}], Ptr: &{City: San Francisco, State: CA, Street: [******], Zip: [******]}, Struct: {City: San Francisco, State: CA, Street: [******], Zip: [******]}}`,
+			exp: `{Slice: [{City: San Francisco, State: CA, Street: [******], Zip: [******]}, {City: Denver, State: DN, Street: [******], Zip: [******]}], MaskedSlice: [******], Map: map[address1: {City: San Francisco, State: CA, Street: [******], Zip: [******]}, address2: {City: Denver, State: DN, Street: [******], Zip: [******]}], Array: [{City: San Francisco, State: CA, Street: [******], Zip: [******]}, {City: Denver, State: DN, Street: [******], Zip: [******]}], Ptr: &{City: San Francisco, State: CA, Street: [******], Zip: [******]}, Struct: {City: San Francisco, State: CA, Street: [******], Zip: [******]}, Interface: {City: San Francisco, State: CA, Street: [******], Zip: [******]}}`,
 		},
 		"struct_with_containers_fields": {
 			val: structWithContainersFields{
@@ -608,10 +609,103 @@ func Test_GetGlobalInstance(t *testing.T) {
 }
 
 func Test_SetGlobalInstance(t *testing.T) {
+	t.Cleanup(func() { SetGlobalInstance(New()) })
+
 	p := New()
 	p.SetFieldTag("custom")
 
 	SetGlobalInstance(p)
 
 	require.EqualValues(t, globalInstance, p)
+}
+
+func Test_FormatInterface(t *testing.T) {
+	tests := map[string]struct {
+		val any
+		exp string
+	}{
+		"struct_as_interface": {
+			val: address{Street: "451 Main St", City: "San Francisco", State: "CA", Zip: "55501"},
+			exp: `{City: San Francisco, State: CA, Street: [******], Zip: [******]}`,
+		},
+		"slice_as_interface": {
+			val: []string{"tag1", "tag2"},
+			exp: `[tag1, tag2]`,
+		},
+		"array_as_interface": {
+			val: [2]int{3, -345},
+			exp: `[3, -345]`,
+		},
+		"map_as_interface": {
+			val: map[string]string{"key1": "value1", "key2": "value2"},
+			exp: `map[key1: value1, key2: value2]`,
+		},
+		"pointer_as_interface": {
+			val: new(int),
+			exp: `&0`,
+		},
+		"int_as_interface": {
+			val: 1,
+			exp: `1`,
+		},
+		"string_as_interface": {
+			val: "hello",
+			exp: `hello`,
+		},
+		"bool_as_interface": {
+			val: true,
+			exp: `true`,
+		},
+		"float_as_interface": {
+			val: 1.1,
+			exp: `1.1`,
+		},
+		"nil_as_interface": {
+			val: nil,
+			exp: `nil`,
+		},
+		"custom_interface": {
+			val: func() Printer {
+				return &printer{Name: "John"}
+			}(),
+			exp: `&{Name: John}`,
+		},
+		"custom_interface_with_sensitive_impl_data": {
+			val: func() Printer {
+				return &sensPrinter{Name: "John"}
+			}(),
+			exp: `&{Name: [******]}`,
+		},
+		"struct_with_interface_field_with_slice_value": {
+			val: structWithInterface{Interface: []string{"tag1", "tag2"}},
+			exp: `{Interface: [tag1, tag2]}`,
+		},
+		"struct_with_interface_field_with_array_value": {
+			val: structWithInterface{Interface: [2]int{3, -345}},
+			exp: `{Interface: [3, -345]}`,
+		},
+		"struct_with_interface_field_with_map_value": {
+			val: structWithInterface{Interface: map[string]string{"key1": "value1", "key2": "value2"}},
+			exp: `{Interface: map[key1: value1, key2: value2]}`,
+		},
+		"struct_with_interface_field_with_pointer_value": {
+			val: structWithInterface{Interface: new(int)},
+			exp: `{Interface: &0}`,
+		},
+		"struct_with_interface_field_with_int_value": {
+			val: structWithInterface{Interface: 1},
+			exp: `{Interface: 1}`,
+		},
+		"struct_with_interface_field_with_interface_value": {
+			val: structWithInterface{Interface: func() Printer { return &printer{Name: "John"} }()},
+			exp: `{Interface: &{Name: John}}`,
+		},
+	}
+
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := Format(tt.val)
+			require.Equal(t, tt.exp, got)
+		})
+	}
 }

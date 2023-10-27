@@ -56,6 +56,8 @@ func (f *Formatter) Struct(s models.Struct) string {
 				buf.WriteString(formatField(field.Name, f.Bool(field.Value)))
 			case reflect.Map:
 				buf.WriteString(formatField(field.Name, f.Map(field.Value.Value.(models.Map))))
+			case reflect.Interface:
+				buf.WriteString(formatField(field.Name, f.Interface(field.Value.Value.(models.Interface))))
 			}
 		} else {
 			buf.WriteString(formatField(field.Name, f.MaskValue))
