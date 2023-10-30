@@ -10,6 +10,8 @@ import (
 
 // Map parses a given value and returns a Map.
 // If value is a struct/pointer/slice/array/map, it will be parsed recursively.
+//
+//nolint:exhaustive
 func (p *Parser) Map(mapValue reflect.Value) models.Map {
 	m := models.Map{Type: mapValue.Type().String()}
 	iter := mapValue.MapRange()

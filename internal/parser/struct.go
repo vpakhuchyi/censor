@@ -11,6 +11,8 @@ import (
 
 // Struct parses a given value and returns a Struct.
 // All supported complex types will be parsed recursively.
+//
+//nolint:exhaustive
 func (p *Parser) Struct(structValue reflect.Value) models.Struct {
 	var v models.Value
 	s := models.Struct{Name: getStructName(structValue)}

@@ -7,6 +7,8 @@ import (
 )
 
 // Interface parses an interface and returns an Interface.
+//
+//nolint:exhaustive
 func (p *Parser) Interface(interfaceValue reflect.Value) models.Interface {
 	var v models.Value
 

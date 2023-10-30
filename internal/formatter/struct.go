@@ -2,7 +2,6 @@ package formatter
 
 import (
 	"fmt"
-	"reflect"
 	"strings"
 
 	"github.com/vpakhuchyi/sanitiser/internal/models"
@@ -10,25 +9,12 @@ import (
 
 // Struct formats a struct into a string with masked sensitive fields.
 // All fields are masked by default, unless the field has the `display` tag.
-// Supported types:
-//
-// [basic types]
-// - string
-// - int, int8, int16, int32, int64
-// - uint, uint8, uint16, uint32, uint64
-// - float32, float64
-// - bool
-//
-// [complex types]
-// - struct - formatted recursively
-// - slice - struct values are formatted recursively
-// - array - struct values are formatted recursively
-// - pointer - pointed structure/arrays/slices are formatted recursively.
+// Supported types could be found in README.md/#supported-types.
 func (f *Formatter) Struct(s models.Struct) string {
 	var buf strings.Builder
 
 	if f.DisplayStructName {
-		buf.WriteString(fmt.Sprintf("%s", s.Name))
+		buf.WriteString(s.Name)
 	}
 
 	buf.WriteString("{")
@@ -38,27 +24,7 @@ func (f *Formatter) Struct(s models.Struct) string {
 		field := fields[i]
 
 		if field.Opts.Display {
-			switch field.Kind {
-			case reflect.String:
-				buf.WriteString(formatField(field.Name, f.String(field.Value)))
-			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-				reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-				buf.WriteString(formatField(field.Name, f.Integer(field.Value)))
-			case reflect.Float32, reflect.Float64:
-				buf.WriteString(formatField(field.Name, f.Float(field.Value)))
-			case reflect.Struct:
-				buf.WriteString(formatField(field.Name, f.Struct(field.Value.Value.(models.Struct))))
-			case reflect.Slice, reflect.Array:
-				buf.WriteString(formatField(field.Name, f.Slice(field.Value.Value.(models.Slice))))
-			case reflect.Pointer:
-				buf.WriteString(formatField(field.Name, f.Ptr(field.Value.Value.(models.Ptr))))
-			case reflect.Bool:
-				buf.WriteString(formatField(field.Name, f.Bool(field.Value)))
-			case reflect.Map:
-				buf.WriteString(formatField(field.Name, f.Map(field.Value.Value.(models.Map))))
-			case reflect.Interface:
-				buf.WriteString(formatField(field.Name, f.Interface(field.Value.Value.(models.Interface))))
-			}
+			f.writeField(field, &buf)
 		} else {
 			buf.WriteString(formatField(field.Name, f.MaskValue))
 		}

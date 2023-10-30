@@ -8,6 +8,8 @@ import (
 
 // Slice parses a given value and returns a Slice.
 // If value is a struct/pointer/slice/array, it will be parsed recursively.
+//
+//nolint:exhaustive
 func (p *Parser) Slice(sliceValue reflect.Value) models.Slice {
 	var slice models.Slice
 	for i := 0; i < sliceValue.Len(); i++ {
