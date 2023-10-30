@@ -26,7 +26,7 @@ go get -u github.com/vpakhuchyi/sanitiser
 
 ### Usage
 
-We can use `sanitiser` to hide all the fields values by default and only display those fields that has
+We can use `sanitiser` to mask all the fields values by default and only display those fields that has
 specified `sanitiser:"display"` tag.
 This approach will help us to be sure that we don't log sensitive information by mistake.
 
@@ -45,15 +45,15 @@ import (
 type request struct {
   UserID   string  `sanitiser:"display"` // Display value.
   Address  address `sanitiser:"display"` // Display value.
-  Email    string  // Hide value.
-  FullName string  // Hide value.
+  Email    string  // Mask value.
+  FullName string  // Mask value.
 }
 
 type address struct {
   City    string `json:"city" sanitiser:"display"`    // Display value.
   Country string `json:"country" sanitiser:"display"` // Display value.
-  Street  string `json:"street"`                      // Hide value.
-  Zip     int    `json:"zip"`                         // Hide value.
+  Street  string `json:"street"`                      // Mask value.
+  Zip     int    `json:"zip"`                         // Mask value.
 }
 
 // Here is a request struct that contains sensitive information: Email, FullName and Password.

@@ -193,6 +193,7 @@ func (p *Processor) sanitise(val any) string {
 	return p.format(v.Kind(), parsed)
 }
 
+//nolint:exhaustive
 func (p *Processor) parse(v reflect.Value) any {
 	var parsed any
 	switch v.Kind() {
@@ -220,6 +221,7 @@ func (p *Processor) parse(v reflect.Value) any {
 	return parsed
 }
 
+//nolint:exhaustive
 func (p *Processor) format(k reflect.Kind, v any) string {
 	switch k {
 	case reflect.Struct:
