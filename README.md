@@ -26,44 +26,56 @@ go get -u github.com/vpakhuchyi/sanitiser
 
 ### Usage
 
-The `Format` function is at the heart of this library, providing a versatile method to convert various types into a
-formatted string.
+We can use `sanitiser` to hide all the fields values by default and only display those fields that has
+specified `sanitiser:"display"` tag.
+This approach will help us to be sure that we don't log sensitive information by mistake.
 
-Most popular use case is to use `Format` function with logging tools:
+Sanitiser can be used as a global package-level variable or as a new instance of `sanitiser.Sanitiser`.
+Both approaches offer the same functionality. In this example we're using sanitiser as a global package-level variable.
 
 ```go
 package main
 
 import (
-	"log/slog"
+  "log/slog"
 
-	"github.com/vpakhuchyi/sanitiser"
+  "github.com/vpakhuchyi/sanitiser"
 )
 
-// Let's imagine that we have a request that looks like this:
 type request struct {
-	UserID   string `sanitiser:"display"` // We want to display this field in the log.
-	Email    string // We don't want to display this field in the log.
-	FullName string // We don't want to display this field in the log.
-	Password string // We don't want to display this field in the log.
+  UserID   string  `sanitiser:"display"` // We want to display this field in the log.
+  Address  address `sanitiser:"display"` // We want to display this field in the log.
+  Email    string  // We want to hide this field data.
+  FullName string  // We want to hide this field data.
 }
 
+type address struct {
+  City    string `json:"city" sanitiser:"display"`
+  Country string `json:"country" sanitiser:"display"`
+  Street  string `json:"street"`
+  Zip     int    `json:"zip"`
+}
+
+// Here is a request struct that contains sensitive information: Email, FullName and Password.
+// We could log only UserID, but it's much easier to control what we're logging by using sanitiser 
+// instead of checking each log line and making sure that we're not logging sensitive information.
 func main() {
-	// Our request contain personal information that we don't want to log.
-	// So we can use sanitiser to hide sensitive information but still be able to log the request.
-	r := request{
-		UserID:   "123",
-		Email:    "example@ggmail.com",
-		FullName: "Frodo Smith",
-		Password: "encoded_password",
-	}
+  r := request{
+    UserID:   "123",
+    Address:  address{City: "Kharkiv", Country: "UA", Street: "Nauky Avenue", Zip: 23335},
+    Email:    "viktor.example.email@ggmail.com",
+    FullName: "Viktor Pakhuchyi",
+  }
 
-	// In case we use slog.Logger, we can use sanitiser to format the request before logging it.
-	slog.Info("Request", "payload", sanitiser.Format(r))
+  // In this example we're using sanitiser as a global package-level variable with default configuration.
+  slog.Info("Request", "payload", sanitiser.Format(r))
 }
 
-Output: `2038/10/25 12:00:01 INFO Request payload="{UserID: 123, Email: [******], FullName: [******], Password: [******]}"`
+// Here is what we'll see in the log:
+Output: `2038/10/25 12:00:01 INFO Request payload="{UserID: 123, Address: {City: Kharkiv, Country: UA, Street: [******], Zip: [******]}, Email: [******], FullName: [******]}`
 
+// All the fields values are sanitised by default (recursively) except 
+// those fields that has specified `sanitiser:"display"` tag.
 ```
 
 ### Configuration
