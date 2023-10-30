@@ -43,17 +43,17 @@ import (
 )
 
 type request struct {
-  UserID   string  `sanitiser:"display"` // We want to display this field in the log.
-  Address  address `sanitiser:"display"` // We want to display this field in the log.
-  Email    string  // We want to hide this field data.
-  FullName string  // We want to hide this field data.
+  UserID   string  `sanitiser:"display"` // Display value.
+  Address  address `sanitiser:"display"` // Display value.
+  Email    string  // Hide value.
+  FullName string  // Hide value.
 }
 
 type address struct {
-  City    string `json:"city" sanitiser:"display"`
-  Country string `json:"country" sanitiser:"display"`
-  Street  string `json:"street"`
-  Zip     int    `json:"zip"`
+  City    string `json:"city" sanitiser:"display"`    // Display value.
+  Country string `json:"country" sanitiser:"display"` // Display value.
+  Street  string `json:"street"`                      // Hide value.
+  Zip     int    `json:"zip"`                         // Hide value.
 }
 
 // Here is a request struct that contains sensitive information: Email, FullName and Password.
@@ -76,6 +76,7 @@ Output: `2038/10/25 12:00:01 INFO Request payload="{UserID: 123, Address: {City:
 
 // All the fields values are sanitised by default (recursively) except 
 // those fields that has specified `sanitiser:"display"` tag.
+
 ```
 
 ### Configuration
