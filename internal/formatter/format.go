@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/vpakhuchyi/sanitiser/internal/models"
+	"github.com/vpakhuchyi/censor/internal/models"
 )
 
 // DefaultMaskValue is used to mask struct fields by default.

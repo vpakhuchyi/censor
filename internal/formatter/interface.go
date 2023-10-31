@@ -3,7 +3,7 @@ package formatter
 import (
 	"strings"
 
-	"github.com/vpakhuchyi/sanitiser/internal/models"
+	"github.com/vpakhuchyi/censor/internal/models"
 )
 
 // Interface formats a dynamic value of the provided interface as a string.

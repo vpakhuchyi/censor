@@ -3,7 +3,7 @@ package formatter
 import (
 	"fmt"
 
-	"github.com/vpakhuchyi/sanitiser/internal/models"
+	"github.com/vpakhuchyi/censor/internal/models"
 )
 
 // String formats a value as a string.

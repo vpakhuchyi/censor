@@ -1,76 +1,76 @@
-package sanitiser
+package censor
 
 import "fmt"
 
 type person struct {
-	ID           string `sanitiser:"display"`
+	ID           string `censor:"display"`
 	Name         string
-	Age          int `sanitiser:"display"`
+	Age          int `censor:"display"`
 	Email        string
-	StringArray  [3]string  `sanitiser:"display"`
-	String       []string   `sanitiser:"display"`
-	Integers     []int      `sanitiser:"display"`
-	Floats       []float64  `sanitiser:"display"`
-	Bools        []bool     `sanitiser:"display"`
-	Addresses    []address  `sanitiser:"display"`
-	Address      address    `sanitiser:"display"`
-	TaxAddress   *address   `sanitiser:"display"`
-	TaxAddresses []*address `sanitiser:"display"`
-	Container    container  `sanitiser:"display"`
+	StringArray  [3]string  `censor:"display"`
+	String       []string   `censor:"display"`
+	Integers     []int      `censor:"display"`
+	Floats       []float64  `censor:"display"`
+	Bools        []bool     `censor:"display"`
+	Addresses    []address  `censor:"display"`
+	Address      address    `censor:"display"`
+	TaxAddress   *address   `censor:"display"`
+	TaxAddresses []*address `censor:"display"`
+	Container    container  `censor:"display"`
 }
 
 type address struct {
-	City   string `json:"city" sanitiser:"display"`
-	State  string `json:"state" sanitiser:"display"`
+	City   string `json:"city" censor:"display"`
+	State  string `json:"state" censor:"display"`
 	Street string `json:"street"`
 	Zip    string `json:"zip"`
 }
 
 type structWithPrimitives struct {
-	Int64   int64   `sanitiser:"display"`
-	Int32   int32   `sanitiser:"display"`
-	Int16   int16   `sanitiser:"display"`
-	Int8    int8    `sanitiser:"display"`
-	Int     int     `sanitiser:"display"`
-	Uint64  uint64  `sanitiser:"display"`
-	Uint32  uint32  `sanitiser:"display"`
-	Uint16  uint16  `sanitiser:"display"`
-	Uint8   uint8   `sanitiser:"display"`
-	Uint    uint    `sanitiser:"display"`
-	Bool    bool    `sanitiser:"display"`
-	Rune    rune    `sanitiser:"display"`
-	Byte    byte    `sanitiser:"display"`
-	Float64 float64 `sanitiser:"display"`
-	Float32 float32 `sanitiser:"display"`
-	String  string  `sanitiser:"display"`
+	Int64   int64   `censor:"display"`
+	Int32   int32   `censor:"display"`
+	Int16   int16   `censor:"display"`
+	Int8    int8    `censor:"display"`
+	Int     int     `censor:"display"`
+	Uint64  uint64  `censor:"display"`
+	Uint32  uint32  `censor:"display"`
+	Uint16  uint16  `censor:"display"`
+	Uint8   uint8   `censor:"display"`
+	Uint    uint    `censor:"display"`
+	Bool    bool    `censor:"display"`
+	Rune    rune    `censor:"display"`
+	Byte    byte    `censor:"display"`
+	Float64 float64 `censor:"display"`
+	Float32 float32 `censor:"display"`
+	String  string  `censor:"display"`
 }
 
 type structWithContainersFields struct {
-	StringSlice  []string  `sanitiser:"display"`
-	IntSlice     []int     `sanitiser:"display"`
-	FloatSlice   []float64 `sanitiser:"display"`
-	BoolSlice    []bool    `sanitiser:"display"`
-	StructSlice  []address `sanitiser:"display"`
-	PointerSlice []*int    `sanitiser:"display"`
-	ArraySlice   [2]string `sanitiser:"display"`
+	StringSlice  []string  `censor:"display"`
+	IntSlice     []int     `censor:"display"`
+	FloatSlice   []float64 `censor:"display"`
+	BoolSlice    []bool    `censor:"display"`
+	StructSlice  []address `censor:"display"`
+	PointerSlice []*int    `censor:"display"`
+	ArraySlice   [2]string `censor:"display"`
 }
 
 type structWithComplexFields struct {
-	Slice       []address `sanitiser:"display"`
+	Slice       []address `censor:"display"`
 	MaskedSlice []address
-	Map         map[string]address `sanitiser:"display"`
-	Array       [2]address         `sanitiser:"display"`
-	Ptr         *address           `sanitiser:"display"`
-	Struct      address            `sanitiser:"display"`
-	Interface   interface{}        `sanitiser:"display"`
+	Map         map[string]address `censor:"display"`
+	Array       [2]address         `censor:"display"`
+	Ptr         *address           `censor:"display"`
+	Struct      address            `censor:"display"`
+	Interface   interface{}        `censor:"display"`
 }
 
 type structWithInterface struct {
-	Interface interface{} `sanitiser:"display"`
+	Interface interface{} `censor:"display"`
 }
 
 type container struct {
-	Persons []person `sanitiser:"display"`
+	Persons []person `censor:"display"`
 }
 
 type Printer interface {
@@ -78,7 +78,7 @@ type Printer interface {
 }
 
 type printer struct {
-	Name string `sanitiser:"display"`
+	Name string `censor:"display"`
 }
 
 func (p *printer) Print() {

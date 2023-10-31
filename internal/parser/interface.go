@@ -3,7 +3,7 @@ package parser
 import (
 	"reflect"
 
-	"github.com/vpakhuchyi/sanitiser/internal/models"
+	"github.com/vpakhuchyi/censor/internal/models"
 )
 
 // Interface parses an interface and returns an Interface.

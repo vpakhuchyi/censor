@@ -1,4 +1,4 @@
-package sanitiser
+package censor
 
 import (
 	"testing"
@@ -438,18 +438,18 @@ func Test_InstanceConfiguration(t *testing.T) {
 		p.DisplayStructName(true)
 
 		type testStruct struct {
-			Name string `sanitiser:"display"`
+			Name string `censor:"display"`
 			Age  int
 		}
 
-		exp := `sanitiser.testStruct{Name: John, Age: [******]}`
+		exp := `censor.testStruct{Name: John, Age: [******]}`
 		got := p.Format(testStruct{Name: "John", Age: 30})
 		require.Equal(t, exp, got)
 	})
 
 	t.Run("Hide struct name", func(t *testing.T) {
 		type testStruct struct {
-			Name string `sanitiser:"display"`
+			Name string `censor:"display"`
 			Age  int
 		}
 
@@ -463,7 +463,7 @@ func Test_InstanceConfiguration(t *testing.T) {
 		p.UseJSONTagName(true)
 
 		type testStruct struct {
-			Name  string `json:"name" sanitiser:"display"`
+			Name  string `json:"name" censor:"display"`
 			Age   int    `json:"age"`
 			Email string
 		}
@@ -473,7 +473,7 @@ func Test_InstanceConfiguration(t *testing.T) {
 		require.Equal(t, exp, got)
 	})
 
-	t.Run("Use custom sanitiser field tag", func(t *testing.T) {
+	t.Run("Use custom censor field tag", func(t *testing.T) {
 		p := New()
 		p.SetFieldTag("custom")
 
@@ -492,7 +492,7 @@ func Test_InstanceConfiguration(t *testing.T) {
 		p.SetMaskValue(`[REDACTED]`)
 
 		type testStruct struct {
-			Name string `sanitiser:"display"`
+			Name string `censor:"display"`
 			Age  int
 		}
 
@@ -506,7 +506,7 @@ func Test_InstanceConfiguration(t *testing.T) {
 		p.DisplayMapType(true)
 
 		type testStruct struct {
-			M map[string]map[string]int `sanitiser:"display"`
+			M map[string]map[string]int `censor:"display"`
 		}
 
 		exp := `{M: map[string]map[string]int[key1: map[string]int[key1: 1, key2: 2]]}`
@@ -522,11 +522,11 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 		DisplayStructName(true)
 
 		type testStruct struct {
-			Name string `sanitiser:"display"`
+			Name string `censor:"display"`
 			Age  int
 		}
 
-		exp := `sanitiser.testStruct{Name: John, Age: [******]}`
+		exp := `censor.testStruct{Name: John, Age: [******]}`
 		got := Format(testStruct{Name: "John", Age: 30})
 		require.Equal(t, exp, got)
 	})
@@ -535,7 +535,7 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 		t.Cleanup(func() { SetGlobalInstance(New()) })
 
 		type testStruct struct {
-			Name string `sanitiser:"display"`
+			Name string `censor:"display"`
 			Age  int
 		}
 
@@ -550,7 +550,7 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 		UseJSONTagName(true)
 
 		type testStruct struct {
-			Name string `json:"name" sanitiser:"display"`
+			Name string `json:"name" censor:"display"`
 			Age  int    `json:"age"`
 		}
 
@@ -559,7 +559,7 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 		require.Equal(t, exp, got)
 	})
 
-	t.Run("Use custom sanitiser field tag", func(t *testing.T) {
+	t.Run("Use custom censor field tag", func(t *testing.T) {
 		t.Cleanup(func() { SetGlobalInstance(New()) })
 
 		SetFieldTag("custom")
@@ -580,7 +580,7 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 		SetMaskValue(`[REDACTED]`)
 
 		type testStruct struct {
-			Name string `sanitiser:"display"`
+			Name string `censor:"display"`
 			Age  int
 		}
 
@@ -595,7 +595,7 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 		DisplayMapType(true)
 
 		type testStruct struct {
-			M map[string]map[string]int `sanitiser:"display"`
+			M map[string]map[string]int `censor:"display"`
 		}
 
 		exp := `{M: map[string]map[string]int[key1: map[string]int[key1: 1, key2: 2]]}`

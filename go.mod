@@ -1,4 +1,4 @@
-module github.com/vpakhuchyi/sanitiser
+module github.com/vpakhuchyi/censor
 
 go 1.21
 

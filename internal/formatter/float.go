@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/vpakhuchyi/sanitiser/internal/models"
+	"github.com/vpakhuchyi/censor/internal/models"
 )
 
 // Float formats a value as a float.

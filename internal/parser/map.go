@@ -5,11 +5,11 @@ import (
 	"reflect"
 	"sort"
 
-	"github.com/vpakhuchyi/sanitiser/internal/models"
+	"github.com/vpakhuchyi/censor/internal/models"
 )
 
 // Map parses a given value and returns a Map.
-// If value is a struct/pointer/slice/array/map, it will be parsed recursively.
+// If value is a struct/pointer/slice/array/map/interface, it will be parsed recursively.
 //
 //nolint:exhaustive
 func (p *Parser) Map(mapValue reflect.Value) models.Map {

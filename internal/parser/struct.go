@@ -5,8 +5,8 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/vpakhuchyi/sanitiser/internal/models"
-	"github.com/vpakhuchyi/sanitiser/internal/options"
+	"github.com/vpakhuchyi/censor/internal/models"
+	"github.com/vpakhuchyi/censor/internal/options"
 )
 
 // Struct parses a given value and returns a Struct.
@@ -49,7 +49,7 @@ func (p *Parser) Struct(structValue reflect.Value) models.Struct {
 			v = models.Value{Value: f.Interface(), Kind: f.Kind()}
 		}
 
-		tag := structValue.Type().Field(i).Tag.Get(p.SanitiserFieldTag)
+		tag := structValue.Type().Field(i).Tag.Get(p.CensorFieldTag)
 
 		s.Fields = append(s.Fields, models.Field{
 			Name:  fieldName,

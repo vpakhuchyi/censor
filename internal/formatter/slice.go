@@ -3,11 +3,11 @@ package formatter
 import (
 	"strings"
 
-	"github.com/vpakhuchyi/sanitiser/internal/models"
+	"github.com/vpakhuchyi/censor/internal/models"
 )
 
 // Slice formats a slice or an array into a string.
-// If the slice contains structs, they are formatted recursively using FormatStruct function rules.
+// The formatting rules depend on the underlying type of the slice/array elements.
 func (f *Formatter) Slice(slice models.Slice) string {
 	var buf strings.Builder
 	buf.WriteString("[")

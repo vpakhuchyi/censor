@@ -3,13 +3,12 @@ package formatter
 import (
 	"strings"
 
-	"github.com/vpakhuchyi/sanitiser/internal/models"
+	"github.com/vpakhuchyi/censor/internal/models"
 )
 
 // Ptr formats a pointer into a string.
 // It adds the `&` prefix to the formatted value to indicate that it is a pointer.
-// If the pointer points to a struct, it is formatted recursively using FormatStruct function rules.
-// If the pointer points to a slice or an array, it is formatted recursively using FormatSlice function rules.
+// Pointer value is formatted according to the rules of the underlying type.
 func (f *Formatter) Ptr(ptr models.Ptr) string {
 	if ptr.Value.Value == nil {
 		return "nil"

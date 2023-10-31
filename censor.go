@@ -1,17 +1,17 @@
-package sanitiser
+package censor
 
 /*
-	This package provides a function to sanitise any value into a string representation.
+	This package provides a function to censor any value into a string representation.
 	By default, all struct fields are masked (including any kind of nested structs),
 	unless the field has the `display` tag.
 
-	Examples can be found here: https://github.com/vpakhuchyi/sanitiser#readme.
+	Examples can be found here: https://github.com/vpakhuchyi/censor#readme.
 
 	Supported types:
 
 	|----------------------|-----------------------------------------------------------------------|
 	|                      | By default, all fields values will be masked.	                       |
-	| Struct               | To override this behaviour, use the `sanitiser:"display"` tag.        |
+	| Struct               | To override this behaviour, use the `censor:"display"` tag.        |
 	|                      | All nested fields must be tagged as well.                             |
 	|                      | Struct/Slice/Array/Pointer/Map values will be parsed recursively.     |
 	|----------------------|-----------------------------------------------------------------------|
@@ -52,27 +52,25 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/vpakhuchyi/sanitiser/internal/formatter"
-	"github.com/vpakhuchyi/sanitiser/internal/models"
-	"github.com/vpakhuchyi/sanitiser/internal/parser"
+	"github.com/vpakhuchyi/censor/internal/formatter"
+	"github.com/vpakhuchyi/censor/internal/models"
+	"github.com/vpakhuchyi/censor/internal/parser"
 )
 
-// Processor is used to sanitise any value into a string representation.
-// Any configuration changes could be applied to the global globalInstance or to the globalInstance of this struct
-// using the corresponding methods or package-level functions.
+// Processor is used to censor any value and format it into a string representation.
 type Processor struct {
 	formatter *formatter.Formatter
 	parser    *parser.Parser
 }
 
-// Sanitiser pkg contains a global globalInstance of Processor.
+// Censor pkg contains a global instance of Processor.
 // This globalInstance is used by the package-level functions.
 var globalInstance = &Processor{
 	formatter: formatter.New(),
 	parser:    parser.New(),
 }
 
-// New returns a new globalInstance of Processor with default configuration.
+// New returns a new instance of Processor with default configuration.
 func New() *Processor {
 	return &Processor{
 		formatter: formatter.New(),
@@ -81,8 +79,8 @@ func New() *Processor {
 }
 
 // Format takes any value and returns a string representation of it masking struct fields by default.
-// To override this behaviour, use the `sanitiser:"display"` tag.
-// Formatting is done recursively for all nested structs/slices/arrays/pointers/maps.
+// To override this behaviour, use the `censor:"display"` tag.
+// Formatting is done recursively for all nested structs/slices/arrays/pointers/maps/interfaces.
 func (p *Processor) Format(val any) string {
 	return p.sanitise(val)
 }
@@ -106,10 +104,10 @@ func (p *Processor) DisplayStructName(v bool) {
 	p.formatter.DisplayStructName = v
 }
 
-// SetFieldTag sets a tag name for sanitiser fields.
-// The default value is stored in the parser.DefaultSanitiserFieldTag constant.
+// SetFieldTag sets a tag name for censor fields.
+// The default value is stored in the parser.DefaultCensorFieldTag constant.
 func (p *Processor) SetFieldTag(tag string) {
-	p.parser.SanitiserFieldTag = tag
+	p.parser.CensorFieldTag = tag
 }
 
 // DisplayMapType sets whether to display map type in the output.
@@ -119,36 +117,36 @@ func (p *Processor) DisplayMapType(v bool) {
 }
 
 /*
-	Pkg-level functions that work with the global globalInstance of Processor.
+	Pkg-level functions that work with the global instance of Processor.
 */
 
 // Format takes any value and returns a string representation of it masking struct fields by default.
-// It uses the global globalInstance of Processor.
-// To override this behaviour, use the `sanitiser:"display"` tag.
-// Formatting is done recursively for all nested structs/slices/arrays/pointers/maps.
+// It uses the global instance of Processor.
+// To override this behaviour, use the `censor:"display"` tag.
+// Formatting is done recursively for all nested structs/slices/arrays/pointers/maps/interfaces.
 func Format(val any) string {
 	return globalInstance.sanitise(val)
 }
 
-// SetGlobalInstance sets a given Processor as a global globalInstance.
+// SetGlobalInstance sets a given Processor as a global instance.
 func SetGlobalInstance(p *Processor) {
 	globalInstance = p
 }
 
-// GetGlobalInstance returns a global globalInstance of Processor.
+// GetGlobalInstance returns a global instance of Processor.
 func GetGlobalInstance() *Processor {
 	return globalInstance
 }
 
 // SetMaskValue sets a value that will be used to mask struct fields.
-// It applies this change to the global globalInstance of Processor.
+// It applies this change to the global instance of Processor.
 // The default value is stored in the formatter.DefaultMaskValue constant.
 func SetMaskValue(maskValue string) {
 	globalInstance.formatter.MaskValue = maskValue
 }
 
 // UseJSONTagName sets whether to use the `json` tag to get the name of the struct field.
-// It applies this change to the global globalInstance of Processor.
+// It applies this change to the global instance of Processor.
 // If no `json` tag is present, the name of struct will be an empty string.
 // By default, this option is disabled.
 func UseJSONTagName(v bool) {
@@ -156,21 +154,21 @@ func UseJSONTagName(v bool) {
 }
 
 // DisplayStructName sets whether to display the name of the struct.
-// It applies this change to the global globalInstance of Processor.
+// It applies this change to the global instance of Processor.
 // By default, this option is disabled.
 func DisplayStructName(v bool) {
 	globalInstance.formatter.DisplayStructName = v
 }
 
-// SetFieldTag sets a tag name for sanitiser fields.
-// It applies this change to the global globalInstance of Processor.
-// The default value is stored in the parser.DefaultSanitiserFieldTag constant.
+// SetFieldTag sets a tag name for censor fields.
+// It applies this change to the global instance of Processor.
+// The default value is stored in the parser.DefaultCensorFieldTag constant.
 func SetFieldTag(tag string) {
-	globalInstance.parser.SanitiserFieldTag = tag
+	globalInstance.parser.CensorFieldTag = tag
 }
 
 // DisplayMapType sets whether to display map type in the output.
-// It applies this change to the global globalInstance of Processor.
+// It applies this change to the global instance of Processor.
 // By default, this option is disabled.
 func DisplayMapType(v bool) {
 	globalInstance.formatter.DisplayMapType = v

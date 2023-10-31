@@ -3,11 +3,12 @@ package parser
 import (
 	"reflect"
 
-	"github.com/vpakhuchyi/sanitiser/internal/models"
+	"github.com/vpakhuchyi/censor/internal/models"
 )
 
 // Slice parses a given value and returns a Slice.
-// If value is a struct/pointer/slice/array, it will be parsed recursively.
+// This function is also can be used to parse an array.
+// All supported complex types will be parsed recursively.
 //
 //nolint:exhaustive
 func (p *Parser) Slice(sliceValue reflect.Value) models.Slice {

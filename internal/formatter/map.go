@@ -3,7 +3,7 @@ package formatter
 import (
 	"strings"
 
-	"github.com/vpakhuchyi/sanitiser/internal/models"
+	"github.com/vpakhuchyi/censor/internal/models"
 )
 
 // Map formats a map into a string.
@@ -28,6 +28,7 @@ import (
 // - array - struct values are formatted recursively
 // - pointer - pointed structure/arrays/slices are formatted recursively.
 // - map - struct/slice/array/pointer values are formatted recursively.
+// - interface - formatted recursively.
 func (f *Formatter) Map(m models.Map) string {
 	var buf strings.Builder
 

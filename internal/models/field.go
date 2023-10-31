@@ -3,7 +3,7 @@ package models
 import (
 	"reflect"
 
-	"github.com/vpakhuchyi/sanitiser/internal/options"
+	"github.com/vpakhuchyi/censor/internal/options"
 )
 
 // Field represents a field of a struct.

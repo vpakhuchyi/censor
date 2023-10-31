@@ -3,7 +3,7 @@ package formatter
 import (
 	"fmt"
 
-	"github.com/vpakhuchyi/sanitiser/internal/models"
+	"github.com/vpakhuchyi/censor/internal/models"
 )
 
 // Bool formats a value as a boolean.
