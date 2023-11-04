@@ -14,24 +14,26 @@ func Test_FormatStruct(t *testing.T) {
 	}{
 		"struct_with_primitive_fields": {
 			val: structWithPrimitives{
-				Int64:   -53645354,
-				Int32:   -346456,
-				Int16:   -23452,
-				Int8:    -101,
-				Int:     -456345655,
-				Uint64:  53645354,
-				Uint32:  346456,
-				Uint16:  23452,
-				Uint8:   101,
-				Uint:    456345655,
-				Bool:    true,
-				Rune:    'a',
-				Byte:    1,
-				Float64: 1.12341,
-				Float32: 1.389,
-				String:  "string",
+				Int64:      -53645354,
+				Int32:      -346456,
+				Int16:      -23452,
+				Int8:       -101,
+				Int:        -456345655,
+				Uint64:     53645354,
+				Uint32:     346456,
+				Uint16:     23452,
+				Uint8:      101,
+				Uint:       456345655,
+				Bool:       true,
+				Rune:       'a',
+				Byte:       1,
+				Float64:    1.12341,
+				Float32:    1.389,
+				String:     "string",
+				Complex64:  complex(425.325, 23.323566556564),
+				Complex128: complex(23.36435645634, 2.456756475475745476),
 			},
-			exp: `{Int64: -53645354, Int32: -346456, Int16: -23452, Int8: -101, Int: -456345655, Uint64: 53645354, Uint32: 346456, Uint16: 23452, Uint8: 101, Uint: 456345655, Bool: true, Rune: 97, Byte: 1, Float64: 1.12341, Float32: 1.389, String: string}`,
+			exp: `{Int64: -53645354, Int32: -346456, Int16: -23452, Int8: -101, Int: -456345655, Uint64: 53645354, Uint32: 346456, Uint16: 23452, Uint8: 101, Uint: 456345655, Bool: true, Rune: 97, Byte: 1, Float64: 1.12341, Float32: 1.389, String: string, Complex64: (425.325+23.32357i), Complex128: (23.36435645634+2.45675647547575i)}`,
 		},
 		"struct_with_complex_fields": {
 			val: structWithComplexFields{
@@ -274,22 +276,24 @@ func Test_FormatPrimitives(t *testing.T) {
 		val any
 		exp string
 	}{
-		"int":     {val: -33453435, exp: `-33453435`},
-		"int64":   {val: -3453435, exp: `-3453435`},
-		"int32":   {val: -453435, exp: `-453435`},
-		"int16":   {val: -53435, exp: `-53435`},
-		"int8":    {val: -101, exp: `-101`},
-		"uint":    {val: 33453435, exp: `33453435`},
-		"uint64":  {val: 3453435, exp: `3453435`},
-		"uint32":  {val: 453435, exp: `453435`},
-		"uint16":  {val: 53435, exp: `53435`},
-		"uint8":   {val: 101, exp: `101`},
-		"rune":    {val: 1234, exp: `1234`},
-		"byte":    {val: 89, exp: `89`},
-		"bool":    {val: true, exp: `true`},
-		"string":  {val: "hello", exp: `hello`},
-		"float64": {val: 12.235325, exp: `12.235325`},
-		"float32": {val: -9.654670, exp: `-9.65467`},
+		"int":        {val: -33453435, exp: `-33453435`},
+		"int64":      {val: -3453435, exp: `-3453435`},
+		"int32":      {val: -453435, exp: `-453435`},
+		"int16":      {val: -53435, exp: `-53435`},
+		"int8":       {val: -101, exp: `-101`},
+		"uint":       {val: 33453435, exp: `33453435`},
+		"uint64":     {val: 3453435, exp: `3453435`},
+		"uint32":     {val: 453435, exp: `453435`},
+		"uint16":     {val: 53435, exp: `53435`},
+		"uint8":      {val: 101, exp: `101`},
+		"rune":       {val: 1234, exp: `1234`},
+		"byte":       {val: 89, exp: `89`},
+		"bool":       {val: true, exp: `true`},
+		"string":     {val: "hello", exp: `hello`},
+		"float64":    {val: 12.235325, exp: `12.235325`},
+		"float32":    {val: -9.654670, exp: `-9.65467`},
+		"complex64":  {val: complex(1, 2.2436), exp: `(1+2.2436i)`},
+		"complex128": {val: complex(6.35, 5.82433695), exp: `(6.35+5.82433695i)`},
 	}
 
 	for name, tt := range tests {
@@ -305,10 +309,8 @@ func Test_FormatUnsupported(t *testing.T) {
 		val any
 		exp string
 	}{
-		"complex64":  {val: complex64(1.1), exp: ""},
-		"complex128": {val: complex128(1.1), exp: ""},
-		"chan":       {val: make(chan int), exp: ""},
-		"func":       {val: func() {}, exp: ""},
+		"chan": {val: make(chan int), exp: ""},
+		"func": {val: func() {}, exp: ""},
 		"unsafe.Pointer": {
 			val: func() unsafe.Pointer {
 				var v int
@@ -402,6 +404,14 @@ func Test_FormatMap(t *testing.T) {
 		"map_struct_string": {
 			val: map[address]string{{Street: "451 Main St", City: "San Francisco", State: "CA", Zip: "55501"}: "value1", {Street: "65 Best St", City: "Denver", State: "DN", Zip: "55502"}: "value2"},
 			exp: `map[{City: Denver, State: DN, Street: [******], Zip: [******]}: value2, {City: San Francisco, State: CA, Street: [******], Zip: [******]}: value1]`,
+		},
+		"map_complex64_complex64": {
+			val: map[complex64]complex64{complex(1.213, 2.2436): complex(2.435345, 2456.674456456)},
+			exp: `map[(1.213+2.2436i): (2.435345+2456.675i)]`,
+		},
+		"map_complex128_complex128": {
+			val: map[complex128]complex128{complex(4364.234335413, 75.32424242346): complex(9.5424323, 156.8696789)},
+			exp: `map[(4364.234335413+75.32424242346i): (9.5424323+156.8696789i)]`,
 		},
 	}
 
@@ -699,6 +709,14 @@ func Test_FormatInterface(t *testing.T) {
 		"struct_with_interface_field_with_interface_value": {
 			val: structWithInterface{Interface: func() Printer { return &printer{Name: "John"} }()},
 			exp: `{Interface: &{Name: John}}`,
+		},
+		"struct_with_interface_field_with_complex64_value": {
+			val: structWithInterface{Interface: complex(3.54, 2.2436)},
+			exp: `{Interface: (3.54+2.2436i)}`,
+		},
+		"struct_with_interface_field_with_complex128_value": {
+			val: structWithInterface{Interface: complex(1.345345345, 2.243345345356)},
+			exp: `{Interface: (1.345345345+2.243345345356i)}`,
 		},
 	}
 

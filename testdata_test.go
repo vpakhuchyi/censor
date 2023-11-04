@@ -27,22 +27,24 @@ type address struct {
 }
 
 type structWithPrimitives struct {
-	Int64   int64   `censor:"display"`
-	Int32   int32   `censor:"display"`
-	Int16   int16   `censor:"display"`
-	Int8    int8    `censor:"display"`
-	Int     int     `censor:"display"`
-	Uint64  uint64  `censor:"display"`
-	Uint32  uint32  `censor:"display"`
-	Uint16  uint16  `censor:"display"`
-	Uint8   uint8   `censor:"display"`
-	Uint    uint    `censor:"display"`
-	Bool    bool    `censor:"display"`
-	Rune    rune    `censor:"display"`
-	Byte    byte    `censor:"display"`
-	Float64 float64 `censor:"display"`
-	Float32 float32 `censor:"display"`
-	String  string  `censor:"display"`
+	Int64      int64      `censor:"display"`
+	Int32      int32      `censor:"display"`
+	Int16      int16      `censor:"display"`
+	Int8       int8       `censor:"display"`
+	Int        int        `censor:"display"`
+	Uint64     uint64     `censor:"display"`
+	Uint32     uint32     `censor:"display"`
+	Uint16     uint16     `censor:"display"`
+	Uint8      uint8      `censor:"display"`
+	Uint       uint       `censor:"display"`
+	Bool       bool       `censor:"display"`
+	Rune       rune       `censor:"display"`
+	Byte       byte       `censor:"display"`
+	Float64    float64    `censor:"display"`
+	Float32    float32    `censor:"display"`
+	String     string     `censor:"display"`
+	Complex64  complex64  `censor:"display"`
+	Complex128 complex128 `censor:"display"`
 }
 
 type structWithContainersFields struct {

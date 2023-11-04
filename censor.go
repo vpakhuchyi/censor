@@ -8,7 +8,6 @@ package censor
 	Examples can be found here: https://github.com/vpakhuchyi/censor#readme.
 
 	Supported types:
-
 	|----------------------|-----------------------------------------------------------------------|
 	|                      | By default, all fields values will be masked.	                       |
 	| Struct               | To override this behaviour, use the `censor:"display"` tag.        |
@@ -36,13 +35,12 @@ package censor
 	|----------------------|-----------------------------------------------------------------------|
 	| Bool                 | Default fmt package formatting is used.                               |
 	|----------------------|-----------------------------------------------------------------------|
+	| Complex64/Complex128 | Default fmt package formatting is used.                               |
+	|----------------------|-----------------------------------------------------------------------|
 
 	Unsupported types:
-
 	|------------|------------|------------|
-	| Chan       | Complex64  | Complex128 |
-	|------------|------------|------------|
-	| Uintptr    | Func       |            |
+	| Chan       | Uintptr    | Func       |
 	|------------|------------|------------|
 
 	Note: if a value of unsupported type is provided, an empty string will be returned.
@@ -193,6 +191,7 @@ func (p *Processor) sanitise(val any) string {
 
 //nolint:exhaustive
 func (p *Processor) parse(v reflect.Value) any {
+	fmt.Println("v.Kind()", v.Kind())
 	var parsed any
 	switch v.Kind() {
 	case reflect.Struct:
@@ -205,10 +204,9 @@ func (p *Processor) parse(v reflect.Value) any {
 		parsed = p.parser.Map(v)
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
-		reflect.Float32, reflect.Float64, reflect.String, reflect.Bool:
+		reflect.Float32, reflect.Float64, reflect.String, reflect.Bool, reflect.Complex64, reflect.Complex128:
 		parsed = models.Value{Value: v.Interface(), Kind: v.Kind()}
-	case reflect.Chan, reflect.Func, reflect.UnsafePointer,
-		reflect.Complex64, reflect.Complex128, reflect.Uintptr:
+	case reflect.Chan, reflect.Func, reflect.UnsafePointer, reflect.Uintptr:
 		/*
 			Note: this case covers all unsupported types.
 			In such a case, we return an empty string.
@@ -230,7 +228,7 @@ func (p *Processor) format(k reflect.Kind, v any) string {
 		return p.formatter.Ptr(v.(models.Ptr))
 	case reflect.String:
 		return p.formatter.String(v.(models.Value))
-	case reflect.Float32, reflect.Float64:
+	case reflect.Float32, reflect.Float64, reflect.Complex64, reflect.Complex128:
 		return p.formatter.Float(v.(models.Value))
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
