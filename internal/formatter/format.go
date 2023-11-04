@@ -58,7 +58,7 @@ func (f *Formatter) writeValue(buf *strings.Builder, v models.Value) {
 	}
 }
 
-//nolint:exhaustive
+//nolint:exhaustive,gocyclo
 func (f *Formatter) writeField(field models.Field, buf *strings.Builder) {
 	switch field.Kind {
 	case reflect.String:
