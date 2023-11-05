@@ -204,8 +204,10 @@ func (p *Processor) parse(v reflect.Value) any {
 		parsed = p.parser.Map(v)
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
-		reflect.Float32, reflect.Float64, reflect.String, reflect.Bool, reflect.Complex64, reflect.Complex128:
+		reflect.Float32, reflect.Float64, reflect.String, reflect.Complex64, reflect.Complex128:
 		parsed = models.Value{Value: v.Interface(), Kind: v.Kind()}
+	case reflect.Bool:
+		parsed = p.parser.Bool(v)
 	case reflect.Chan, reflect.Func, reflect.UnsafePointer, reflect.Uintptr:
 		/*
 			Note: this case covers all unsupported types.
@@ -234,7 +236,7 @@ func (p *Processor) format(k reflect.Kind, v any) string {
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		return p.formatter.Integer(v.(models.Value))
 	case reflect.Bool:
-		return p.formatter.Bool(v.(models.Value))
+		return p.formatter.Bool(v.(models.Bool))
 	case reflect.Map:
 		return p.formatter.Map(v.(models.Map))
 	default:

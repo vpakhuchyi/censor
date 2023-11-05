@@ -53,6 +53,8 @@ func (f *Formatter) writeValue(buf *strings.Builder, v models.Value) {
 		buf.WriteString(f.Ptr(v.Value.(models.Ptr)))
 	case reflect.Map:
 		buf.WriteString(f.Map(v.Value.(models.Map)))
+	case reflect.Bool:
+		buf.WriteString(f.Bool(models.Bool(v)))
 	default:
 		buf.WriteString(fmt.Sprintf(`%v`, v.Value))
 	}
@@ -77,7 +79,7 @@ func (f *Formatter) writeField(field models.Field, buf *strings.Builder) {
 	case reflect.Pointer:
 		buf.WriteString(formatField(field.Name, f.Ptr(field.Value.Value.(models.Ptr))))
 	case reflect.Bool:
-		buf.WriteString(formatField(field.Name, f.Bool(field.Value)))
+		buf.WriteString(formatField(field.Name, f.Bool(field.Value.Value.(models.Bool))))
 	case reflect.Map:
 		buf.WriteString(formatField(field.Name, f.Map(field.Value.Value.(models.Map))))
 	case reflect.Interface:
