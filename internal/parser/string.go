@@ -8,8 +8,6 @@ import (
 
 // String parses a string and returns a models.Value.
 // Note: this method panics if the provided value is not a string.
-//
-//nolint:exhaustive
 func (p *Parser) String(stringValue reflect.Value) models.Value {
 	if stringValue.Kind() != reflect.String {
 		panic("provided value is not a string")

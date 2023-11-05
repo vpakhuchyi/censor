@@ -189,7 +189,7 @@ func (p *Processor) sanitise(val any) string {
 	return p.format(v.Kind(), parsed)
 }
 
-//nolint:exhaustive
+//nolint:exhaustive,gocyclo
 func (p *Processor) parse(v reflect.Value) any {
 	fmt.Println("v.Kind()", v.Kind())
 	var parsed any
@@ -202,8 +202,10 @@ func (p *Processor) parse(v reflect.Value) any {
 		parsed = p.parser.Ptr(v)
 	case reflect.Map:
 		parsed = p.parser.Map(v)
-	case reflect.Float32, reflect.Float64, reflect.Complex64, reflect.Complex128:
+	case reflect.Complex64, reflect.Complex128:
 		parsed = models.Value{Value: v.Interface(), Kind: v.Kind()}
+	case reflect.Float32, reflect.Float64:
+		parsed = p.parser.Float(v)
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		parsed = p.parser.Integer(v)

@@ -12,7 +12,7 @@ import (
 // Struct parses a given value and returns a Struct.
 // All supported complex types will be parsed recursively.
 //
-//nolint:exhaustive
+//nolint:exhaustive,gocyclo
 func (p *Parser) Struct(structValue reflect.Value) models.Struct {
 	var v models.Value
 	s := models.Struct{Name: getStructName(structValue)}
@@ -49,6 +49,11 @@ func (p *Parser) Struct(structValue reflect.Value) models.Struct {
 			v = p.Bool(f)
 		case reflect.String:
 			v = p.String(f)
+		case reflect.Float32, reflect.Float64:
+			v = p.Float(f)
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			v = p.Integer(f)
 		default:
 			v = models.Value{Value: f.Interface(), Kind: f.Kind()}
 		}

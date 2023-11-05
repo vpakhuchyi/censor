@@ -21,7 +21,6 @@ func TestParser_Bool(t *testing.T) {
 			exp := models.Value{Value: true, Kind: reflect.Bool}
 			require.Equal(t, exp, got)
 		})
-
 	})
 
 	t.Run("non_bool_value", func(t *testing.T) {
