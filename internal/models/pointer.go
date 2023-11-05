@@ -1,6 +1,4 @@
 package models
 
-// Ptr represents a pointer including its value.
-type Ptr struct {
-	Value Value
-}
+// Ptr represents a pointer including its value and value kind.
+type Ptr Value

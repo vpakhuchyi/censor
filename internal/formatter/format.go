@@ -1,7 +1,6 @@
 package formatter
 
 import (
-	"fmt"
 	"reflect"
 	"strings"
 
@@ -33,7 +32,7 @@ func New() *Formatter {
 	}
 }
 
-//nolint:exhaustive
+//nolint:exhaustive,gocyclo
 func (f *Formatter) writeValue(buf *strings.Builder, v models.Value) {
 	switch v.Kind {
 	case reflect.String:
@@ -55,8 +54,8 @@ func (f *Formatter) writeValue(buf *strings.Builder, v models.Value) {
 		buf.WriteString(f.Map(v.Value.(models.Map)))
 	case reflect.Bool:
 		buf.WriteString(f.Bool(v))
-	default:
-		buf.WriteString(fmt.Sprintf(`%v`, v.Value))
+	case reflect.Interface:
+		buf.WriteString(f.Interface(v.Value.(models.Interface)))
 	}
 }
 

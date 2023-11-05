@@ -125,6 +125,18 @@ func Test_FormatSlice(t *testing.T) {
 			val: [][]string{{"tag1", "tag2"}, {"tag3", "tag4"}},
 			exp: `[[tag1, tag2], [tag3, tag4]]`,
 		},
+		"slice_of_interfaces": {
+			val: []interface{}{1, "string", true, 1.1, []string{"tag1", "tag2"}},
+			exp: `[1, string, true, 1.1, [tag1, tag2]]`,
+		},
+		"slice_of_complex64": {
+			val: []complex64{complex(1, 2.2436), complex(1, 2.2436)},
+			exp: `[(1+2.2436i), (1+2.2436i)]`,
+		},
+		"slice_of_complex128": {
+			val: []complex128{complex(6.35, 5.82433695), complex(6.35, 5.82433695)},
+			exp: `[(6.35+5.82433695i), (6.35+5.82433695i)]`,
+		},
 	}
 
 	for name, tt := range tests {

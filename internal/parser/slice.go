@@ -10,8 +10,12 @@ import (
 // This function is also can be used to parse an array.
 // All supported complex types will be parsed recursively.
 //
-//nolint:exhaustive
+//nolint:exhaustive,gocyclo
 func (p *Parser) Slice(sliceValue reflect.Value) models.Slice {
+	if sliceValue.Kind() != reflect.Slice && sliceValue.Kind() != reflect.Array {
+		panic("provided value is not a slice/array")
+	}
+
 	var slice models.Slice
 	for i := 0; i < sliceValue.Len(); i++ {
 		elem := sliceValue.Index(i)
@@ -24,8 +28,19 @@ func (p *Parser) Slice(sliceValue reflect.Value) models.Slice {
 			slice.Values = append(slice.Values, models.Value{Value: p.Slice(elem), Kind: elem.Kind()})
 		case reflect.Map:
 			slice.Values = append(slice.Values, models.Value{Value: p.Map(elem), Kind: elem.Kind()})
-		default:
-			slice.Values = append(slice.Values, models.Value{Value: elem.Interface(), Kind: elem.Kind()})
+		case reflect.Interface:
+			slice.Values = append(slice.Values, models.Value{Value: p.Interface(elem), Kind: elem.Kind()})
+		case reflect.String:
+			slice.Values = append(slice.Values, p.String(elem))
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			slice.Values = append(slice.Values, p.Integer(elem))
+		case reflect.Float32, reflect.Float64:
+			slice.Values = append(slice.Values, p.Float(elem))
+		case reflect.Bool:
+			slice.Values = append(slice.Values, p.Bool(elem))
+		case reflect.Complex64, reflect.Complex128:
+			slice.Values = append(slice.Values, p.Complex(elem))
 		}
 	}
 
