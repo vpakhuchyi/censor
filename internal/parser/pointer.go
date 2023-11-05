@@ -9,7 +9,7 @@ import (
 // Ptr parses a given value and returns a Ptr.
 // If the value is nil, it returns a Ptr with a nil Value.
 //
-//nolint:exhaustive
+//nolint:exhaustive,gocyclo
 func (p *Parser) Ptr(ptrValue reflect.Value) models.Ptr {
 	if ptrValue.Kind() != reflect.Pointer {
 		panic("provided value is not a pointer")
