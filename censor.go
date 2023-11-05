@@ -235,8 +235,10 @@ func (p *Processor) format(k reflect.Kind, v any) string {
 		return p.formatter.Ptr(v.(models.Ptr))
 	case reflect.String:
 		return p.formatter.String(v.(models.Value))
-	case reflect.Float32, reflect.Float64, reflect.Complex64, reflect.Complex128:
+	case reflect.Float32, reflect.Float64:
 		return p.formatter.Float(v.(models.Value))
+	case reflect.Complex64, reflect.Complex128:
+		return p.formatter.Complex(v.(models.Value))
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		return p.formatter.Integer(v.(models.Value))

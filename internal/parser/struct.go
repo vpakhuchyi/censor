@@ -56,8 +56,6 @@ func (p *Parser) Struct(structValue reflect.Value) models.Struct {
 			v = p.Integer(f)
 		case reflect.Complex64, reflect.Complex128:
 			v = p.Complex(f)
-		default:
-			v = models.Value{Value: f.Interface(), Kind: f.Kind()}
 		}
 
 		tag := structValue.Type().Field(i).Tag.Get(p.CensorFieldTag)
