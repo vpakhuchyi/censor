@@ -18,7 +18,7 @@ func TestParser_Bool(t *testing.T) {
 	t.Run("successful", func(t *testing.T) {
 		require.NotPanics(t, func() {
 			got := p.Bool(reflect.ValueOf(true))
-			exp := models.Bool{Value: true, Kind: reflect.Bool}
+			exp := models.Value{Value: true, Kind: reflect.Bool}
 			require.Equal(t, exp, got)
 		})
 

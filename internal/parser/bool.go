@@ -6,14 +6,14 @@ import (
 	"github.com/vpakhuchyi/censor/internal/models"
 )
 
-// Bool parses a boolean and returns a Bool.
+// Bool parses a boolean and returns a models.Value.
 // Note: this method panics if the provided value is not a boolean.
-func (p *Parser) Bool(boolValue reflect.Value) models.Bool {
+func (p *Parser) Bool(boolValue reflect.Value) models.Value {
 	if boolValue.Kind() != reflect.Bool {
 		panic("provided value is not a boolean")
 	}
 
-	return models.Bool{
+	return models.Value{
 		Value: boolValue.Interface(),
 		Kind:  reflect.Bool,
 	}

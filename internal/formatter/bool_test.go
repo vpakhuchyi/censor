@@ -31,7 +31,7 @@ func TestFormatter_Bool(t *testing.T) {
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			got := f.Bool(models.Bool(tt.value))
+			got := f.Bool(tt.value)
 			require.Equal(t, tt.exp, got)
 		})
 	}

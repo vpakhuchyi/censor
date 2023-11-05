@@ -7,6 +7,6 @@ import (
 )
 
 // Bool formats a value as a boolean.
-func (f *Formatter) Bool(v models.Bool) string {
+func (f *Formatter) Bool(v models.Value) string {
 	return fmt.Sprintf(`%v`, v.Value)
 }
