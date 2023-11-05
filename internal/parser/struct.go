@@ -47,6 +47,8 @@ func (p *Parser) Struct(structValue reflect.Value) models.Struct {
 			v = models.Value{Value: p.Interface(f), Kind: f.Kind()}
 		case reflect.Bool:
 			v = p.Bool(f)
+		case reflect.String:
+			v = p.String(f)
 		default:
 			v = models.Value{Value: f.Interface(), Kind: f.Kind()}
 		}

@@ -202,13 +202,15 @@ func (p *Processor) parse(v reflect.Value) any {
 		parsed = p.parser.Ptr(v)
 	case reflect.Map:
 		parsed = p.parser.Map(v)
-	case reflect.Float32, reflect.Float64, reflect.String, reflect.Complex64, reflect.Complex128:
+	case reflect.Float32, reflect.Float64, reflect.Complex64, reflect.Complex128:
 		parsed = models.Value{Value: v.Interface(), Kind: v.Kind()}
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		parsed = p.parser.Integer(v)
 	case reflect.Bool:
 		parsed = p.parser.Bool(v)
+	case reflect.String:
+		parsed = p.parser.String(v)
 	case reflect.Chan, reflect.Func, reflect.UnsafePointer, reflect.Uintptr:
 		/*
 			Note: this case covers all unsupported types.
