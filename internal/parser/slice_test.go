@@ -10,14 +10,14 @@ import (
 	"github.com/vpakhuchyi/censor/internal/options"
 )
 
-type address struct {
-	City   string `json:"city" censor:"display"`
-	State  string `json:"state" censor:"display"`
-	Street string `json:"street"`
-	Zip    string `json:"zip"`
-}
-
 func TestParser_Slice(t *testing.T) {
+	type address struct {
+		City   string `json:"city" censor:"display"`
+		State  string `json:"state" censor:"display"`
+		Street string `json:"street"`
+		Zip    string `json:"zip"`
+	}
+
 	p := Parser{
 		UseJSONTagName: false,
 		CensorFieldTag: DefaultCensorFieldTag,
