@@ -54,6 +54,8 @@ func (p *Parser) Struct(structValue reflect.Value) models.Struct {
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 			v = p.Integer(f)
+		case reflect.Complex64, reflect.Complex128:
+			v = p.Complex(f)
 		default:
 			v = models.Value{Value: f.Interface(), Kind: f.Kind()}
 		}

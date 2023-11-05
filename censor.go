@@ -203,7 +203,7 @@ func (p *Processor) parse(v reflect.Value) any {
 	case reflect.Map:
 		parsed = p.parser.Map(v)
 	case reflect.Complex64, reflect.Complex128:
-		parsed = models.Value{Value: v.Interface(), Kind: v.Kind()}
+		parsed = p.parser.Complex(v)
 	case reflect.Float32, reflect.Float64:
 		parsed = p.parser.Float(v)
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
