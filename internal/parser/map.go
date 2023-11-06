@@ -12,7 +12,7 @@ import (
 // If value is a struct/pointer/slice/array/map/interface, it will be parsed recursively.
 // Note: this method panics if the provided value is not a complex.
 //
-//nolint:exhaustive
+//nolint:exhaustive,funlen,gocyclo
 func (p *Parser) Map(mapValue reflect.Value) models.Map {
 	if mapValue.Kind() != reflect.Map {
 		panic("provided value is not a map")
