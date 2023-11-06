@@ -14,3 +14,5 @@ type Field struct {
 	Opts  options.FieldOptions
 	Kind  reflect.Kind
 }
+
+// TODO: do i need both Tag and Opts?

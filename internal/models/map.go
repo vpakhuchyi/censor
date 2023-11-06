@@ -5,3 +5,5 @@ type Map struct {
 	Type   string
 	Values []KV
 }
+
+// TODO: think about struct/interface names.

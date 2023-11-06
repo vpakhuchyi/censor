@@ -9,6 +9,7 @@ import (
 // Slice parses a given value and returns a Slice.
 // This function is also can be used to parse an array.
 // All supported complex types will be parsed recursively.
+// Note: this method panics if the provided value is not a complex.
 //
 //nolint:exhaustive,gocyclo
 func (p *Parser) Slice(sliceValue reflect.Value) models.Slice {
