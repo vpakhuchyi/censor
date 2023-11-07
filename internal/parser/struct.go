@@ -14,6 +14,10 @@ import (
 //
 //nolint:exhaustive,gocyclo
 func (p *Parser) Struct(structValue reflect.Value) models.Struct {
+	if structValue.Kind() != reflect.Struct {
+		panic("provided value is not a struct")
+	}
+
 	var v models.Value
 	s := models.Struct{Name: getStructName(structValue)}
 
