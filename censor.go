@@ -191,7 +191,6 @@ func (p *Processor) sanitise(val any) string {
 
 //nolint:exhaustive,gocyclo
 func (p *Processor) parse(v reflect.Value) any {
-	fmt.Println("v.Kind()", v.Kind())
 	var parsed any
 	switch v.Kind() {
 	case reflect.Struct:
