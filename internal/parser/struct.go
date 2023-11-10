@@ -13,18 +13,18 @@ import (
 // All supported complex types will be parsed recursively.
 //
 //nolint:exhaustive,gocyclo
-func (p *Parser) Struct(structValue reflect.Value) models.Struct {
-	if structValue.Kind() != reflect.Struct {
+func (p *Parser) Struct(rv reflect.Value) models.Struct {
+	if rv.Kind() != reflect.Struct {
 		panic("provided value is not a struct")
 	}
 
 	var v models.Value
-	s := models.Struct{Name: getStructName(structValue)}
+	s := models.Struct{Name: getStructName(rv)}
 
-	for i := 0; i < structValue.NumField(); i++ {
+	for i := 0; i < rv.NumField(); i++ {
 		var fieldName string
 		if p.UseJSONTagName {
-			tagValue := structValue.Type().Field(i).Tag.Get("json")
+			tagValue := rv.Type().Field(i).Tag.Get("json")
 
 			// If the tag is not present, then such a field will be ignored.
 			if tagValue == "" {
@@ -33,11 +33,11 @@ func (p *Parser) Struct(structValue reflect.Value) models.Struct {
 
 			fieldName = tagValue
 		} else {
-			fieldName = structValue.Type().Field(i).Name
+			fieldName = rv.Type().Field(i).Name
 		}
 
-		f := structValue.Field(i)
-		fmt.Println("f", f)
+		f := rv.Field(i)
+
 		switch f.Kind() {
 		case reflect.Struct:
 			v = models.Value{Value: p.Struct(f), Kind: reflect.Struct}
@@ -62,7 +62,7 @@ func (p *Parser) Struct(structValue reflect.Value) models.Struct {
 			v = p.Complex(f)
 		}
 
-		tag := structValue.Type().Field(i).Tag.Get(p.CensorFieldTag)
+		tag := rv.Type().Field(i).Tag.Get(p.CensorFieldTag)
 
 		s.Fields = append(s.Fields, models.Field{
 			Name:  fieldName,

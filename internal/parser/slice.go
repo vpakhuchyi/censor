@@ -12,14 +12,14 @@ import (
 // Note: this method panics if the provided value is not a complex.
 //
 //nolint:exhaustive,gocyclo
-func (p *Parser) Slice(sliceValue reflect.Value) models.Slice {
-	if sliceValue.Kind() != reflect.Slice && sliceValue.Kind() != reflect.Array {
+func (p *Parser) Slice(rv reflect.Value) models.Slice {
+	if rv.Kind() != reflect.Slice && rv.Kind() != reflect.Array {
 		panic("provided value is not a slice/array")
 	}
 
 	var slice models.Slice
-	for i := 0; i < sliceValue.Len(); i++ {
-		elem := sliceValue.Index(i)
+	for i := 0; i < rv.Len(); i++ {
+		elem := rv.Index(i)
 		switch elem.Kind() {
 		case reflect.Struct:
 			slice.Values = append(slice.Values, models.Value{Value: p.Struct(elem), Kind: reflect.Struct})

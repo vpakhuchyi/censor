@@ -10,12 +10,12 @@ import (
 // Note: this method panics if the provided value is not an integer.
 //
 //nolint:exhaustive
-func (p *Parser) Integer(intValue reflect.Value) models.Value {
-	switch k := intValue.Kind(); k {
+func (p *Parser) Integer(rv reflect.Value) models.Value {
+	switch k := rv.Kind(); k {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		return models.Value{
-			Value: intValue.Interface(),
+			Value: rv.Interface(),
 			Kind:  k,
 		}
 	default:

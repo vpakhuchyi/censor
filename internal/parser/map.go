@@ -13,13 +13,13 @@ import (
 // Note: this method panics if the provided value is not a complex.
 //
 //nolint:exhaustive,funlen,gocyclo
-func (p *Parser) Map(mapValue reflect.Value) models.Map {
-	if mapValue.Kind() != reflect.Map {
+func (p *Parser) Map(rv reflect.Value) models.Map {
+	if rv.Kind() != reflect.Map {
 		panic("provided value is not a map")
 	}
 
-	m := models.Map{Type: mapValue.Type().String()}
-	iter := mapValue.MapRange()
+	m := models.Map{Type: rv.Type().String()}
+	iter := rv.MapRange()
 
 	for iter.Next() {
 		key, value := iter.Key(), iter.Value()
