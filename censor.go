@@ -198,7 +198,7 @@ func (p *Processor) parse(v reflect.Value) any {
 		parsed = p.parser.Struct(v)
 	case reflect.Slice, reflect.Array:
 		parsed = p.parser.Slice(v)
-	case reflect.Ptr:
+	case reflect.Pointer:
 		parsed = p.parser.Ptr(v)
 	case reflect.Map:
 		parsed = p.parser.Map(v)

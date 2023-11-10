@@ -9,36 +9,35 @@ import (
 // Interface parses an interface and returns an Interface.
 //
 //nolint:exhaustive,gocyclo
-func (p *Parser) Interface(rv reflect.Value) models.Interface {
+func (p *Parser) Interface(rv reflect.Value) models.Value {
 	if rv.Kind() != reflect.Interface {
 		panic("provided value is not an interface")
 	}
 
-	var v models.Value
 	switch rv.Elem().Kind() {
 	case reflect.Struct:
-		v = models.Value{Value: p.Struct(rv.Elem()), Kind: reflect.Struct}
+		return models.Value{Value: p.Struct(rv.Elem()), Kind: reflect.Struct}
 	case reflect.Pointer:
-		v = models.Value{Value: p.Ptr(rv.Elem()), Kind: reflect.Pointer}
+		return models.Value{Value: p.Ptr(rv.Elem()), Kind: reflect.Pointer}
 	case reflect.Slice, reflect.Array:
-		v = models.Value{Value: p.Slice(rv.Elem()), Kind: rv.Elem().Kind()}
+		return models.Value{Value: p.Slice(rv.Elem()), Kind: rv.Elem().Kind()}
 	case reflect.Map:
-		v = models.Value{Value: p.Map(rv.Elem()), Kind: rv.Elem().Kind()}
+		return models.Value{Value: p.Map(rv.Elem()), Kind: rv.Elem().Kind()}
 	case reflect.String:
-		v = p.String(rv.Elem())
+		return p.String(rv.Elem())
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		v = p.Integer(rv.Elem())
+		return p.Integer(rv.Elem())
 	case reflect.Float32, reflect.Float64:
-		v = p.Float(rv.Elem())
+		return p.Float(rv.Elem())
 	case reflect.Bool:
-		v = p.Bool(rv.Elem())
+		return p.Bool(rv.Elem())
 	case reflect.Complex64, reflect.Complex128:
-		v = p.Complex(rv.Elem())
-	}
-
-	return models.Interface{
-		Name:  rv.Type().Name(),
-		Value: v,
+		return p.Complex(rv.Elem())
+	default:
+		return models.Value{
+			Kind:  rv.Elem().Kind(),
+			Value: rv.Elem().Interface(),
+		}
 	}
 }

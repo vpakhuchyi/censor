@@ -48,7 +48,7 @@ func TestParser_Pointer(t *testing.T) {
 		require.NotPanics(t, func() {
 			var v *address
 			got := p.Ptr(reflect.ValueOf(v))
-			exp := models.Ptr{Value: nil, Kind: reflect.Ptr}
+			exp := models.Ptr{Value: nil, Kind: reflect.Pointer}
 
 			require.Equal(t, exp, got)
 		})
@@ -115,7 +115,7 @@ func TestParser_Pointer(t *testing.T) {
 					},
 					Kind: reflect.Slice,
 				},
-				Kind: reflect.Ptr,
+				Kind: reflect.Pointer,
 			}
 
 			require.Equal(t, exp, got)
@@ -133,7 +133,7 @@ func TestParser_Pointer(t *testing.T) {
 					},
 					Kind: reflect.Array,
 				},
-				Kind: reflect.Ptr,
+				Kind: reflect.Pointer,
 			}
 
 			require.Equal(t, exp, got)
@@ -155,7 +155,7 @@ func TestParser_Pointer(t *testing.T) {
 					},
 					Kind: reflect.Map,
 				},
-				Kind: reflect.Ptr,
+				Kind: reflect.Pointer,
 			}
 
 			require.Equal(t, exp, got)
@@ -166,9 +166,7 @@ func TestParser_Pointer(t *testing.T) {
 		require.NotPanics(t, func() {
 			v := interface{}("moloko")
 			got := p.Ptr(reflect.ValueOf(&v))
-			exp := models.Ptr{
-				Value: models.Interface{Name: "", Value: models.Value{Value: "moloko", Kind: reflect.String}},
-				Kind:  reflect.Interface}
+			exp := models.Ptr{Value: models.Value{Value: "moloko", Kind: reflect.String}, Kind: reflect.Interface}
 
 			require.Equal(t, exp, got)
 		})

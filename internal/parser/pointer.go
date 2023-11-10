@@ -17,7 +17,7 @@ func (p *Parser) Ptr(rv reflect.Value) models.Ptr {
 	}
 
 	if rv.IsNil() {
-		return models.Ptr{Value: nil, Kind: reflect.Ptr}
+		return models.Ptr{Value: nil, Kind: reflect.Pointer}
 	}
 
 	switch rv.Elem().Kind() {
@@ -25,7 +25,7 @@ func (p *Parser) Ptr(rv reflect.Value) models.Ptr {
 		return models.Ptr{Value: p.Struct(rv.Elem()), Kind: rv.Elem().Kind()}
 	case reflect.Slice, reflect.Array:
 		return models.Ptr{Value: p.Slice(rv.Elem()), Kind: rv.Elem().Kind()}
-	case reflect.Ptr:
+	case reflect.Pointer:
 		return models.Ptr{Value: p.Ptr(rv.Elem()), Kind: rv.Elem().Kind()}
 	case reflect.Map:
 		return models.Ptr{Value: p.Map(rv.Elem()), Kind: rv.Elem().Kind()}

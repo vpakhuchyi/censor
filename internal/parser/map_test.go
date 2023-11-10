@@ -229,7 +229,7 @@ func TestParser_Map(t *testing.T) {
 									{Name: "Zip", Tag: "", Value: models.Value{Value: "55501", Kind: reflect.String}, Kind: reflect.String, Opts: options.FieldOptions{Display: false}},
 								},
 							},
-						}, Kind: reflect.Ptr},
+						}, Kind: reflect.Pointer},
 						SortValue: "key1"},
 					{Key: models.Value{Value: "key2", Kind: reflect.String}, Value: models.Value{
 						Value: models.Ptr{
@@ -244,7 +244,7 @@ func TestParser_Map(t *testing.T) {
 								},
 							},
 						},
-						Kind: reflect.Ptr},
+						Kind: reflect.Pointer},
 						SortValue: "key2"},
 				},
 			}
@@ -295,12 +295,14 @@ func TestParser_Map(t *testing.T) {
 				Type: "map[string]interface {}",
 				Values: []models.KV{
 					{
-						Key:   models.Value{Value: "key1", Kind: reflect.String},
-						Value: models.Value{Value: models.Interface{Value: models.Value{Value: 1, Kind: reflect.Int}}, Kind: reflect.Interface}, SortValue: "key1",
+						SortValue: "key1",
+						Key:       models.Value{Value: "key1", Kind: reflect.String},
+						Value:     models.Value{Value: models.Value{Value: 1, Kind: reflect.Int}, Kind: reflect.Interface},
 					},
 					{
-						Key:   models.Value{Value: "key2", Kind: reflect.String},
-						Value: models.Value{Value: models.Interface{Value: models.Value{Value: "value2", Kind: reflect.String}}, Kind: reflect.Interface}, SortValue: "key2",
+						SortValue: "key2",
+						Key:       models.Value{Value: "key2", Kind: reflect.String},
+						Value:     models.Value{Value: models.Value{Value: "value2", Kind: reflect.String}, Kind: reflect.Interface},
 					},
 				},
 			}
@@ -468,8 +470,8 @@ func TestParser_Map(t *testing.T) {
 			exp := models.Map{
 				Type: "map[*string]string",
 				Values: []models.KV{
-					{Key: models.Value{Value: models.Ptr{Kind: reflect.String, Value: "key1"}, Kind: reflect.Ptr}, Value: models.Value{Value: "value1", Kind: reflect.String}, SortValue: fmt.Sprintf("%p", &key1)},
-					{Key: models.Value{Value: models.Ptr{Kind: reflect.String, Value: "key2"}, Kind: reflect.Ptr}, Value: models.Value{Value: "value2", Kind: reflect.String}, SortValue: fmt.Sprintf("%p", &key2)},
+					{Key: models.Value{Value: models.Ptr{Kind: reflect.String, Value: "key1"}, Kind: reflect.Pointer}, Value: models.Value{Value: "value1", Kind: reflect.String}, SortValue: fmt.Sprintf("%p", &key1)},
+					{Key: models.Value{Value: models.Ptr{Kind: reflect.String, Value: "key2"}, Kind: reflect.Pointer}, Value: models.Value{Value: "value2", Kind: reflect.String}, SortValue: fmt.Sprintf("%p", &key2)},
 				},
 			}
 
@@ -484,8 +486,16 @@ func TestParser_Map(t *testing.T) {
 			exp := models.Map{
 				Type: "map[interface {}]string",
 				Values: []models.KV{
-					{Key: models.Value{Value: models.Interface{Value: models.Value{Value: "key1", Kind: reflect.String}}, Kind: reflect.Interface}, Value: models.Value{Value: "value1", Kind: reflect.String}, SortValue: "key1"},
-					{Key: models.Value{Value: models.Interface{Value: models.Value{Value: "key2", Kind: reflect.String}}, Kind: reflect.Interface}, Value: models.Value{Value: "value2", Kind: reflect.String}, SortValue: "key2"},
+					{
+						SortValue: "key1",
+						Key:       models.Value{Value: models.Value{Value: "key1", Kind: reflect.String}, Kind: reflect.Interface},
+						Value:     models.Value{Value: "value1", Kind: reflect.String},
+					},
+					{
+						SortValue: "key2",
+						Key:       models.Value{Value: models.Value{Value: "key2", Kind: reflect.String}, Kind: reflect.Interface},
+						Value:     models.Value{Value: "value2", Kind: reflect.String},
+					},
 				},
 			}
 

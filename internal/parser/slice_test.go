@@ -44,7 +44,7 @@ func TestParser_Slice(t *testing.T) {
 								}},
 							Kind: reflect.Struct,
 						},
-						Kind: reflect.Ptr,
+						Kind: reflect.Pointer,
 					},
 					{
 						Value: models.Ptr{
@@ -57,7 +57,7 @@ func TestParser_Slice(t *testing.T) {
 									{Name: "Zip", Tag: "", Value: models.Value{Value: "55502", Kind: reflect.String}, Opts: options.FieldOptions{Display: false}, Kind: reflect.String},
 								},
 							}, Kind: reflect.Struct,
-						}, Kind: reflect.Ptr,
+						}, Kind: reflect.Pointer,
 					},
 				},
 			}
@@ -205,14 +205,21 @@ func TestParser_Slice(t *testing.T) {
 			got := p.Slice(reflect.ValueOf(v))
 			exp := models.Slice{
 				Values: []models.Value{
-					{Value: models.Interface{Name: "", Value: models.Value{Value: 1, Kind: reflect.Int}}, Kind: reflect.Interface},
-					{Value: models.Interface{Name: "", Value: models.Value{Value: "string", Kind: reflect.String}}, Kind: reflect.Interface},
-					{Value: models.Interface{Name: "", Value: models.Value{Value: true, Kind: reflect.Bool}}, Kind: reflect.Interface},
-					{Value: models.Interface{Name: "", Value: models.Value{Value: 1.1, Kind: reflect.Float64}}, Kind: reflect.Interface},
-					{Value: models.Interface{Name: "", Value: models.Value{
-						Value: models.Slice{Values: []models.Value{{Value: "tag1", Kind: reflect.String}, {Value: "tag2", Kind: reflect.String}}},
-						Kind:  reflect.Slice,
-					}}, Kind: reflect.Interface},
+					{Value: models.Value{Value: 1, Kind: reflect.Int}, Kind: reflect.Interface},
+					{Value: models.Value{Value: "string", Kind: reflect.String}, Kind: reflect.Interface},
+					{Value: models.Value{Value: true, Kind: reflect.Bool}, Kind: reflect.Interface},
+					{Value: models.Value{Value: 1.1, Kind: reflect.Float64}, Kind: reflect.Interface},
+					{Value: models.Value{
+						Value: models.Slice{
+							Values: []models.Value{
+								{Value: "tag1", Kind: reflect.String},
+								{Value: "tag2", Kind: reflect.String},
+							},
+						},
+						Kind: reflect.Slice,
+					},
+						Kind: reflect.Interface,
+					},
 				},
 			}
 

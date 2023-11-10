@@ -55,7 +55,7 @@ func (f *Formatter) writeValue(buf *strings.Builder, v models.Value) {
 	case reflect.Bool:
 		buf.WriteString(f.Bool(v))
 	case reflect.Interface:
-		buf.WriteString(f.Interface(v.Value.(models.Interface)))
+		buf.WriteString(f.Interface(v))
 	}
 }
 
@@ -82,6 +82,6 @@ func (f *Formatter) writeField(field models.Field, buf *strings.Builder) {
 	case reflect.Map:
 		buf.WriteString(formatField(field.Name, f.Map(field.Value.Value.(models.Map))))
 	case reflect.Interface:
-		buf.WriteString(formatField(field.Name, f.Interface(field.Value.Value.(models.Interface))))
+		buf.WriteString(formatField(field.Name, f.Interface(field.Value)))
 	}
 }
