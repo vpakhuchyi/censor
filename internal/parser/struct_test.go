@@ -338,6 +338,153 @@ func TestParser_Struct(t *testing.T) {
 		})
 	})
 
+	t.Run("struct_with_interface_with_struct_value", func(t *testing.T) {
+		type contact struct {
+			Email string `json:"email" censor:"display"`
+			Phone string `json:"phone" censor:"display"`
+		}
+
+		type person struct {
+			Contact interface{} `json:"contact"`
+		}
+
+		require.NotPanics(t, func() {
+			v := person{Contact: contact{Email: "example", Phone: "555-555-5555"}}
+			got := p.Struct(reflect.ValueOf(v))
+			exp := models.Struct{
+				Name: "parser.person",
+				Fields: []models.Field{
+					{
+						Name: "Contact",
+						Tag:  "",
+						Value: models.Value{
+							Value: models.Interface{
+								Name: "",
+								Value: models.Value{
+									Value: models.Struct{
+										Name: "parser.contact",
+										Fields: []models.Field{
+											{Name: "Email", Tag: "display", Value: models.Value{Value: "example", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
+											{Name: "Phone", Tag: "display", Value: models.Value{Value: "555-555-5555", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
+										},
+									},
+									Kind: reflect.Struct,
+								},
+							},
+							Kind: reflect.Interface,
+						},
+						Opts: options.FieldOptions{Display: false},
+						Kind: reflect.Interface,
+					},
+				},
+			}
+
+			require.Equal(t, exp, got)
+		})
+	})
+
+	t.Run("struct_with_interface_with_map_value", func(t *testing.T) {
+		type person struct {
+			Names interface{} `json:"names" censor:"display"`
+		}
+
+		require.NotPanics(t, func() {
+			v := person{Names: map[string]string{"first": "John", "last": "Doe"}}
+			got := p.Struct(reflect.ValueOf(v))
+			exp := models.Struct{
+				Name: "parser.person",
+				Fields: []models.Field{
+					{
+						Name: "Names",
+						Tag:  "display",
+						Value: models.Value{
+							Value: models.Interface{
+								Name: "",
+								Value: models.Value{
+									Value: models.Map{
+										Values: []models.KV{
+											{Key: models.Value{Value: "first", Kind: reflect.String}, Value: models.Value{Value: "John", Kind: reflect.String}, SortValue: "first"},
+											{Key: models.Value{Value: "last", Kind: reflect.String}, Value: models.Value{Value: "Doe", Kind: reflect.String}, SortValue: "last"},
+										},
+										Type: "map[string]string",
+									},
+									Kind: reflect.Map},
+							},
+							Kind: reflect.Interface,
+						},
+						Opts: options.FieldOptions{Display: true}, Kind: reflect.Interface},
+				},
+			}
+
+			require.Equal(t, exp, got)
+		})
+	})
+
+	t.Run("struct_with_interface_with_pointer_value", func(t *testing.T) {
+		type person struct {
+			Names interface{} `json:"names" censor:"display"`
+		}
+
+		require.NotPanics(t, func() {
+			f := 43.4
+			v := person{Names: &f}
+			got := p.Struct(reflect.ValueOf(v))
+			exp := models.Struct{
+				Name: "parser.person",
+				Fields: []models.Field{
+					{
+						Name: "Names",
+						Tag:  "display",
+						Value: models.Value{
+							Value: models.Interface{
+								Name: "",
+								Value: models.Value{
+									Value: models.Ptr{Value: 43.4, Kind: reflect.Float64},
+									Kind:  reflect.Ptr,
+								},
+							},
+							Kind: reflect.Interface,
+						},
+						Opts: options.FieldOptions{Display: true}, Kind: reflect.Interface},
+				},
+			}
+
+			require.Equal(t, exp, got)
+		})
+	})
+
+	t.Run("struct_with_interface_with_complex_value", func(t *testing.T) {
+		type person struct {
+			Names interface{} `json:"names" censor:"display"`
+		}
+
+		require.NotPanics(t, func() {
+			v := person{Names: complex(1.82, 0)}
+			got := p.Struct(reflect.ValueOf(v))
+			exp := models.Struct{
+				Name: "parser.person",
+				Fields: []models.Field{
+					{
+						Name: "Names",
+						Tag:  "display",
+						Value: models.Value{
+							Value: models.Interface{
+								Name: "",
+								Value: models.Value{
+									Value: complex(1.82, 0),
+									Kind:  reflect.Complex128,
+								},
+							},
+							Kind: reflect.Interface,
+						},
+						Opts: options.FieldOptions{Display: true}, Kind: reflect.Interface},
+				},
+			}
+
+			require.Equal(t, exp, got)
+		})
+	})
+
 	t.Run("non_struct_value", func(t *testing.T) {
 		require.PanicsWithValue(t, "provided value is not a struct", func() { p.Struct(reflect.ValueOf(5.234)) })
 	})

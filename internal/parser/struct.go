@@ -37,7 +37,7 @@ func (p *Parser) Struct(structValue reflect.Value) models.Struct {
 		}
 
 		f := structValue.Field(i)
-
+		fmt.Println("f", f)
 		switch f.Kind() {
 		case reflect.Struct:
 			v = models.Value{Value: p.Struct(f), Kind: reflect.Struct}

@@ -8,10 +8,13 @@ import (
 
 // Interface parses an interface and returns an Interface.
 //
-//nolint:exhaustive
+//nolint:exhaustive,gocyclo
 func (p *Parser) Interface(rv reflect.Value) models.Interface {
-	var v models.Value
+	if rv.Kind() != reflect.Interface {
+		panic("provided value is not an interface")
+	}
 
+	var v models.Value
 	switch rv.Elem().Kind() {
 	case reflect.Struct:
 		v = models.Value{Value: p.Struct(rv.Elem()), Kind: reflect.Struct}
