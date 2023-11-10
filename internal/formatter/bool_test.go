@@ -16,23 +16,18 @@ func TestFormatter_Bool(t *testing.T) {
 		DisplayMapType:    false,
 	}
 
-	tests := map[string]struct {
-		value models.Value
-		exp   string
-	}{
-		"bool": {
-			value: models.Value{
-				Value: true,
-				Kind:  reflect.Bool,
-			},
-			exp: "true",
-		},
-	}
-
-	for name, tt := range tests {
-		t.Run(name, func(t *testing.T) {
-			got := f.Bool(tt.value)
-			require.Equal(t, tt.exp, got)
+	t.Run("successful", func(t *testing.T) {
+		require.NotPanics(t, func() {
+			v := models.Value{Value: true, Kind: reflect.Bool}
+			got := f.Bool(v)
+			exp := "true"
+			require.Equal(t, exp, got)
 		})
-	}
+	})
+
+	t.Run("non_bool_value", func(t *testing.T) {
+		require.PanicsWithValue(t, "provided value is not a boolean", func() {
+			f.Bool(models.Value{Value: 44, Kind: reflect.Int})
+		})
+	})
 }
