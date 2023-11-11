@@ -1,6 +1,7 @@
 package formatter
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 
@@ -82,6 +83,7 @@ func (f *Formatter) writeField(field models.Field, buf *strings.Builder) {
 	case reflect.Map:
 		buf.WriteString(formatField(field.Name, f.Map(field.Value.Value.(models.Map))))
 	case reflect.Interface:
+		fmt.Println("interface", field.Value)
 		buf.WriteString(formatField(field.Name, f.Interface(field.Value)))
 	}
 }
