@@ -38,13 +38,12 @@ func (f *Formatter) Map(m models.Map) string {
 		buf.WriteString("map[")
 	}
 
-	kvs := m.Values
-	for i := 0; i < len(kvs); i++ {
-		f.writeValue(&buf, kvs[i].Key)
+	for i := 0; i < len(m.Values); i++ {
+		f.writeValue(&buf, m.Values[i].Key)
 		buf.WriteString(": ")
-		f.writeValue(&buf, kvs[i].Value)
+		f.writeValue(&buf, m.Values[i].Value)
 
-		if i < len(kvs)-1 {
+		if i < len(m.Values)-1 {
 			buf.WriteString(", ")
 		}
 	}

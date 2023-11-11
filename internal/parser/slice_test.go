@@ -172,7 +172,7 @@ func TestParser_Slice(t *testing.T) {
 		require.NotPanics(t, func() {
 			v := []string{}
 			got := p.Slice(reflect.ValueOf(v))
-			exp := models.Slice{Values: nil}
+			exp := models.Slice{Values: []models.Value{}}
 
 			require.Equal(t, exp, got)
 		})

@@ -19,17 +19,14 @@ func (f *Formatter) Struct(s models.Struct) string {
 
 	buf.WriteString("{")
 
-	fields := s.Fields
 	for i := 0; i < len(s.Fields); i++ {
-		field := fields[i]
-
-		if field.Opts.Display {
-			f.writeField(field, &buf)
+		if s.Fields[i].Opts.Display {
+			f.writeField(s.Fields[i], &buf)
 		} else {
-			buf.WriteString(formatField(field.Name, f.MaskValue))
+			buf.WriteString(formatField(s.Fields[i].Name, f.MaskValue))
 		}
 
-		if i < len(fields)-1 {
+		if i < len(s.Fields)-1 {
 			buf.WriteString(", ")
 		}
 	}

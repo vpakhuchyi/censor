@@ -20,17 +20,17 @@ func (p *Parser) Ptr(rv reflect.Value) models.Ptr {
 		return models.Ptr{Value: nil, Kind: reflect.Pointer}
 	}
 
-	switch rv.Elem().Kind() {
+	switch k := rv.Elem().Kind(); k {
 	case reflect.Struct:
-		return models.Ptr{Value: p.Struct(rv.Elem()), Kind: rv.Elem().Kind()}
+		return models.Ptr{Value: p.Struct(rv.Elem()), Kind: reflect.Struct}
 	case reflect.Slice, reflect.Array:
-		return models.Ptr{Value: p.Slice(rv.Elem()), Kind: rv.Elem().Kind()}
+		return models.Ptr{Value: p.Slice(rv.Elem()), Kind: k}
 	case reflect.Pointer:
-		return models.Ptr{Value: p.Ptr(rv.Elem()), Kind: rv.Elem().Kind()}
+		return models.Ptr{Value: p.Ptr(rv.Elem()), Kind: reflect.Pointer}
 	case reflect.Map:
-		return models.Ptr{Value: p.Map(rv.Elem()), Kind: rv.Elem().Kind()}
+		return models.Ptr{Value: p.Map(rv.Elem()), Kind: reflect.Map}
 	case reflect.Interface:
-		return models.Ptr{Value: p.Interface(rv.Elem()), Kind: rv.Elem().Kind()}
+		return models.Ptr{Value: p.Interface(rv.Elem()), Kind: reflect.Interface}
 	case reflect.String:
 		return models.Ptr(p.String(rv.Elem()))
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
@@ -43,6 +43,6 @@ func (p *Parser) Ptr(rv reflect.Value) models.Ptr {
 	case reflect.Complex64, reflect.Complex128:
 		return models.Ptr(p.Complex(rv.Elem()))
 	default:
-		return models.Ptr{Value: rv.Elem().Interface(), Kind: rv.Elem().Kind()}
+		return models.Ptr{Value: rv.Elem().Interface(), Kind: k}
 	}
 }

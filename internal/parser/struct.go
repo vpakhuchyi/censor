@@ -43,13 +43,13 @@ func (p *Parser) Struct(rv reflect.Value) models.Struct {
 
 		f := rv.Field(i)
 
-		switch field.Kind {
+		switch k := field.Kind; k {
 		case reflect.Struct:
 			field.Value = models.Value{Value: p.Struct(f), Kind: reflect.Struct}
 		case reflect.Pointer:
 			field.Value = models.Value{Value: p.Ptr(f), Kind: reflect.Pointer}
 		case reflect.Slice, reflect.Array:
-			field.Value = models.Value{Value: p.Slice(f), Kind: field.Kind}
+			field.Value = models.Value{Value: p.Slice(f), Kind: k}
 		case reflect.Map:
 			field.Value = models.Value{Value: p.Map(f), Kind: reflect.Map}
 		case reflect.Interface:

@@ -12,10 +12,9 @@ func (f *Formatter) Slice(slice models.Slice) string {
 	var buf strings.Builder
 	buf.WriteString("[")
 
-	values := slice.Values
-	for i := 0; i < len(values); i++ {
-		f.writeValue(&buf, values[i])
-		if i < len(values)-1 {
+	for i := 0; i < len(slice.Values); i++ {
+		f.writeValue(&buf, slice.Values[i])
+		if i < len(slice.Values)-1 {
 			buf.WriteString(", ")
 		}
 	}
