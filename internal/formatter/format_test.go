@@ -842,12 +842,7 @@ func TestFormatter_writeField(t *testing.T) {
 }
 
 func TestNew(t *testing.T) {
-	t.Run("default", func(t *testing.T) {
-		f := New()
-		require.Equal(t, f, &Formatter{
-			MaskValue:         DefaultMaskValue,
-			DisplayStructName: false,
-			DisplayMapType:    false,
-		})
+	t.Run("successful", func(t *testing.T) {
+		require.EqualValues(t, &Formatter{MaskValue: DefaultMaskValue, DisplayStructName: false, DisplayMapType: false}, New())
 	})
 }
