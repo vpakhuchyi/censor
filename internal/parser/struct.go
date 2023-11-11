@@ -18,56 +18,56 @@ func (p *Parser) Struct(rv reflect.Value) models.Struct {
 		panic("provided value is not a struct")
 	}
 
-	var v models.Value
-	s := models.Struct{Name: getStructName(rv)}
+	s := models.Struct{
+		Name:   getStructName(rv),
+		Fields: make([]models.Field, 0, rv.NumField()),
+	}
 
 	for i := 0; i < rv.NumField(); i++ {
-		var fieldName string
+		field := models.Field{
+			Opts: options.Parse(rv.Type().Field(i).Tag.Get(p.CensorFieldTag)),
+			Kind: rv.Field(i).Kind(),
+		}
+
 		if p.UseJSONTagName {
 			tagValue := rv.Type().Field(i).Tag.Get("json")
-
-			// If the tag is not present, then such a field will be ignored.
 			if tagValue == "" {
+				// If the tag is not present, then such a field will be ignored.
 				continue
 			}
 
-			fieldName = tagValue
+			field.Name = tagValue
 		} else {
-			fieldName = rv.Type().Field(i).Name
+			field.Name = rv.Type().Field(i).Name
 		}
 
 		f := rv.Field(i)
 
-		switch f.Kind() {
+		switch field.Kind {
 		case reflect.Struct:
-			v = models.Value{Value: p.Struct(f), Kind: reflect.Struct}
+			field.Value = models.Value{Value: p.Struct(f), Kind: reflect.Struct}
 		case reflect.Pointer:
-			v = models.Value{Value: p.Ptr(f), Kind: reflect.Pointer}
+			field.Value = models.Value{Value: p.Ptr(f), Kind: reflect.Pointer}
 		case reflect.Slice, reflect.Array:
-			v = models.Value{Value: p.Slice(f), Kind: f.Kind()}
+			field.Value = models.Value{Value: p.Slice(f), Kind: field.Kind}
 		case reflect.Map:
-			v = models.Value{Value: p.Map(f), Kind: f.Kind()}
+			field.Value = models.Value{Value: p.Map(f), Kind: reflect.Map}
 		case reflect.Interface:
-			v = models.Value{Value: p.Interface(f), Kind: f.Kind()}
+			field.Value = models.Value{Value: p.Interface(f), Kind: reflect.Interface}
 		case reflect.Bool:
-			v = p.Bool(f)
+			field.Value = p.Bool(f)
 		case reflect.String:
-			v = p.String(f)
+			field.Value = p.String(f)
 		case reflect.Float32, reflect.Float64:
-			v = p.Float(f)
+			field.Value = p.Float(f)
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			v = p.Integer(f)
+			field.Value = p.Integer(f)
 		case reflect.Complex64, reflect.Complex128:
-			v = p.Complex(f)
+			field.Value = p.Complex(f)
 		}
 
-		s.Fields = append(s.Fields, models.Field{
-			Name:  fieldName,
-			Value: v,
-			Opts:  options.Parse(rv.Type().Field(i).Tag.Get(p.CensorFieldTag)),
-			Kind:  f.Kind(),
-		})
+		s.Fields = append(s.Fields, field)
 	}
 
 	return s
