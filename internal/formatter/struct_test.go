@@ -22,8 +22,8 @@ func TestFormatter_Struct(t *testing.T) {
 			v := models.Struct{
 				Name: "Foo",
 				Fields: []models.Field{
-					{Name: "Foo", Tag: "display", Value: models.Value{Value: "foo", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
-					{Name: "Bar", Tag: "", Value: models.Value{Value: 1, Kind: reflect.Int}, Opts: options.FieldOptions{Display: false}, Kind: reflect.Int},
+					{Name: "Foo", Value: models.Value{Value: "foo", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
+					{Name: "Bar", Value: models.Value{Value: 1, Kind: reflect.Int}, Opts: options.FieldOptions{Display: false}, Kind: reflect.Int},
 				},
 			}
 			got := f.Struct(v)
@@ -43,8 +43,8 @@ func TestFormatter_Struct(t *testing.T) {
 			v := models.Struct{
 				Name: "Foo",
 				Fields: []models.Field{
-					{Name: "Foo", Tag: "display", Value: models.Value{Value: "foo", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
-					{Name: "Bar", Tag: "display", Value: models.Value{Value: 1, Kind: reflect.Int}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Int},
+					{Name: "Foo", Value: models.Value{Value: "foo", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
+					{Name: "Bar", Value: models.Value{Value: 1, Kind: reflect.Int}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Int},
 				},
 			}
 			got := f.Struct(v)

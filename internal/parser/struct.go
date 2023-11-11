@@ -62,13 +62,10 @@ func (p *Parser) Struct(rv reflect.Value) models.Struct {
 			v = p.Complex(f)
 		}
 
-		tag := rv.Type().Field(i).Tag.Get(p.CensorFieldTag)
-
 		s.Fields = append(s.Fields, models.Field{
 			Name:  fieldName,
-			Tag:   tag,
 			Value: v,
-			Opts:  options.Parse(tag),
+			Opts:  options.Parse(rv.Type().Field(i).Tag.Get(p.CensorFieldTag)),
 			Kind:  f.Kind(),
 		})
 	}

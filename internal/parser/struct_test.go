@@ -30,10 +30,10 @@ func TestParser_Struct(t *testing.T) {
 			exp := models.Struct{
 				Name: "parser.address",
 				Fields: []models.Field{
-					{Name: "City", Tag: "display", Value: models.Value{Value: "San Francisco", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
-					{Name: "State", Tag: "display", Value: models.Value{Value: "CA", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
-					{Name: "Street", Tag: "", Value: models.Value{Value: "451 Main St", Kind: reflect.String}, Opts: options.FieldOptions{Display: false}, Kind: reflect.String},
-					{Name: "Zip", Tag: "", Value: models.Value{Value: "55501", Kind: reflect.String}, Opts: options.FieldOptions{Display: false}, Kind: reflect.String},
+					{Name: "City", Value: models.Value{Value: "San Francisco", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
+					{Name: "State", Value: models.Value{Value: "CA", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
+					{Name: "Street", Value: models.Value{Value: "451 Main St", Kind: reflect.String}, Opts: options.FieldOptions{Display: false}, Kind: reflect.String},
+					{Name: "Zip", Value: models.Value{Value: "55501", Kind: reflect.String}, Opts: options.FieldOptions{Display: false}, Kind: reflect.String},
 				}}
 
 			require.Equal(t, exp, got)
@@ -62,18 +62,18 @@ func TestParser_Struct(t *testing.T) {
 			exp := models.Struct{
 				Name: "parser.integers",
 				Fields: []models.Field{
-					{Name: "Int", Tag: "display", Value: models.Value{Value: 1, Kind: reflect.Int}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Int},
-					{Name: "Int8", Tag: "display", Value: models.Value{Value: int8(2), Kind: reflect.Int8}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Int8},
-					{Name: "Int16", Tag: "display", Value: models.Value{Value: int16(3), Kind: reflect.Int16}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Int16},
-					{Name: "Int32", Tag: "display", Value: models.Value{Value: int32(4), Kind: reflect.Int32}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Int32},
-					{Name: "Int64", Tag: "display", Value: models.Value{Value: int64(5), Kind: reflect.Int64}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Int64},
-					{Name: "Uint", Tag: "display", Value: models.Value{Value: uint(6), Kind: reflect.Uint}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Uint},
-					{Name: "Uint8", Tag: "display", Value: models.Value{Value: uint8(7), Kind: reflect.Uint8}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Uint8},
-					{Name: "Uint16", Tag: "display", Value: models.Value{Value: uint16(8), Kind: reflect.Uint16}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Uint16},
-					{Name: "Uint32", Tag: "display", Value: models.Value{Value: uint32(9), Kind: reflect.Uint32}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Uint32},
-					{Name: "Uint64", Tag: "display", Value: models.Value{Value: uint64(10), Kind: reflect.Uint64}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Uint64},
-					{Name: "Byte", Tag: "display", Value: models.Value{Value: byte(11), Kind: reflect.Uint8}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Uint8},
-					{Name: "Rune", Tag: "display", Value: models.Value{Value: rune(121), Kind: reflect.Int32}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Int32},
+					{Name: "Int", Value: models.Value{Value: 1, Kind: reflect.Int}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Int},
+					{Name: "Int8", Value: models.Value{Value: int8(2), Kind: reflect.Int8}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Int8},
+					{Name: "Int16", Value: models.Value{Value: int16(3), Kind: reflect.Int16}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Int16},
+					{Name: "Int32", Value: models.Value{Value: int32(4), Kind: reflect.Int32}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Int32},
+					{Name: "Int64", Value: models.Value{Value: int64(5), Kind: reflect.Int64}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Int64},
+					{Name: "Uint", Value: models.Value{Value: uint(6), Kind: reflect.Uint}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Uint},
+					{Name: "Uint8", Value: models.Value{Value: uint8(7), Kind: reflect.Uint8}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Uint8},
+					{Name: "Uint16", Value: models.Value{Value: uint16(8), Kind: reflect.Uint16}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Uint16},
+					{Name: "Uint32", Value: models.Value{Value: uint32(9), Kind: reflect.Uint32}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Uint32},
+					{Name: "Uint64", Value: models.Value{Value: uint64(10), Kind: reflect.Uint64}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Uint64},
+					{Name: "Byte", Value: models.Value{Value: byte(11), Kind: reflect.Uint8}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Uint8},
+					{Name: "Rune", Value: models.Value{Value: rune(121), Kind: reflect.Int32}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Int32},
 				},
 			}
 			require.Equal(t, exp, got)
@@ -93,9 +93,9 @@ func TestParser_Struct(t *testing.T) {
 			exp := models.Struct{
 				Name: "parser.person",
 				Fields: []models.Field{
-					{Name: "Name", Tag: "display", Value: models.Value{Value: "John", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
-					{Name: "Height", Tag: "", Value: models.Value{Value: float32(1.82), Kind: reflect.Float32}, Opts: options.FieldOptions{Display: false}, Kind: reflect.Float32},
-					{Name: "Weight", Tag: "", Value: models.Value{Value: 82.5, Kind: reflect.Float64}, Opts: options.FieldOptions{Display: false}, Kind: reflect.Float64},
+					{Name: "Name", Value: models.Value{Value: "John", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
+					{Name: "Height", Value: models.Value{Value: float32(1.82), Kind: reflect.Float32}, Opts: options.FieldOptions{Display: false}, Kind: reflect.Float32},
+					{Name: "Weight", Value: models.Value{Value: 82.5, Kind: reflect.Float64}, Opts: options.FieldOptions{Display: false}, Kind: reflect.Float64},
 				}}
 
 			require.Equal(t, exp, got)
@@ -113,7 +113,7 @@ func TestParser_Struct(t *testing.T) {
 			exp := models.Struct{
 				Name: "parser.person",
 				Fields: []models.Field{
-					{Name: "Active", Tag: "", Value: models.Value{Value: true, Kind: reflect.Bool}, Opts: options.FieldOptions{Display: false}, Kind: reflect.Bool},
+					{Name: "Active", Value: models.Value{Value: true, Kind: reflect.Bool}, Opts: options.FieldOptions{Display: false}, Kind: reflect.Bool},
 				}}
 
 			require.Equal(t, exp, got)
@@ -132,8 +132,8 @@ func TestParser_Struct(t *testing.T) {
 			exp := models.Struct{
 				Name: "parser.person",
 				Fields: []models.Field{
-					{Name: "Height", Tag: "", Value: models.Value{Value: complex64(complex(1.82, 0)), Kind: reflect.Complex64}, Opts: options.FieldOptions{Display: false}, Kind: reflect.Complex64},
-					{Name: "Weight", Tag: "", Value: models.Value{Value: complex128(complex(82.5, 0)), Kind: reflect.Complex128}, Opts: options.FieldOptions{Display: false}, Kind: reflect.Complex128},
+					{Name: "Height", Value: models.Value{Value: complex64(complex(1.82, 0)), Kind: reflect.Complex64}, Opts: options.FieldOptions{Display: false}, Kind: reflect.Complex64},
+					{Name: "Weight", Value: models.Value{Value: complex128(complex(82.5, 0)), Kind: reflect.Complex128}, Opts: options.FieldOptions{Display: false}, Kind: reflect.Complex128},
 				}}
 
 			require.Equal(t, exp, got)
@@ -154,7 +154,6 @@ func TestParser_Struct(t *testing.T) {
 				Fields: []models.Field{
 					{
 						Name:  "Weight",
-						Tag:   "",
 						Value: models.Value{Value: models.Ptr{Value: 43.4, Kind: reflect.Float64}, Kind: reflect.Pointer},
 						Opts:  options.FieldOptions{Display: false},
 						Kind:  reflect.Pointer,
@@ -184,13 +183,12 @@ func TestParser_Struct(t *testing.T) {
 				Fields: []models.Field{
 					{
 						Name: "Contact",
-						Tag:  "",
 						Value: models.Value{
 							Value: models.Struct{
 								Name: "parser.contact",
 								Fields: []models.Field{
-									{Name: "Email", Tag: "display", Value: models.Value{Value: "example", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
-									{Name: "Phone", Tag: "display", Value: models.Value{Value: "555-555-5555", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
+									{Name: "Email", Value: models.Value{Value: "example", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
+									{Name: "Phone", Value: models.Value{Value: "555-555-5555", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
 								},
 							},
 							Kind: reflect.Struct,
@@ -218,7 +216,6 @@ func TestParser_Struct(t *testing.T) {
 				Fields: []models.Field{
 					{
 						Name: "Names",
-						Tag:  "display",
 						Value: models.Value{
 							Value: models.Slice{
 								Values: []models.Value{
@@ -251,7 +248,6 @@ func TestParser_Struct(t *testing.T) {
 				Fields: []models.Field{
 					{
 						Name: "Names",
-						Tag:  "display",
 						Value: models.Value{
 							Value: models.Slice{
 								Values: []models.Value{
@@ -284,7 +280,6 @@ func TestParser_Struct(t *testing.T) {
 				Fields: []models.Field{
 					{
 						Name: "Names",
-						Tag:  "display",
 						Value: models.Value{
 							Value: models.Map{
 								Values: []models.KV{
@@ -318,7 +313,6 @@ func TestParser_Struct(t *testing.T) {
 				Fields: []models.Field{
 					{
 						Name: "Names",
-						Tag:  "display",
 						Value: models.Value{
 							Value: models.Value{
 								Value: models.Slice{
@@ -357,7 +351,6 @@ func TestParser_Struct(t *testing.T) {
 				Fields: []models.Field{
 					{
 						Name: "Contact",
-						Tag:  "",
 						Value: models.Value{
 							Value: models.Value{
 								Value: models.Struct{
@@ -365,7 +358,6 @@ func TestParser_Struct(t *testing.T) {
 									Fields: []models.Field{
 										{
 											Name:  "Email",
-											Tag:   "display",
 											Value: models.Value{Value: "example", Kind: reflect.String},
 											Opts:  options.FieldOptions{Display: true},
 											Kind:  reflect.String,
@@ -399,7 +391,6 @@ func TestParser_Struct(t *testing.T) {
 				Fields: []models.Field{
 					{
 						Name: "Names",
-						Tag:  "display",
 						Value: models.Value{
 							Value: models.Value{
 								Value: models.Map{
@@ -445,7 +436,6 @@ func TestParser_Struct(t *testing.T) {
 				Fields: []models.Field{
 					{
 						Name: "Names",
-						Tag:  "display",
 						Value: models.Value{
 							Value: models.Value{
 								Value: models.Ptr{Value: 43.4, Kind: reflect.Float64},
@@ -476,7 +466,6 @@ func TestParser_Struct(t *testing.T) {
 				Fields: []models.Field{
 					{
 						Name: "Names",
-						Tag:  "display",
 						Value: models.Value{
 							Value: models.Value{Value: (1.82 + 0i), Kind: reflect.Complex128},
 							Kind:  reflect.Interface,
@@ -516,9 +505,9 @@ func TestParser_StructWithJSONTags(t *testing.T) {
 			exp := models.Struct{
 				Name: "parser.address",
 				Fields: []models.Field{
-					{Name: "city", Tag: "display", Value: models.Value{Value: "San Francisco", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
-					{Name: "state", Tag: "display", Value: models.Value{Value: "CA", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
-					{Name: "street", Tag: "", Value: models.Value{Value: "451 Main St", Kind: reflect.String}, Opts: options.FieldOptions{Display: false}, Kind: reflect.String},
+					{Name: "city", Value: models.Value{Value: "San Francisco", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
+					{Name: "state", Value: models.Value{Value: "CA", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
+					{Name: "street", Value: models.Value{Value: "451 Main St", Kind: reflect.String}, Opts: options.FieldOptions{Display: false}, Kind: reflect.String},
 				}}
 
 			require.Equal(t, exp, got)

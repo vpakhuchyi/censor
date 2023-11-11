@@ -29,7 +29,6 @@ func TestParser_Interface(t *testing.T) {
 				Fields: []models.Field{
 					{
 						Name: "Names",
-						Tag:  "display",
 						Value: models.Value{
 							Value: models.Value{
 								Value: models.Slice{
@@ -69,7 +68,6 @@ func TestParser_Interface(t *testing.T) {
 				Fields: []models.Field{
 					{
 						Name: "Contact",
-						Tag:  "",
 						Value: models.Value{
 							Value: models.Value{
 								Value: models.Struct{
@@ -77,7 +75,6 @@ func TestParser_Interface(t *testing.T) {
 									Fields: []models.Field{
 										{
 											Name:  "Email",
-											Tag:   "display",
 											Value: models.Value{Value: "example", Kind: reflect.String},
 											Opts:  options.FieldOptions{Display: true},
 											Kind:  reflect.String,
@@ -111,7 +108,6 @@ func TestParser_Interface(t *testing.T) {
 				Fields: []models.Field{
 					{
 						Name: "Names",
-						Tag:  "display",
 						Value: models.Value{
 							Value: models.Value{
 								Value: models.Map{
@@ -157,7 +153,6 @@ func TestParser_Interface(t *testing.T) {
 				Fields: []models.Field{
 					{
 						Name: "Names",
-						Tag:  "display",
 						Value: models.Value{
 							Value: models.Value{
 								Value: models.Ptr{Value: 43.4, Kind: reflect.Float64},
@@ -188,7 +183,6 @@ func TestParser_Interface(t *testing.T) {
 				Fields: []models.Field{
 					{
 						Name: "Names",
-						Tag:  "display",
 						Value: models.Value{
 							Value: models.Value{Value: (1.82 + 0i), Kind: reflect.Complex128},
 							Kind:  reflect.Interface,
@@ -216,7 +210,6 @@ func TestParser_Interface(t *testing.T) {
 				Fields: []models.Field{
 					{
 						Name: "Names",
-						Tag:  "display",
 						Value: models.Value{
 							Value: models.Value{Value: true, Kind: reflect.Bool},
 							Kind:  reflect.Interface,
@@ -244,7 +237,6 @@ func TestParser_Interface(t *testing.T) {
 				Fields: []models.Field{
 					{
 						Name: "Names",
-						Tag:  "display",
 						Value: models.Value{
 							Value: models.Value{Value: 13, Kind: reflect.Int},
 							Kind:  reflect.Interface,
@@ -272,7 +264,6 @@ func TestParser_Interface(t *testing.T) {
 				Fields: []models.Field{
 					{
 						Name: "Names",
-						Tag:  "display",
 						Value: models.Value{
 							Value: models.Value{Value: 13.5, Kind: reflect.Float64},
 							Kind:  reflect.Interface,
@@ -300,7 +291,6 @@ func TestParser_Interface(t *testing.T) {
 				Fields: []models.Field{
 					{
 						Name: "Names",
-						Tag:  "display",
 						Value: models.Value{
 							Value: models.Value{Value: "John", Kind: reflect.String},
 							Kind:  reflect.Interface,

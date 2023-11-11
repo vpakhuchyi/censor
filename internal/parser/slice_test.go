@@ -37,10 +37,10 @@ func TestParser_Slice(t *testing.T) {
 							Value: models.Struct{
 								Name: "parser.address",
 								Fields: []models.Field{
-									{Name: "City", Tag: "display", Value: models.Value{Value: "San Francisco", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
-									{Name: "State", Tag: "display", Value: models.Value{Value: "CA", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
-									{Name: "Street", Tag: "", Value: models.Value{Value: "451 Main St", Kind: reflect.String}, Opts: options.FieldOptions{Display: false}, Kind: reflect.String},
-									{Name: "Zip", Tag: "", Value: models.Value{Value: "55501", Kind: reflect.String}, Opts: options.FieldOptions{Display: false}, Kind: reflect.String},
+									{Name: "City", Value: models.Value{Value: "San Francisco", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
+									{Name: "State", Value: models.Value{Value: "CA", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
+									{Name: "Street", Value: models.Value{Value: "451 Main St", Kind: reflect.String}, Opts: options.FieldOptions{Display: false}, Kind: reflect.String},
+									{Name: "Zip", Value: models.Value{Value: "55501", Kind: reflect.String}, Opts: options.FieldOptions{Display: false}, Kind: reflect.String},
 								}},
 							Kind: reflect.Struct,
 						},
@@ -51,10 +51,10 @@ func TestParser_Slice(t *testing.T) {
 							Value: models.Struct{
 								Name: "parser.address",
 								Fields: []models.Field{
-									{Name: "City", Tag: "display", Value: models.Value{Value: "Denver", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
-									{Name: "State", Tag: "display", Value: models.Value{Value: "DN", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
-									{Name: "Street", Tag: "", Value: models.Value{Value: "65 Best St", Kind: reflect.String}, Opts: options.FieldOptions{Display: false}, Kind: reflect.String},
-									{Name: "Zip", Tag: "", Value: models.Value{Value: "55502", Kind: reflect.String}, Opts: options.FieldOptions{Display: false}, Kind: reflect.String},
+									{Name: "City", Value: models.Value{Value: "Denver", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
+									{Name: "State", Value: models.Value{Value: "DN", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
+									{Name: "Street", Value: models.Value{Value: "65 Best St", Kind: reflect.String}, Opts: options.FieldOptions{Display: false}, Kind: reflect.String},
+									{Name: "Zip", Value: models.Value{Value: "55502", Kind: reflect.String}, Opts: options.FieldOptions{Display: false}, Kind: reflect.String},
 								},
 							}, Kind: reflect.Struct,
 						}, Kind: reflect.Pointer,
@@ -79,10 +79,10 @@ func TestParser_Slice(t *testing.T) {
 						Value: models.Struct{
 							Name: "parser.address",
 							Fields: []models.Field{
-								{Name: "City", Tag: "display", Value: models.Value{Value: "San Francisco", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
-								{Name: "State", Tag: "display", Value: models.Value{Value: "CA", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
-								{Name: "Street", Tag: "", Value: models.Value{Value: "451 Main St", Kind: reflect.String}, Opts: options.FieldOptions{Display: false}, Kind: reflect.String},
-								{Name: "Zip", Tag: "", Value: models.Value{Value: "55501", Kind: reflect.String}, Opts: options.FieldOptions{Display: false}, Kind: reflect.String},
+								{Name: "City", Value: models.Value{Value: "San Francisco", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
+								{Name: "State", Value: models.Value{Value: "CA", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
+								{Name: "Street", Value: models.Value{Value: "451 Main St", Kind: reflect.String}, Opts: options.FieldOptions{Display: false}, Kind: reflect.String},
+								{Name: "Zip", Value: models.Value{Value: "55501", Kind: reflect.String}, Opts: options.FieldOptions{Display: false}, Kind: reflect.String},
 							},
 						},
 						Kind: reflect.Struct,
@@ -91,10 +91,10 @@ func TestParser_Slice(t *testing.T) {
 						Value: models.Struct{
 							Name: "parser.address",
 							Fields: []models.Field{
-								{Name: "City", Tag: "display", Value: models.Value{Value: "Denver", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
-								{Name: "State", Tag: "display", Value: models.Value{Value: "DN", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
-								{Name: "Street", Tag: "", Value: models.Value{Value: "65 Best St", Kind: reflect.String}, Opts: options.FieldOptions{Display: false}, Kind: reflect.String},
-								{Name: "Zip", Tag: "", Value: models.Value{Value: "55502", Kind: reflect.String}, Opts: options.FieldOptions{Display: false}, Kind: reflect.String},
+								{Name: "City", Value: models.Value{Value: "Denver", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
+								{Name: "State", Value: models.Value{Value: "DN", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
+								{Name: "Street", Value: models.Value{Value: "65 Best St", Kind: reflect.String}, Opts: options.FieldOptions{Display: false}, Kind: reflect.String},
+								{Name: "Zip", Value: models.Value{Value: "55502", Kind: reflect.String}, Opts: options.FieldOptions{Display: false}, Kind: reflect.String},
 							},
 						},
 						Kind: reflect.Struct,
