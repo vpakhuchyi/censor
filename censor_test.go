@@ -495,20 +495,6 @@ func Test_InstanceConfiguration(t *testing.T) {
 		require.Equal(t, exp, got)
 	})
 
-	t.Run("Use custom censor field tag", func(t *testing.T) {
-		p := New()
-		p.SetFieldTag("custom")
-
-		type testStruct struct {
-			Name string `json:"name" custom:"display"`
-			Age  int    `json:"age"`
-		}
-
-		exp := `{Name: John, Age: [******]}`
-		got := p.Format(testStruct{Name: "John", Age: 30})
-		require.Equal(t, exp, got)
-	})
-
 	t.Run("Custom mask value", func(t *testing.T) {
 		p := New()
 		p.SetMaskValue(`[REDACTED]`)
@@ -581,21 +567,6 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 		require.Equal(t, exp, got)
 	})
 
-	t.Run("Use custom censor field tag", func(t *testing.T) {
-		t.Cleanup(func() { SetGlobalInstance(New()) })
-
-		SetFieldTag("custom")
-
-		type testStruct struct {
-			Name string `json:"name" custom:"display"`
-			Age  int    `json:"age"`
-		}
-
-		exp := `{Name: John, Age: [******]}`
-		got := Format(testStruct{Name: "John", Age: 30})
-		require.Equal(t, exp, got)
-	})
-
 	t.Run("Custom mask value", func(t *testing.T) {
 		t.Cleanup(func() { SetGlobalInstance(New()) })
 
@@ -634,7 +605,7 @@ func Test_SetGlobalInstance(t *testing.T) {
 	t.Cleanup(func() { SetGlobalInstance(New()) })
 
 	p := New()
-	p.SetFieldTag("custom")
+	p.SetMaskValue("[REDACTED]")
 
 	SetGlobalInstance(p)
 

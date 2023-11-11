@@ -102,12 +102,6 @@ func (p *Processor) DisplayStructName(v bool) {
 	p.formatter.DisplayStructName = v
 }
 
-// SetFieldTag sets a tag name for censor fields.
-// The default value is stored in the parser.DefaultCensorFieldTag constant.
-func (p *Processor) SetFieldTag(tag string) {
-	p.parser.CensorFieldTag = tag
-}
-
 // DisplayMapType sets whether to display map type in the output.
 // By default, this option is disabled.
 func (p *Processor) DisplayMapType(v bool) {
@@ -156,13 +150,6 @@ func UseJSONTagName(v bool) {
 // By default, this option is disabled.
 func DisplayStructName(v bool) {
 	globalInstance.formatter.DisplayStructName = v
-}
-
-// SetFieldTag sets a tag name for censor fields.
-// It applies this change to the global instance of Processor.
-// The default value is stored in the parser.DefaultCensorFieldTag constant.
-func SetFieldTag(tag string) {
-	globalInstance.parser.CensorFieldTag = tag
 }
 
 // DisplayMapType sets whether to display map type in the output.

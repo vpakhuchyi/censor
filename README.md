@@ -87,7 +87,6 @@ At the same time you can create a new instance of `censor.Processor` and use its
 | Global option                    | Description                                          |
 |----------------------------------|------------------------------------------------------|
 | censor.SetMaskValue(s string)    | Set custom mask value instead of default `[******]`. |
-| censor.SetFieldTag(s string)     | Set custom field tag instead of default `censor`.    |
 | censor.UseJSONTagName(b bool)    | Use JSON tag name instead of struct field name.      |
 | censor.DisplayStructName(b bool) | Display struct name in the output.                   |
 | censor.DisplayMapType(b bool)    | Display map type in the output.                      |
