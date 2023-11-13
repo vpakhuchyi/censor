@@ -98,20 +98,21 @@ import "log/slog"
 
 type address struct {
   City    string `censor:"display"`
-  Country string
+  Country string `censor:"display"`
+  Street  string
 }
 
 func main() {
   // Create a new instance of censor.Processor.
   p := censor.NewProcessor()
 
-  v := address{City: "Kharkiv", Country: "UA"}
+  v := address{City: "Kharkiv", Country: "UA", Street: "Nauky Avenue"}
 
   slog.Info("Request", "payload", p.Format(v))
 }
 
 // Here is what we'll see in the log:
-Output: `2038/10/25 12:00:01 INFO Request payload="{City: Kharkiv, Country: [******]}`
+Output: `2038/10/25 12:00:01 INFO Request payload="{City: Kharkiv, Country: UA, Street: [******]}`
 
 ```
 
