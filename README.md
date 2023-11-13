@@ -14,7 +14,7 @@ easily readable output. Ideal for safeguarding confidential data or enhancing da
     * [Installation](#installation)
     * [Usage](#usage)
     * [Global Package-Level Usage](#global-package-level-usage)
-    * [Custom Instance Usage](#custom-instance-usage)
+    * [Instance-Level Usage](#instance-level-usage)
     * [Configuration](#configuration)
     * [Supported Types](#supported-types)
 
@@ -86,9 +86,9 @@ Output: `2038/10/25 12:00:01 INFO Request payload="{UserID: 123, Address: {City:
 
 ```
 
-#### Custom Instance Usage
+#### Instance-Level Usage
 
-Alternatively, you have the flexibility to create a new instance of censor.Processor for specific use cases
+Alternatively, you have the flexibility to create a new instance of `censor.Processor` for specific use cases
 or to customize behavior.
 
 ```go
