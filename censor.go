@@ -32,9 +32,9 @@ Supported Types:
 | Slice/Array/Map        | Formatted using the same rules as the value it contains.              |
 | Pointer/Interface      |                                                                       |
 |------------------------|-----------------------------------------------------------------------|
-| Float64                | Formatted value has up to 15 precision digits.                        |
+| Float64                | Formatted value has up to 15 decimal places.                          |
 |------------------------|-----------------------------------------------------------------------|
-| Float32                | Formatted value has up to 7 precision digits.                         |
+| Float32                | Formatted value has up to 7 decimal places.                           |
 |------------------------|-----------------------------------------------------------------------|
 | Int/Int8/Int16/        | Default fmt package formatting is used.                               |
 | Int32/Int64/Rune       |                                                                       |
