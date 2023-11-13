@@ -13,6 +13,8 @@ easily readable output. Ideal for safeguarding confidential data or enhancing da
 * [Censor](#censor)
     * [Installation](#installation)
     * [Usage](#usage)
+    * [Global Package-Level Usage](#global-package-level-usage)
+    * [Custom Instance Usage](#custom-instance-usage)
     * [Configuration](#configuration)
     * [Supported Types](#supported-types)
 
@@ -26,16 +28,16 @@ go get -u github.com/vpakhuchyi/censor
 
 ### Usage
 
-`Censor` is a versatile tool designed to mask sensitive information in your Go applications, ensuring that
+**Censor** is a versatile tool designed to mask sensitive information in your Go applications, ensuring that
 only specified fields are displayed. It can be seamlessly integrated into your code to enhance security,
 particularly in scenarios like logging where inadvertent exposure of sensitive data is a concern.
 
-***Note***: this package uses reflection, which can be slow. It is not recommended to use this package
+**Note**: this package uses reflection, which can be slow. It is not recommended to use this package
 in performance-critical scenarios.
 
 #### Global Package-Level Usage
 
-You can use `Censor` as a global package-level variable, allowing for easy and widespread integration across your
+You can use **Censor** as a global package-level variable, allowing for easy and widespread integration across your
 codebase. This approach ensures consistent field masking throughout your application.
 
 ```go
