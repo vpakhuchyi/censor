@@ -26,49 +26,54 @@ go get -u github.com/vpakhuchyi/censor
 
 ### Usage
 
-We can use `censor` to mask all the fields values by default and only display those fields that has
-specified `censor:"display"` tag.
-This approach will help us to be sure that we don't log sensitive information by mistake.
+`Censor` is a versatile tool designed to mask sensitive information in your Go applications, ensuring that
+only specified fields are displayed. It can be seamlessly integrated into your code to enhance security,
+particularly in scenarios like logging where inadvertent exposure of sensitive data is a concern.
 
-Censor can be used as a global package-level variable or as a new instance of `censor.Processor`.
-Both approaches offer the same functionality. In this example we're using censor as a global package-level variable.
+***Note***: this package uses reflection, which can be slow. It is not recommended to use this package
+in performance-critical scenarios.
+
+#### Global Package-Level Usage
+
+You can use `Censor` as a global package-level variable, allowing for easy and widespread integration across your
+codebase. This approach ensures consistent field masking throughout your application.
 
 ```go
 package main
 
 import (
-	"log/slog"
+  "log/slog"
 
-	"github.com/vpakhuchyi/censor"
+  "github.com/vpakhuchyi/censor"
 )
 
 type request struct {
-	UserID   string  `censor:"display"` // Display value.
-	Address  address `censor:"display"` // Display value.
-	Email    string  // Mask value.
-	FullName string  // Mask value.
+  UserID   string  `censor:"display"` // Display value.
+  Address  address `censor:"display"`
+  Email    string  // Mask value.
+  FullName string
 }
 
 type address struct {
-	City    string `json:"city" censor:"display"`    // Display value.
-	Country string `json:"country" censor:"display"` // Display value.
-	Street  string `json:"street"`                   // Mask value.
-	Zip     int    `json:"zip"`                      // Mask value.
+  City    string `censor:"display"`
+  Country string `censor:"display"`
+  Street  string
+  Zip     int
 }
 
 // Here is a request struct that contains sensitive information: Email, FullName and Password.
 // We could log only UserID, but it's much easier to control what we're logging by using censor 
 // instead of checking each log line and making sure that we're not logging sensitive information.
 func main() {
-	r := request{
-		UserID:   "123",
-		Address:  address{City: "Kharkiv", Country: "UA", Street: "Nauky Avenue", Zip: 23335},
-		Email:    "viktor.example.email@ggmail.com",
-		FullName: "Viktor Pakhuchyi",
-	}
+  r := request{
+    UserID:   "123",
+    Address:  address{City: "Kharkiv", Country: "UA", Street: "Nauky Avenue", Zip: 23335},
+    Email:    "viktor.example.email@ggmail.com",
+    FullName: "Viktor Pakhuchyi",
+  }
 
-	// In this example we're using censor as a global package-level variable with default configuration.
-	slog.Info("Request", "payload", censor.Format(r))
+  // In this example we're using censor as a global package-level variable with default configuration.
+  slog.Info("Request", "payload", censor.Format(r))
 }
 
 // Here is what we'll see in the log:
@@ -79,9 +84,42 @@ Output: `2038/10/25 12:00:01 INFO Request payload="{UserID: 123, Address: {City:
 
 ```
 
+#### Custom Instance Usage
+
+Alternatively, you have the flexibility to create a new instance of censor.Processor for specific use cases
+or to customize behavior.
+
+```go
+package main
+
+import "log/slog"
+
+type address struct {
+  City    string `censor:"display"`
+  Country string
+}
+
+func main() {
+  // Create a new instance of censor.Processor.
+  p := censor.NewProcessor()
+
+  v := address{City: "Kharkiv", Country: "UA"}
+
+  slog.Info("Request", "payload", p.Format(v))
+}
+
+// Here is what we'll see in the log:
+Output: `2038/10/25 12:00:01 INFO Request payload="{City: Kharkiv, Country: [******]}`
+
+```
+
+Both approaches offer the same powerful functionality, allowing you to choose the level of integration that best suits
+your application's requirements. Whether you opt for the global package-level variable or create a custom instance,
+censor empowers you to confidently manage and safeguard sensitive information.
+
 ### Configuration
 
-All configuration options can be set using the `censor` package-level functions as shown below.
+All configuration options can be set using the package-level functions as shown below.
 At the same time you can create a new instance of `censor.Processor` and use its methods to configure it.
 
 | Global option                    | Description                                          |
