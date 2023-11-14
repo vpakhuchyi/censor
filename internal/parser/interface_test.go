@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -296,6 +297,33 @@ func TestParser_Interface(t *testing.T) {
 							Kind:  reflect.Interface,
 						},
 						Opts: options.FieldOptions{Display: true},
+						Kind: reflect.Interface,
+					},
+				},
+			}
+
+			require.Equal(t, exp, got)
+		})
+	})
+
+	t.Run("struct_with_interface_with_func_value", func(t *testing.T) {
+		type person struct {
+			Names interface{} `json:"names"`
+		}
+
+		require.NotPanics(t, func() {
+			v := person{Names: fmt.Println}
+			got := p.Struct(reflect.ValueOf(v))
+			exp := models.Struct{
+				Name: "parser.person",
+				Fields: []models.Field{
+					{
+						Name: "Names",
+						Value: models.Value{
+							Value: models.Value{Value: "[unsupported value]", Kind: reflect.Func},
+							Kind:  reflect.Interface,
+						},
+						Opts: options.FieldOptions{Display: false},
 						Kind: reflect.Interface,
 					},
 				},

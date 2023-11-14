@@ -7,6 +7,7 @@ import (
 )
 
 // Interface parses an interface and returns an Interface.
+// In case of unsupported underlying type, UnsupportedValue const value is used instead of the real value.
 //
 //nolint:exhaustive,gocyclo
 func (p *Parser) Interface(rv reflect.Value) models.Value {
@@ -35,9 +36,10 @@ func (p *Parser) Interface(rv reflect.Value) models.Value {
 	case reflect.Complex64, reflect.Complex128:
 		return p.Complex(rv.Elem())
 	default:
+		// In case of unsupported underlying type, UnsupportedValue const value is returned.
 		return models.Value{
 			Kind:  k,
-			Value: rv.Elem().Interface(),
+			Value: UnsupportedValue,
 		}
 	}
 }

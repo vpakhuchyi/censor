@@ -8,6 +8,8 @@ import (
 
 // Ptr parses a given value and returns a Ptr.
 // If the value is nil, it returns a Ptr with a nil Value.
+// In case of a pointer to unsupported type of value,
+// UnsupportedValue const value is used instead of the real value.
 // Note: this method panics if the provided value is not a complex.
 //
 //nolint:exhaustive,gocyclo
@@ -43,6 +45,7 @@ func (p *Parser) Ptr(rv reflect.Value) models.Ptr {
 	case reflect.Complex64, reflect.Complex128:
 		return models.Ptr(p.Complex(rv.Elem()))
 	default:
-		return models.Ptr{Value: rv.Elem().Interface(), Kind: k}
+		// In case of unsupported underlying type, UnsupportedValue const value is returned.
+		return models.Ptr{Value: UnsupportedValue, Kind: k}
 	}
 }

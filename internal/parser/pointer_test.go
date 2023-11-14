@@ -192,6 +192,16 @@ func TestParser_Pointer(t *testing.T) {
 		})
 	})
 
+	t.Run("pointer_to_func", func(t *testing.T) {
+		require.NotPanics(t, func() {
+			v := func() {}
+			got := p.Ptr(reflect.ValueOf(&v))
+			exp := models.Ptr{Value: "[unsupported value]", Kind: reflect.Func}
+
+			require.Equal(t, exp, got)
+		})
+	})
+
 	t.Run("non_pointer_value", func(t *testing.T) {
 		require.PanicsWithValue(t, "provided value is not a pointer", func() { p.Ptr(reflect.ValueOf(5.234)) })
 	})
