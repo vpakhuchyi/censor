@@ -87,48 +87,38 @@ func (p *Processor) sanitise(val any) string {
 
 	v := reflect.ValueOf(val)
 
-	// Handle a case when provided value is of one of non-supported types.
-	// In such a case, we return an empty string.
-	parsed := p.parse(v)
-	if v, ok := parsed.(string); ok && v == "" {
-		return v
-	}
-
-	return p.format(v.Kind(), parsed)
+	return p.format(v.Kind(), p.parse(v))
 }
 
-//nolint:exhaustive,gocyclo
+//nolint:exhaustive
 func (p *Processor) parse(v reflect.Value) any {
-	var parsed any
-	switch v.Kind() {
+	switch k := v.Kind(); k {
 	case reflect.Struct:
-		parsed = p.parser.Struct(v)
+		return p.parser.Struct(v)
 	case reflect.Slice, reflect.Array:
-		parsed = p.parser.Slice(v)
+		return p.parser.Slice(v)
 	case reflect.Pointer:
-		parsed = p.parser.Ptr(v)
+		return p.parser.Ptr(v)
 	case reflect.Map:
-		parsed = p.parser.Map(v)
+		return p.parser.Map(v)
 	case reflect.Complex64, reflect.Complex128:
-		parsed = p.parser.Complex(v)
+		return p.parser.Complex(v)
 	case reflect.Float32, reflect.Float64:
-		parsed = p.parser.Float(v)
+		return p.parser.Float(v)
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		parsed = p.parser.Integer(v)
+		return p.parser.Integer(v)
 	case reflect.Bool:
-		parsed = p.parser.Bool(v)
+		return p.parser.Bool(v)
 	case reflect.String:
-		parsed = p.parser.String(v)
-	case reflect.Chan, reflect.Func, reflect.UnsafePointer, reflect.Uintptr:
+		return p.parser.String(v)
+	default:
 		/*
 			Note: this case covers all unsupported types.
 			In such a case, we return an empty string.
 		*/
-		return ""
+		return models.Value{Value: "", Kind: k}
 	}
-
-	return parsed
 }
 
 //nolint:exhaustive

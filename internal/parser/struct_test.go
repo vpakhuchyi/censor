@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"os"
 	"reflect"
 	"testing"
 
@@ -9,6 +10,8 @@ import (
 	"github.com/vpakhuchyi/censor/internal/models"
 	"github.com/vpakhuchyi/censor/internal/options"
 )
+
+var mainPkgStruct any
 
 func TestParser_Struct(t *testing.T) {
 	type address struct {
@@ -513,4 +516,18 @@ func TestParser_StructWithJSONTags(t *testing.T) {
 			require.Equal(t, exp, got)
 		})
 	})
+}
+
+func TestMain(m *testing.M) {
+	type address struct {
+		City   string `censor:"display"`
+		State  string `censor:"display"`
+		Street string
+	}
+
+	mainPkgStruct = address{Street: "451 Main St", City: "San Francisco", State: "CA"}
+
+	exitVal := m.Run()
+
+	os.Exit(exitVal)
 }
