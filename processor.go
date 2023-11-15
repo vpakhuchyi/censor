@@ -58,26 +58,26 @@ func (p *Processor) Format(val any) string {
 // SetMaskValue sets a value that will be used to mask struct fields.
 // The default value is stored in the formatter.DefaultMaskValue constant.
 func (p *Processor) SetMaskValue(maskValue string) {
-	p.formatter.MaskValue = maskValue
+	p.formatter.SetMaskValue(maskValue)
 }
 
 // UseJSONTagName sets whether to use the `json` tag to get the name of the struct field.
 // If no `json` tag is present, the name of struct will be an empty string.
 // By default, this option is disabled.
 func (p *Processor) UseJSONTagName(v bool) {
-	p.parser.UseJSONTagName = v
+	p.parser.UseJSONTagName(v)
 }
 
 // DisplayStructName sets whether to display the name of the struct.
 // By default, this option is disabled.
 func (p *Processor) DisplayStructName(v bool) {
-	p.formatter.DisplayStructName = v
+	p.formatter.DisplayStructName(v)
 }
 
 // DisplayMapType sets whether to display map type in the output.
 // By default, this option is disabled.
 func (p *Processor) DisplayMapType(v bool) {
-	p.formatter.DisplayMapType = v
+	p.formatter.DisplayMapType(v)
 }
 
 func (p *Processor) sanitise(val any) string {

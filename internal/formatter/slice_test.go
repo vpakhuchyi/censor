@@ -11,9 +11,9 @@ import (
 
 func TestFormatter_Slice(t *testing.T) {
 	f := Formatter{
-		MaskValue:         DefaultMaskValue,
-		DisplayStructName: false,
-		DisplayMapType:    false,
+		maskValue:         DefaultMaskValue,
+		displayStructName: false,
+		displayMapType:    false,
 	}
 
 	t.Run("successful", func(t *testing.T) {

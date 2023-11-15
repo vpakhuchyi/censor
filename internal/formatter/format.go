@@ -1,7 +1,6 @@
 package formatter
 
 import (
-	"fmt"
 	"reflect"
 	"strings"
 
@@ -13,24 +12,39 @@ const DefaultMaskValue = "[******]"
 
 // Formatter is used to format values.
 type Formatter struct {
-	// MaskValue is used to mask struct fields with sensitive data.
+	// maskValue is used to mask struct fields with sensitive data.
 	// The default value is stored in DefaultMaskValue constant.
-	MaskValue string
-	// DisplayStructName is used to hide struct name in the output.
+	maskValue string
+	// displayStructName is used to hide struct name in the output.
 	// The default value is false.
-	DisplayStructName bool
-	// DisplayMapType is used to display map type in the output.
+	displayStructName bool
+	// displayMapType is used to display map type in the output.
 	// The default value is false.
-	DisplayMapType bool
+	displayMapType bool
 }
 
 // New returns a new instance of Formatter with default configuration.
 func New() *Formatter {
 	return &Formatter{
-		MaskValue:         DefaultMaskValue,
-		DisplayStructName: false,
-		DisplayMapType:    false,
+		maskValue:         DefaultMaskValue,
+		displayStructName: false,
+		displayMapType:    false,
 	}
+}
+
+// SetMaskValue sets a value that will be used to mask struct fields.
+func (f *Formatter) SetMaskValue(mask string) {
+	f.maskValue = mask
+}
+
+// DisplayStructName sets whether to display the name of the struct.
+func (f *Formatter) DisplayStructName(v bool) {
+	f.displayStructName = v
+}
+
+// DisplayMapType sets whether to display map type in the output.
+func (f *Formatter) DisplayMapType(v bool) {
+	f.displayMapType = v
 }
 
 //nolint:exhaustive,gocyclo
@@ -83,7 +97,6 @@ func (f *Formatter) writeField(field models.Field, buf *strings.Builder) {
 	case reflect.Map:
 		buf.WriteString(formatField(field.Name, f.Map(field.Value.Value.(models.Map))))
 	case reflect.Interface:
-		fmt.Println("interface", field.Value)
 		buf.WriteString(formatField(field.Name, f.Interface(field.Value)))
 	}
 }

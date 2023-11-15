@@ -68,7 +68,7 @@ func Format(val any) string {
 // It applies this change to the global instance of Processor.
 // The default value is stored in the formatter.DefaultMaskValue constant.
 func SetMaskValue(maskValue string) {
-	globalInstance.formatter.MaskValue = maskValue
+	globalInstance.formatter.SetMaskValue(maskValue)
 }
 
 // UseJSONTagName sets whether to use the `json` tag to get the name of the struct field.
@@ -76,19 +76,19 @@ func SetMaskValue(maskValue string) {
 // If no `json` tag is present, the name of struct will be an empty string.
 // By default, this option is disabled.
 func UseJSONTagName(v bool) {
-	globalInstance.parser.UseJSONTagName = v
+	globalInstance.parser.UseJSONTagName(v)
 }
 
 // DisplayStructName sets whether to display the name of the struct.
 // It applies this change to the global instance of Processor.
 // By default, this option is disabled.
 func DisplayStructName(v bool) {
-	globalInstance.formatter.DisplayStructName = v
+	globalInstance.formatter.DisplayStructName(v)
 }
 
 // DisplayMapType sets whether to display map type in the output.
 // It applies this change to the global instance of Processor.
 // By default, this option is disabled.
 func DisplayMapType(v bool) {
-	globalInstance.formatter.DisplayMapType = v
+	globalInstance.formatter.DisplayMapType(v)
 }

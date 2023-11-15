@@ -29,7 +29,7 @@ func (p *Parser) Struct(rv reflect.Value) models.Struct {
 			Kind: rv.Field(i).Kind(),
 		}
 
-		if p.UseJSONTagName {
+		if p.useJSONTagName {
 			tagValue := rv.Type().Field(i).Tag.Get("json")
 			if tagValue == "" {
 				// If the tag is not present, then such a field will be ignored.

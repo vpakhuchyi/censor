@@ -13,7 +13,7 @@ import (
 
 func TestParser_Interface(t *testing.T) {
 	p := Parser{
-		UseJSONTagName: false,
+		useJSONTagName: false,
 		CensorFieldTag: DefaultCensorFieldTag,
 	}
 

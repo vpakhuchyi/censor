@@ -11,7 +11,7 @@ import (
 
 func TestParser_Complex(t *testing.T) {
 	p := Parser{
-		UseJSONTagName: false,
+		useJSONTagName: false,
 		CensorFieldTag: DefaultCensorFieldTag,
 	}
 

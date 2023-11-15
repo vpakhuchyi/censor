@@ -22,7 +22,7 @@ func TestParser_Struct(t *testing.T) {
 	}
 
 	p := Parser{
-		UseJSONTagName: false,
+		useJSONTagName: false,
 		CensorFieldTag: DefaultCensorFieldTag,
 	}
 
@@ -497,7 +497,7 @@ func TestParser_StructWithJSONTags(t *testing.T) {
 	}
 
 	p := Parser{
-		UseJSONTagName: true,
+		useJSONTagName: true,
 		CensorFieldTag: DefaultCensorFieldTag,
 	}
 

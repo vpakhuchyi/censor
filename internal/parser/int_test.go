@@ -11,7 +11,7 @@ import (
 
 func TestParser_Integer(t *testing.T) {
 	p := Parser{
-		UseJSONTagName: false,
+		useJSONTagName: false,
 		CensorFieldTag: DefaultCensorFieldTag,
 	}
 

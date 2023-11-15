@@ -12,9 +12,9 @@ import (
 
 func TestFormatter_Struct(t *testing.T) {
 	f := Formatter{
-		MaskValue:         DefaultMaskValue,
-		DisplayStructName: false,
-		DisplayMapType:    false,
+		maskValue:         DefaultMaskValue,
+		displayStructName: false,
+		displayMapType:    false,
 	}
 
 	t.Run("successful", func(t *testing.T) {
@@ -34,9 +34,9 @@ func TestFormatter_Struct(t *testing.T) {
 
 	t.Run("with_display_struct_name", func(t *testing.T) {
 		f := Formatter{
-			MaskValue:         DefaultMaskValue,
-			DisplayStructName: true,
-			DisplayMapType:    false,
+			maskValue:         DefaultMaskValue,
+			displayStructName: true,
+			displayMapType:    false,
 		}
 
 		require.NotPanics(t, func() {

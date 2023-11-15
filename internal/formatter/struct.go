@@ -13,7 +13,7 @@ import (
 func (f *Formatter) Struct(s models.Struct) string {
 	var buf strings.Builder
 
-	if f.DisplayStructName {
+	if f.displayStructName {
 		buf.WriteString(s.Name)
 	}
 
@@ -23,7 +23,7 @@ func (f *Formatter) Struct(s models.Struct) string {
 		if s.Fields[i].Opts.Display {
 			f.writeField(s.Fields[i], &buf)
 		} else {
-			buf.WriteString(formatField(s.Fields[i].Name, f.MaskValue))
+			buf.WriteString(formatField(s.Fields[i].Name, f.maskValue))
 		}
 
 		if i < len(s.Fields)-1 {

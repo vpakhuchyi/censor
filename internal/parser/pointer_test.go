@@ -19,7 +19,7 @@ func TestParser_Pointer(t *testing.T) {
 	}
 
 	p := Parser{
-		UseJSONTagName: false,
+		useJSONTagName: false,
 		CensorFieldTag: DefaultCensorFieldTag,
 	}
 

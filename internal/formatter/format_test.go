@@ -13,9 +13,9 @@ import (
 
 func TestFormatter_writeValue(t *testing.T) {
 	f := Formatter{
-		MaskValue:         DefaultMaskValue,
-		DisplayStructName: false,
-		DisplayMapType:    false,
+		maskValue:         DefaultMaskValue,
+		displayStructName: false,
+		displayMapType:    false,
 	}
 	var buf strings.Builder
 
@@ -350,9 +350,9 @@ func TestFormatter_writeValue(t *testing.T) {
 
 func TestFormatter_writeField(t *testing.T) {
 	f := Formatter{
-		MaskValue:         DefaultMaskValue,
-		DisplayStructName: false,
-		DisplayMapType:    false,
+		maskValue:         DefaultMaskValue,
+		displayStructName: false,
+		displayMapType:    false,
 	}
 	var buf strings.Builder
 
@@ -841,6 +841,24 @@ func TestFormatter_writeField(t *testing.T) {
 
 func TestNew(t *testing.T) {
 	t.Run("successful", func(t *testing.T) {
-		require.EqualValues(t, &Formatter{MaskValue: DefaultMaskValue, DisplayStructName: false, DisplayMapType: false}, New())
+		require.EqualValues(t, &Formatter{maskValue: DefaultMaskValue, displayStructName: false, displayMapType: false}, New())
 	})
+}
+
+func TestFormatter_SetMaskValue(t *testing.T) {
+	f := &Formatter{maskValue: DefaultMaskValue, displayStructName: false, displayMapType: false}
+	f.SetMaskValue("[censored]")
+	require.EqualValues(t, f, &Formatter{maskValue: "[censored]", displayStructName: false, displayMapType: false})
+}
+
+func TestFormatter_DisplayStructName(t *testing.T) {
+	f := &Formatter{maskValue: DefaultMaskValue, displayStructName: false, displayMapType: false}
+	f.DisplayStructName(true)
+	require.EqualValues(t, f, &Formatter{maskValue: DefaultMaskValue, displayStructName: true, displayMapType: false})
+}
+
+func TestFormatter_DisplayMapType(t *testing.T) {
+	f := &Formatter{maskValue: DefaultMaskValue, displayStructName: false, displayMapType: false}
+	f.DisplayMapType(true)
+	require.EqualValues(t, f, &Formatter{maskValue: DefaultMaskValue, displayStructName: false, displayMapType: true})
 }

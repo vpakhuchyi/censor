@@ -11,9 +11,9 @@ import (
 
 func TestFormatter_Map(t *testing.T) {
 	f := Formatter{
-		MaskValue:         DefaultMaskValue,
-		DisplayStructName: false,
-		DisplayMapType:    false,
+		maskValue:         DefaultMaskValue,
+		displayStructName: false,
+		displayMapType:    false,
 	}
 
 	t.Run("successful", func(t *testing.T) {
@@ -33,9 +33,9 @@ func TestFormatter_Map(t *testing.T) {
 
 	t.Run("successful_with_display_map_type", func(t *testing.T) {
 		f := Formatter{
-			MaskValue:         DefaultMaskValue,
-			DisplayStructName: false,
-			DisplayMapType:    true,
+			maskValue:         DefaultMaskValue,
+			displayStructName: false,
+			displayMapType:    true,
 		}
 
 		require.NotPanics(t, func() {

@@ -11,9 +11,9 @@ import (
 
 func TestFormatter_String(t *testing.T) {
 	f := Formatter{
-		MaskValue:         DefaultMaskValue,
-		DisplayStructName: false,
-		DisplayMapType:    false,
+		maskValue:         DefaultMaskValue,
+		displayStructName: false,
+		displayMapType:    false,
 	}
 
 	t.Run("string", func(t *testing.T) {

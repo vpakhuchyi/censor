@@ -11,9 +11,9 @@ import (
 
 func TestFormatter_Complex(t *testing.T) {
 	f := Formatter{
-		MaskValue:         DefaultMaskValue,
-		DisplayStructName: false,
-		DisplayMapType:    false,
+		maskValue:         DefaultMaskValue,
+		displayStructName: false,
+		displayMapType:    false,
 	}
 
 	t.Run("complex64", func(t *testing.T) {

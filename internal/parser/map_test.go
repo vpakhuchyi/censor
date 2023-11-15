@@ -20,7 +20,7 @@ func TestParser_Map(t *testing.T) {
 	}
 
 	p := Parser{
-		UseJSONTagName: false,
+		useJSONTagName: false,
 		CensorFieldTag: DefaultCensorFieldTag,
 	}
 

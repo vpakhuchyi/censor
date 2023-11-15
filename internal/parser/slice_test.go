@@ -19,7 +19,7 @@ func TestParser_Slice(t *testing.T) {
 	}
 
 	p := Parser{
-		UseJSONTagName: false,
+		useJSONTagName: false,
 		CensorFieldTag: DefaultCensorFieldTag,
 	}
 
