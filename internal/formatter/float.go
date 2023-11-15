@@ -8,7 +8,7 @@ import (
 )
 
 // Float formats a value as a float.
-// The value is formatted with up to 7 decimal places for float32 and up to 15 decimal places for float64.
+// The value is formatted with up to 7 significant figures for float32 and up to 15 significant figures for float64.
 // Note: this method panics if the provided value is not a float.
 func (f *Formatter) Float(v models.Value) string {
 	if v.Kind != reflect.Float32 && v.Kind != reflect.Float64 {
