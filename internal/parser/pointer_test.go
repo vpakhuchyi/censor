@@ -20,7 +20,7 @@ func TestParser_Pointer(t *testing.T) {
 
 	p := Parser{
 		useJSONTagName: false,
-		CensorFieldTag: DefaultCensorFieldTag,
+		censorFieldTag: DefaultCensorFieldTag,
 	}
 
 	t.Run("pointer_to_struct", func(t *testing.T) {

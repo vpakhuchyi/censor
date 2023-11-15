@@ -20,7 +20,7 @@ func TestParser_Slice(t *testing.T) {
 
 	p := Parser{
 		useJSONTagName: false,
-		CensorFieldTag: DefaultCensorFieldTag,
+		censorFieldTag: DefaultCensorFieldTag,
 	}
 
 	t.Run("slice_of_pointers_to_structs", func(t *testing.T) {

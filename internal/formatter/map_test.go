@@ -6,12 +6,13 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/vpakhuchyi/censor/config"
 	"github.com/vpakhuchyi/censor/internal/models"
 )
 
 func TestFormatter_Map(t *testing.T) {
 	f := Formatter{
-		maskValue:         DefaultMaskValue,
+		maskValue:         config.DefaultMaskValue,
 		displayStructName: false,
 		displayMapType:    false,
 	}
@@ -33,7 +34,7 @@ func TestFormatter_Map(t *testing.T) {
 
 	t.Run("successful_with_display_map_type", func(t *testing.T) {
 		f := Formatter{
-			maskValue:         DefaultMaskValue,
+			maskValue:         config.DefaultMaskValue,
 			displayStructName: false,
 			displayMapType:    true,
 		}

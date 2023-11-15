@@ -12,7 +12,7 @@ import (
 func TestParser_Integer(t *testing.T) {
 	p := Parser{
 		useJSONTagName: false,
-		CensorFieldTag: DefaultCensorFieldTag,
+		censorFieldTag: DefaultCensorFieldTag,
 	}
 
 	t.Run("successful_int", func(t *testing.T) {

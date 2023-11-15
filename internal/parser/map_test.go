@@ -21,7 +21,7 @@ func TestParser_Map(t *testing.T) {
 
 	p := Parser{
 		useJSONTagName: false,
-		CensorFieldTag: DefaultCensorFieldTag,
+		censorFieldTag: DefaultCensorFieldTag,
 	}
 
 	// Test values.

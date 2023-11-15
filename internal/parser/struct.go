@@ -25,7 +25,7 @@ func (p *Parser) Struct(rv reflect.Value) models.Struct {
 
 	for i := 0; i < rv.NumField(); i++ {
 		field := models.Field{
-			Opts: options.Parse(rv.Type().Field(i).Tag.Get(p.CensorFieldTag)),
+			Opts: options.Parse(rv.Type().Field(i).Tag.Get(p.censorFieldTag)),
 			Kind: rv.Field(i).Kind(),
 		}
 

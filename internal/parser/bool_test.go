@@ -12,7 +12,7 @@ import (
 func TestParser_Bool(t *testing.T) {
 	p := Parser{
 		useJSONTagName: false,
-		CensorFieldTag: DefaultCensorFieldTag,
+		censorFieldTag: DefaultCensorFieldTag,
 	}
 
 	t.Run("successful", func(t *testing.T) {

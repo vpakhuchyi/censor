@@ -4,16 +4,14 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/vpakhuchyi/censor/config"
 	"github.com/vpakhuchyi/censor/internal/models"
 )
-
-// DefaultMaskValue is used to mask struct fields by default.
-const DefaultMaskValue = "[******]"
 
 // Formatter is used to format values.
 type Formatter struct {
 	// maskValue is used to mask struct fields with sensitive data.
-	// The default value is stored in DefaultMaskValue constant.
+	// The default value is stored in config.DefaultMaskValue constant.
 	maskValue string
 	// displayStructName is used to hide struct name in the output.
 	// The default value is false.
@@ -21,14 +19,26 @@ type Formatter struct {
 	// displayMapType is used to display map type in the output.
 	// The default value is false.
 	displayMapType bool
+
+	stringsExcludePatterns []string
 }
 
 // New returns a new instance of Formatter with default configuration.
 func New() *Formatter {
 	return &Formatter{
-		maskValue:         DefaultMaskValue,
+		maskValue:         config.DefaultMaskValue,
 		displayStructName: false,
 		displayMapType:    false,
+	}
+}
+
+// NewWithConfig returns a new instance of Formatter with given configuration.
+func NewWithConfig(c config.Formatter) *Formatter {
+	return &Formatter{
+		maskValue:              c.MaskValue,
+		displayStructName:      c.DisplayStructName,
+		displayMapType:         c.DisplayMapType,
+		stringsExcludePatterns: c.StringsExcludePatterns,
 	}
 }
 

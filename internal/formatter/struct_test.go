@@ -6,13 +6,14 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/vpakhuchyi/censor/config"
 	"github.com/vpakhuchyi/censor/internal/models"
 	"github.com/vpakhuchyi/censor/internal/options"
 )
 
 func TestFormatter_Struct(t *testing.T) {
 	f := Formatter{
-		maskValue:         DefaultMaskValue,
+		maskValue:         config.DefaultMaskValue,
 		displayStructName: false,
 		displayMapType:    false,
 	}
@@ -34,7 +35,7 @@ func TestFormatter_Struct(t *testing.T) {
 
 	t.Run("with_display_struct_name", func(t *testing.T) {
 		f := Formatter{
-			maskValue:         DefaultMaskValue,
+			maskValue:         config.DefaultMaskValue,
 			displayStructName: true,
 			displayMapType:    false,
 		}

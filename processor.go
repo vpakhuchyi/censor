@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/vpakhuchyi/censor/config"
 	"github.com/vpakhuchyi/censor/internal/formatter"
 	"github.com/vpakhuchyi/censor/internal/models"
 	"github.com/vpakhuchyi/censor/internal/parser"
@@ -27,6 +28,14 @@ func New() *Processor {
 	return &Processor{
 		formatter: formatter.New(),
 		parser:    parser.New(),
+	}
+}
+
+// NewWithConfig returns a new instance of Processor with given configuration.
+func NewWithConfig(c config.Config) *Processor {
+	return &Processor{
+		formatter: formatter.NewWithConfig(c.Formatter),
+		parser:    parser.NewWithConfig(c.Parser),
 	}
 }
 
@@ -56,7 +65,7 @@ func (p *Processor) Format(val any) string {
 }
 
 // SetMaskValue sets a value that will be used to mask struct fields.
-// The default value is stored in the formatter.DefaultMaskValue constant.
+// The default value is stored in the config.DefaultMaskValue constant.
 func (p *Processor) SetMaskValue(maskValue string) {
 	p.formatter.SetMaskValue(maskValue)
 }

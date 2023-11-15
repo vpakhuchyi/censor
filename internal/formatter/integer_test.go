@@ -6,12 +6,13 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/vpakhuchyi/censor/config"
 	"github.com/vpakhuchyi/censor/internal/models"
 )
 
 func TestFormatter_Integer(t *testing.T) {
 	f := Formatter{
-		maskValue:         DefaultMaskValue,
+		maskValue:         config.DefaultMaskValue,
 		displayStructName: false,
 		displayMapType:    false,
 	}

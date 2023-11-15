@@ -12,7 +12,7 @@ import (
 func TestParser_Complex(t *testing.T) {
 	p := Parser{
 		useJSONTagName: false,
-		CensorFieldTag: DefaultCensorFieldTag,
+		censorFieldTag: DefaultCensorFieldTag,
 	}
 
 	t.Run("successful_complex64", func(t *testing.T) {

@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/vpakhuchyi/censor/config"
 )
 
 func Test_InstanceFormatPrimitives(t *testing.T) {
@@ -93,6 +95,30 @@ func Test_InstanceConfiguration(t *testing.T) {
 		got := p.Format(testStruct{M: map[string]map[string]int{"key1": {"key1": 1, "key2": 2}}})
 		require.Equal(t, exp, got)
 	})
+
+	t.Run("With provided configuration", func(t *testing.T) {
+		c := config.Config{
+			Formatter: config.Formatter{
+				MaskValue:              "[redacted]",
+				DisplayStructName:      true,
+				DisplayMapType:         false,
+				StringsExcludePatterns: []string{"string"},
+			},
+			Parser: config.Parser{
+				UseJSONTagName: true,
+			},
+		}
+		p := NewWithConfig(c)
+
+		type testStruct struct {
+			Name string `censor:"display"`
+			Age  int    `json:"age" censor:"display"`
+		}
+
+		exp := `censor.testStruct{age: 30}`
+		got := p.Format(testStruct{Name: "John", Age: 30})
+		require.Equal(t, exp, got)
+	})
 }
 
 func Test_GlobalInstanceConfiguration(t *testing.T) {
@@ -165,6 +191,34 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 
 		exp := `{M: map[string]map[string]int[key1: map[string]int[key1: 1, key2: 2]]}`
 		got := Format(testStruct{M: map[string]map[string]int{"key1": {"key1": 1, "key2": 2}}})
+		require.Equal(t, exp, got)
+	})
+
+	t.Run("With provided configuration", func(t *testing.T) {
+		t.Cleanup(func() { SetGlobalInstance(New()) })
+
+		c := config.Config{
+			Formatter: config.Formatter{
+				MaskValue:              "[redacted]",
+				DisplayStructName:      true,
+				DisplayMapType:         false,
+				StringsExcludePatterns: []string{"string"},
+			},
+			Parser: config.Parser{
+				UseJSONTagName: true,
+			},
+		}
+
+		type testStruct struct {
+			Name string `censor:"display"`
+			Age  int    `json:"age" censor:"display"`
+		}
+
+		p := NewWithConfig(c)
+		SetGlobalInstance(p)
+
+		exp := `censor.testStruct{age: 30}`
+		got := Format(testStruct{Name: "John", Age: 30})
 		require.Equal(t, exp, got)
 	})
 }

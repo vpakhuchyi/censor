@@ -12,7 +12,7 @@ import (
 func TestParser_Float(t *testing.T) {
 	p := Parser{
 		useJSONTagName: false,
-		CensorFieldTag: DefaultCensorFieldTag,
+		censorFieldTag: DefaultCensorFieldTag,
 	}
 
 	t.Run("successful_float32", func(t *testing.T) {

@@ -7,6 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/vpakhuchyi/censor/config"
 	"github.com/vpakhuchyi/censor/internal/models"
 	"github.com/vpakhuchyi/censor/internal/options"
 )
@@ -685,4 +686,24 @@ func TestProcessor_format(t *testing.T) {
 			require.Equal(t, exp, got)
 		})
 	})
+}
+
+func TestNewWithConfig(t *testing.T) {
+	type args struct {
+		c config.Config
+	}
+	tests := []struct {
+		name string
+		args args
+		want *Processor
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewWithConfig(tt.args.c); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewWithConfig() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }

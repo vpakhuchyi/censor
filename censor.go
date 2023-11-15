@@ -66,7 +66,7 @@ func Format(val any) string {
 
 // SetMaskValue sets a value that will be used to mask struct fields.
 // It applies this change to the global instance of Processor.
-// The default value is stored in the formatter.DefaultMaskValue constant.
+// The default value is stored in the config.DefaultMaskValue constant.
 func SetMaskValue(maskValue string) {
 	globalInstance.formatter.SetMaskValue(maskValue)
 }

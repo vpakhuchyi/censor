@@ -7,13 +7,14 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/vpakhuchyi/censor/config"
 	"github.com/vpakhuchyi/censor/internal/models"
 	"github.com/vpakhuchyi/censor/internal/options"
 )
 
 func TestFormatter_writeValue(t *testing.T) {
 	f := Formatter{
-		maskValue:         DefaultMaskValue,
+		maskValue:         config.DefaultMaskValue,
 		displayStructName: false,
 		displayMapType:    false,
 	}
@@ -350,7 +351,7 @@ func TestFormatter_writeValue(t *testing.T) {
 
 func TestFormatter_writeField(t *testing.T) {
 	f := Formatter{
-		maskValue:         DefaultMaskValue,
+		maskValue:         config.DefaultMaskValue,
 		displayStructName: false,
 		displayMapType:    false,
 	}
@@ -840,25 +841,39 @@ func TestFormatter_writeField(t *testing.T) {
 }
 
 func TestNew(t *testing.T) {
-	t.Run("successful", func(t *testing.T) {
-		require.EqualValues(t, &Formatter{maskValue: DefaultMaskValue, displayStructName: false, displayMapType: false}, New())
+	require.EqualValues(t, &Formatter{maskValue: config.DefaultMaskValue, displayStructName: false, displayMapType: false}, New())
+}
+
+func TestNewWithConfig(t *testing.T) {
+	got := NewWithConfig(config.Formatter{
+		MaskValue:              "[censored]",
+		DisplayStructName:      true,
+		DisplayMapType:         true,
+		StringsExcludePatterns: []string{},
 	})
+	exp := &Formatter{
+		maskValue:              "[censored]",
+		displayStructName:      true,
+		displayMapType:         true,
+		stringsExcludePatterns: []string{},
+	}
+	require.EqualValues(t, exp, got)
 }
 
 func TestFormatter_SetMaskValue(t *testing.T) {
-	f := &Formatter{maskValue: DefaultMaskValue, displayStructName: false, displayMapType: false}
+	f := &Formatter{maskValue: config.DefaultMaskValue, displayStructName: false, displayMapType: false}
 	f.SetMaskValue("[censored]")
 	require.EqualValues(t, f, &Formatter{maskValue: "[censored]", displayStructName: false, displayMapType: false})
 }
 
 func TestFormatter_DisplayStructName(t *testing.T) {
-	f := &Formatter{maskValue: DefaultMaskValue, displayStructName: false, displayMapType: false}
+	f := &Formatter{maskValue: config.DefaultMaskValue, displayStructName: false, displayMapType: false}
 	f.DisplayStructName(true)
-	require.EqualValues(t, f, &Formatter{maskValue: DefaultMaskValue, displayStructName: true, displayMapType: false})
+	require.EqualValues(t, f, &Formatter{maskValue: config.DefaultMaskValue, displayStructName: true, displayMapType: false})
 }
 
 func TestFormatter_DisplayMapType(t *testing.T) {
-	f := &Formatter{maskValue: DefaultMaskValue, displayStructName: false, displayMapType: false}
+	f := &Formatter{maskValue: config.DefaultMaskValue, displayStructName: false, displayMapType: false}
 	f.DisplayMapType(true)
-	require.EqualValues(t, f, &Formatter{maskValue: DefaultMaskValue, displayStructName: false, displayMapType: true})
+	require.EqualValues(t, f, &Formatter{maskValue: config.DefaultMaskValue, displayStructName: false, displayMapType: true})
 }

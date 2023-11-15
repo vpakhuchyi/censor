@@ -14,7 +14,7 @@ import (
 func TestParser_Interface(t *testing.T) {
 	p := Parser{
 		useJSONTagName: false,
-		CensorFieldTag: DefaultCensorFieldTag,
+		censorFieldTag: DefaultCensorFieldTag,
 	}
 
 	t.Run("struct_with_interface_with_slice_value", func(t *testing.T) {
