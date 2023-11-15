@@ -11,7 +11,7 @@ func TestNew(t *testing.T) {
 }
 
 func TestParser_UseJSONTagName(t *testing.T) {
-	f := &Parser{useJSONTagName: false, CensorFieldTag: gDefaultCensorFieldTag}
+	f := &Parser{useJSONTagName: false, CensorFieldTag: DefaultCensorFieldTag}
 	f.UseJSONTagName(true)
 	require.EqualValues(t, f, &Parser{useJSONTagName: true, CensorFieldTag: DefaultCensorFieldTag})
 }
