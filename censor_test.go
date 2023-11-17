@@ -29,7 +29,7 @@ func Test_InstanceFormatPrimitives(t *testing.T) {
 }
 
 func Test_InstanceConfiguration(t *testing.T) {
-	t.Run("Display struct name", func(t *testing.T) {
+	t.Run("display_struct_name", func(t *testing.T) {
 		p := New()
 		p.DisplayStructName(true)
 
@@ -43,7 +43,7 @@ func Test_InstanceConfiguration(t *testing.T) {
 		require.Equal(t, exp, got)
 	})
 
-	t.Run("Hide struct name", func(t *testing.T) {
+	t.Run("hide_struct_name", func(t *testing.T) {
 		type testStruct struct {
 			Name string `censor:"display"`
 			Age  int
@@ -54,7 +54,7 @@ func Test_InstanceConfiguration(t *testing.T) {
 		require.Equal(t, exp, got)
 	})
 
-	t.Run("Use JSON tag name", func(t *testing.T) {
+	t.Run("use_json_tag_name", func(t *testing.T) {
 		p := New()
 		p.UseJSONTagName(true)
 
@@ -69,7 +69,7 @@ func Test_InstanceConfiguration(t *testing.T) {
 		require.Equal(t, exp, got)
 	})
 
-	t.Run("Custom mask value", func(t *testing.T) {
+	t.Run("custom_mask_value", func(t *testing.T) {
 		p := New()
 		p.SetMaskValue(`[REDACTED]`)
 
@@ -83,7 +83,7 @@ func Test_InstanceConfiguration(t *testing.T) {
 		require.Equal(t, exp, got)
 	})
 
-	t.Run("Display map type", func(t *testing.T) {
+	t.Run("display_map_type", func(t *testing.T) {
 		p := New()
 		p.DisplayMapType(true)
 
@@ -96,7 +96,7 @@ func Test_InstanceConfiguration(t *testing.T) {
 		require.Equal(t, exp, got)
 	})
 
-	t.Run("With provided configuration", func(t *testing.T) {
+	t.Run("with_provided_configuration", func(t *testing.T) {
 		c := config.Config{
 			Formatter: config.Formatter{
 				MaskValue:              "[redacted]",
@@ -122,7 +122,7 @@ func Test_InstanceConfiguration(t *testing.T) {
 }
 
 func Test_GlobalInstanceConfiguration(t *testing.T) {
-	t.Run("Display struct name", func(t *testing.T) {
+	t.Run("display_struct_name", func(t *testing.T) {
 		t.Cleanup(func() { SetGlobalInstance(New()) })
 
 		DisplayStructName(true)
@@ -137,7 +137,7 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 		require.Equal(t, exp, got)
 	})
 
-	t.Run("Hide struct name", func(t *testing.T) {
+	t.Run("hide_struct_name", func(t *testing.T) {
 		t.Cleanup(func() { SetGlobalInstance(New()) })
 
 		type testStruct struct {
@@ -150,7 +150,7 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 		require.Equal(t, exp, got)
 	})
 
-	t.Run("Use JSON tag name", func(t *testing.T) {
+	t.Run("use_json_tag_name", func(t *testing.T) {
 		t.Cleanup(func() { SetGlobalInstance(New()) })
 
 		UseJSONTagName(true)
@@ -165,7 +165,7 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 		require.Equal(t, exp, got)
 	})
 
-	t.Run("Custom mask value", func(t *testing.T) {
+	t.Run("custom_mask_value", func(t *testing.T) {
 		t.Cleanup(func() { SetGlobalInstance(New()) })
 
 		SetMaskValue(`[REDACTED]`)
@@ -180,7 +180,7 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 		require.Equal(t, exp, got)
 	})
 
-	t.Run("Display map type", func(t *testing.T) {
+	t.Run("display_map_type", func(t *testing.T) {
 		t.Cleanup(func() { SetGlobalInstance(New()) })
 
 		DisplayMapType(true)
@@ -194,7 +194,7 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 		require.Equal(t, exp, got)
 	})
 
-	t.Run("With provided configuration", func(t *testing.T) {
+	t.Run("with_provided_configuration", func(t *testing.T) {
 		t.Cleanup(func() { SetGlobalInstance(New()) })
 
 		c := config.Config{

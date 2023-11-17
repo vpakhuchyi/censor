@@ -8,8 +8,10 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/vpakhuchyi/censor/config"
+	"github.com/vpakhuchyi/censor/internal/formatter"
 	"github.com/vpakhuchyi/censor/internal/models"
 	"github.com/vpakhuchyi/censor/internal/options"
+	"github.com/vpakhuchyi/censor/internal/parser"
 )
 
 func TestProcessor_parse(t *testing.T) {
@@ -689,21 +691,22 @@ func TestProcessor_format(t *testing.T) {
 }
 
 func TestNewWithConfig(t *testing.T) {
-	type args struct {
-		c config.Config
+	cfg := config.Config{
+		Parser: config.Parser{
+			UseJSONTagName: false,
+		},
+		Formatter: config.Formatter{
+			MaskValue:              "####",
+			DisplayStructName:      false,
+			DisplayMapType:         false,
+			StringsExcludePatterns: nil,
+		},
 	}
-	tests := []struct {
-		name string
-		args args
-		want *Processor
-	}{
-		// TODO: Add test cases.
+	got := NewWithConfig(cfg)
+	exp := &Processor{
+		formatter: formatter.NewWithConfig(cfg.Formatter),
+		parser:    parser.NewWithConfig(cfg.Parser),
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := NewWithConfig(tt.args.c); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewWithConfig() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+
+	require.Equal(t, exp, got)
 }
