@@ -483,6 +483,45 @@ func TestParser_Struct(t *testing.T) {
 		})
 	})
 
+	t.Run("struct_with_unexported_field", func(t *testing.T) {
+		type person struct {
+			Name   string
+			height float32
+			weight float64
+		}
+
+		require.NotPanics(t, func() {
+			v := person{Name: "John", height: 1.82, weight: 82.5}
+			got := p.Struct(reflect.ValueOf(v))
+			exp := models.Struct{
+				Name: "parser.person",
+				Fields: []models.Field{
+					{Name: "Name", Value: models.Value{Value: "John", Kind: reflect.String}, Opts: options.FieldOptions{Display: false}, Kind: reflect.String},
+				}}
+
+			require.Equal(t, exp, got)
+		})
+	})
+
+	t.Run("struct_with_all_unexported_fields", func(t *testing.T) {
+		type person struct {
+			name   string
+			height float32
+			weight float64
+		}
+
+		require.NotPanics(t, func() {
+			v := person{name: "John", height: 1.82, weight: 82.5}
+			got := p.Struct(reflect.ValueOf(v))
+			exp := models.Struct{
+				Name:   "parser.person",
+				Fields: []models.Field{},
+			}
+
+			require.Equal(t, exp, got)
+		})
+	})
+
 	t.Run("non_struct_value", func(t *testing.T) {
 		require.PanicsWithValue(t, "provided value is not a struct", func() { p.Struct(reflect.ValueOf(5.234)) })
 	})

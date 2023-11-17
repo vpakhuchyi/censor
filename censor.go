@@ -29,6 +29,7 @@ Supported Types:
 | Struct                 | By default, all field values are masked.                              |
 |                        | Use the `censor:"display"` tag to override this behavior.             |
 |                        | Struct/Slice/Array/Pointer/Map/Interface are parsed recursively.      |
+|                        | All unexported fields are ignored.                                    |
 |------------------------|-----------------------------------------------------------------------|
 | Slice/Array/Map        | Formatted using the same rules as the value it contains.              |
 | Pointer/Interface      |                                                                       |

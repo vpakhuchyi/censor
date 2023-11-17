@@ -11,6 +11,7 @@ import (
 
 // Struct parses a given value and returns a Struct.
 // All supported complex types will be parsed recursively.
+// Note: all unexported fields will be ignored.
 //
 //nolint:exhaustive,gocyclo
 func (p *Parser) Struct(rv reflect.Value) models.Struct {
@@ -24,6 +25,11 @@ func (p *Parser) Struct(rv reflect.Value) models.Struct {
 	}
 
 	for i := 0; i < rv.NumField(); i++ {
+		f := rv.Field(i)
+		if !f.CanInterface() {
+			continue
+		}
+
 		field := models.Field{
 			Opts: options.Parse(rv.Type().Field(i).Tag.Get(p.censorFieldTag)),
 			Kind: rv.Field(i).Kind(),
@@ -40,8 +46,6 @@ func (p *Parser) Struct(rv reflect.Value) models.Struct {
 		} else {
 			field.Name = rv.Type().Field(i).Name
 		}
-
-		f := rv.Field(i)
 
 		switch k := field.Kind; k {
 		case reflect.Struct:
