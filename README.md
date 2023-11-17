@@ -132,6 +132,49 @@ At the same time you can create a new instance of `censor.Processor` and use its
 | censor.DisplayStructName(b bool) | Display struct name in the output.                   |
 | censor.DisplayMapType(b bool)    | Display map type in the output.                      |
 
+Apart from this, it's possible to define a configuration using `config.Config` struct.
+
+```go
+package main
+
+import (
+  "log/slog"
+
+  "github.com/vpakhuchyi/censor"
+  "github.com/vpakhuchyi/censor/config"
+)
+
+type address struct {
+  City   string `censor:"display"`
+  Street string
+}
+
+func main() {
+  // Describe the configuration.
+  cfg := config.Config{
+    Parser: config.Parser{
+      UseJSONTagName: false,
+    },
+    Formatter: config.Formatter{
+      MaskValue:         "[####]",
+      DisplayStructName: false,
+      DisplayMapType:    false,
+    },
+  }
+
+  // Create a new instance of censor.Processor with the specified configuration.
+  p := censor.NewWithConfig(cfg)
+
+  v := address{City: "Kharkiv", Street: "Nauky Avenue"}
+
+  slog.Info("Request", "payload", p.Format(v))
+}
+
+// Here is what we'll see in the log:
+Output: `2038/10/25 12:00:01 INFO Request payload="{City: Kharkiv, Street: [####]}`
+
+```
+
 ### Supported Types
 
 | Type                                                                     | Description                                                                                                                                                                                                                                        |
