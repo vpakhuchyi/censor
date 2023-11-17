@@ -38,6 +38,35 @@ func TestFormatter_Interface(t *testing.T) {
 		})
 	})
 
+	t.Run("with_exclude_patterns", func(t *testing.T) {
+		f := Formatter{
+			maskValue:               config.DefaultMaskValue,
+			displayStructName:       false,
+			displayMapType:          false,
+			excludePatterns:         []string{`\d`, `\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`},
+			excludePatternsCompiled: excludePatternsCompiled,
+		}
+
+		require.NotPanics(t, func() {
+			v := models.Value{
+				Value: models.Value{
+					Value: models.Slice{
+						Values: []models.Value{
+							{Value: "Kholodetsʹ", Kind: reflect.String},
+							{Value: "Halushky1", Kind: reflect.String},
+						},
+					},
+					Kind: reflect.Slice,
+				},
+				Kind: reflect.Interface,
+			}
+
+			got := f.Interface(v)
+			exp := `[Kholodetsʹ, [******]]`
+			require.Equal(t, exp, got)
+		})
+	})
+
 	t.Run("nil_value", func(t *testing.T) {
 		require.NotPanics(t, func() {
 			v := models.Value{Value: nil, Kind: reflect.Interface}

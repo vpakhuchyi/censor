@@ -53,4 +53,27 @@ func TestFormatter_Struct(t *testing.T) {
 			require.Equal(t, exp, got)
 		})
 	})
+
+	t.Run("with_exclude_patterns", func(t *testing.T) {
+		f := Formatter{
+			maskValue:               config.DefaultMaskValue,
+			displayStructName:       false,
+			displayMapType:          false,
+			excludePatterns:         []string{`\d`, `\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`},
+			excludePatternsCompiled: excludePatternsCompiled,
+		}
+
+		require.NotPanics(t, func() {
+			v := models.Struct{
+				Name: "Foo",
+				Fields: []models.Field{
+					{Name: "Foo", Value: models.Value{Value: "testuser@exxxample.com", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
+					{Name: "Bar", Value: models.Value{Value: 1, Kind: reflect.Int}, Opts: options.FieldOptions{Display: false}, Kind: reflect.Int},
+				},
+			}
+			got := f.Struct(v)
+			exp := `{Foo: [******], Bar: [******]}`
+			require.Equal(t, exp, got)
+		})
+	})
 }

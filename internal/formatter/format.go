@@ -2,6 +2,7 @@ package formatter
 
 import (
 	"reflect"
+	"regexp"
 	"strings"
 
 	"github.com/vpakhuchyi/censor/config"
@@ -19,8 +20,10 @@ type Formatter struct {
 	// displayMapType is used to display map type in the output.
 	// The default value is false.
 	displayMapType bool
-
-	stringsExcludePatterns []string
+	// excludePatterns contains regexp patterns that are used to identify strings that must be masked.
+	excludePatterns []string
+	// excludePatternsCompiled contains already compiled regexp patterns from excludePatterns.
+	excludePatternsCompiled []*regexp.Regexp
 }
 
 // New returns a new instance of Formatter with default configuration.
@@ -33,12 +36,23 @@ func New() *Formatter {
 }
 
 // NewWithConfig returns a new instance of Formatter with given configuration.
-func NewWithConfig(c config.Formatter) *Formatter {
+func NewWithConfig(f config.Formatter) *Formatter {
 	return &Formatter{
-		maskValue:              c.MaskValue,
-		displayStructName:      c.DisplayStructName,
-		displayMapType:         c.DisplayMapType,
-		stringsExcludePatterns: c.StringsExcludePatterns,
+		maskValue:         f.MaskValue,
+		displayStructName: f.DisplayStructName,
+		displayMapType:    f.DisplayMapType,
+		excludePatterns:   f.ExcludePatterns,
+	}
+}
+
+// CompileExcludePatterns compiles regexp patterns from excludePatterns.
+// Note: this method may panic if regexp pattern is invalid.
+func (f *Formatter) CompileExcludePatterns() {
+	if f.excludePatterns != nil {
+		f.excludePatternsCompiled = make([]*regexp.Regexp, len(f.excludePatterns))
+		for i, pattern := range f.excludePatterns {
+			f.excludePatternsCompiled[i] = regexp.MustCompile(pattern)
+		}
 	}
 }
 
@@ -55,6 +69,24 @@ func (f *Formatter) DisplayStructName(v bool) {
 // DisplayMapType sets whether to display map type in the output.
 func (f *Formatter) DisplayMapType(v bool) {
 	f.displayMapType = v
+}
+
+// AddExcludePatterns adds regexp patterns that are used for the selection of strings that must be masked.
+// Regexp patterns compilation will be triggered automatically after adding new patterns.
+// Note: this method may panic if regexp pattern is invalid.
+func (f *Formatter) AddExcludePatterns(patterns ...string) {
+	f.excludePatterns = append(f.excludePatterns, patterns...)
+	f.CompileExcludePatterns()
+}
+
+// SetExcludePatterns sets regexp patterns that are used for the selection of strings that must be masked.
+// The main difference from AddExcludePatterns is that this method will replace all previously added patterns
+// with new ones.
+// Regexp patterns compilation will be triggered automatically after adding new patterns.
+// Note: this method may panic if regexp pattern is invalid.
+func (f *Formatter) SetExcludePatterns(patterns ...string) {
+	f.excludePatterns = patterns
+	f.CompileExcludePatterns()
 }
 
 //nolint:exhaustive,gocyclo

@@ -6,7 +6,8 @@ Package censor provides a function for formatting supported values into string r
 The primary purpose of this package is to accept a supported value (as listed in the provided table) and
 format it as a string. The main feature is that when a struct is passed (potentially nested within pointers,
 interfaces, slices, or arrays), all its field values are masked by default, except for those fields explicitly
-tagged with `censor:"display"`.
+tagged with `censor:"display"`. On top of that, it's possible to specify regexp patterns that will be used to
+identify strings that must be masked (including nested string).
 
 This functionality is particularly useful for scenarios such as logging, where the result of `censor.Format()`
 can be employed without concerns about exposing sensitive data. By default, this package ensures that sensitive
@@ -61,7 +62,7 @@ Note: If a value of an unsupported type is provided, an empty string is returned
 // Note: The function may utilize reflection, introducing potential performance overhead.
 // Avoid in performance-critical scenarios.
 func Format(val any) string {
-	return globalInstance.sanitise(val)
+	return globalInstance.Format(val)
 }
 
 // SetMaskValue sets a value that will be used to mask struct fields.
@@ -91,4 +92,20 @@ func DisplayStructName(v bool) {
 // By default, this option is disabled.
 func DisplayMapType(v bool) {
 	globalInstance.formatter.DisplayMapType(v)
+}
+
+// AddExcludePatterns adds regexp patterns that are used for the selection of strings that must be masked.
+// Regexp patterns compilation will be triggered automatically after adding new patterns.
+// Note: this method may panic if regexp pattern is invalid.
+func AddExcludePatterns(patterns ...string) {
+	globalInstance.formatter.AddExcludePatterns(patterns...)
+}
+
+// SetExcludePatterns sets regexp patterns that are used for the selection of strings that must be masked.
+// The main difference from AddExcludePatterns is that this method will replace all previously added patterns
+// with new ones.
+// Regexp patterns compilation will be triggered automatically after adding new patterns.
+// Note: this method may panic if regexp pattern is invalid.
+func SetExcludePatterns(patterns ...string) {
+	globalInstance.formatter.SetExcludePatterns(patterns...)
 }

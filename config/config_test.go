@@ -13,10 +13,10 @@ func TestDefault(t *testing.T) {
 			UseJSONTagName: false,
 		},
 		Formatter: Formatter{
-			MaskValue:              DefaultMaskValue,
-			DisplayStructName:      false,
-			DisplayMapType:         false,
-			StringsExcludePatterns: nil,
+			MaskValue:         DefaultMaskValue,
+			DisplayStructName: false,
+			DisplayMapType:    false,
+			ExcludePatterns:   nil,
 		},
 	}
 
@@ -35,10 +35,10 @@ func TestConfig_GetParserConfig(t *testing.T) {
 func TestConfig_GetFormatterConfig(t *testing.T) {
 	got := Default().GetFormatterConfig()
 	exp := Formatter{
-		MaskValue:              DefaultMaskValue,
-		DisplayStructName:      false,
-		DisplayMapType:         false,
-		StringsExcludePatterns: nil,
+		MaskValue:         DefaultMaskValue,
+		DisplayStructName: false,
+		DisplayMapType:    false,
+		ExcludePatterns:   nil,
 	}
 
 	require.EqualValues(t, exp, got)

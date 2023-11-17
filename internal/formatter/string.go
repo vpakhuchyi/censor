@@ -13,5 +13,13 @@ func (f *Formatter) String(v models.Value) string {
 		panic("provided value is not a string")
 	}
 
+	if len(f.excludePatterns) != 0 {
+		for _, pattern := range f.excludePatternsCompiled {
+			if pattern.MatchString(v.Value.(string)) {
+				return f.maskValue
+			}
+		}
+	}
+
 	return fmt.Sprintf(`%s`, v.Value)
 }

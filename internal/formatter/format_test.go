@@ -2,6 +2,7 @@ package formatter
 
 import (
 	"reflect"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -846,16 +847,16 @@ func TestNew(t *testing.T) {
 
 func TestNewWithConfig(t *testing.T) {
 	got := NewWithConfig(config.Formatter{
-		MaskValue:              "[censored]",
-		DisplayStructName:      true,
-		DisplayMapType:         true,
-		StringsExcludePatterns: []string{},
+		MaskValue:         "[censored]",
+		DisplayStructName: true,
+		DisplayMapType:    true,
+		ExcludePatterns:   nil,
 	})
 	exp := &Formatter{
-		maskValue:              "[censored]",
-		displayStructName:      true,
-		displayMapType:         true,
-		stringsExcludePatterns: []string{},
+		maskValue:         "[censored]",
+		displayStructName: true,
+		displayMapType:    true,
+		excludePatterns:   nil,
 	}
 	require.EqualValues(t, exp, got)
 }
@@ -876,4 +877,44 @@ func TestFormatter_DisplayMapType(t *testing.T) {
 	f := &Formatter{maskValue: config.DefaultMaskValue, displayStructName: false, displayMapType: false}
 	f.DisplayMapType(true)
 	require.EqualValues(t, f, &Formatter{maskValue: config.DefaultMaskValue, displayStructName: false, displayMapType: true})
+}
+
+func TestFormatter_CompileExcludePatterns(t *testing.T) {
+	require.NotPanics(t, func() {
+		f := &Formatter{
+			excludePatterns:         []string{`\d`, `\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`},
+			excludePatternsCompiled: nil,
+		}
+
+		f.CompileExcludePatterns()
+		require.Equal(t, excludePatternsCompiled, f.excludePatternsCompiled)
+	})
+}
+
+func TestFormatter_ExcludePatterns(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		require.NotPanics(t, func() {
+			f := &Formatter{}
+			f.AddExcludePatterns(`\d`)
+
+			expPatterns := []string{`\d`}
+			require.Equal(t, expPatterns, f.excludePatterns)
+			expCompiledPatterns := []*regexp.Regexp{regexp.MustCompile(`\d`)}
+			require.Equal(t, expCompiledPatterns, f.excludePatternsCompiled)
+
+			f.AddExcludePatterns(`\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`)
+			expPatterns = []string{`\d`, `\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`}
+			expCompiledPatterns = []*regexp.Regexp{
+				regexp.MustCompile(`\d`),
+				regexp.MustCompile(`\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`),
+			}
+			require.Equal(t, expPatterns, f.excludePatterns)
+
+			f.SetExcludePatterns(`lol`)
+			expPatterns = []string{`lol`}
+			require.Equal(t, expPatterns, f.excludePatterns)
+			expCompiledPatterns = []*regexp.Regexp{regexp.MustCompile(`lol`)}
+			require.Equal(t, expCompiledPatterns, f.excludePatternsCompiled)
+		})
+	})
 }

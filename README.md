@@ -144,9 +144,9 @@ import (
   "github.com/vpakhuchyi/censor/config"
 )
 
-type address struct {
-  City   string `censor:"display"`
-  Street string
+type user struct {
+  ID    string `censor:"display"`
+  Email string `censor:"display"`
 }
 
 func main() {
@@ -159,19 +159,22 @@ func main() {
       MaskValue:         "[####]",
       DisplayStructName: false,
       DisplayMapType:    false,
+      // ExcludePatterns is a list of regular expressions that will be used to exclude fields from masking.
+      // In this example we're masking all the email addresses.
+      ExcludePatterns: []string{`\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`},
     },
   }
 
   // Create a new instance of censor.Processor with the specified configuration.
   p := censor.NewWithConfig(cfg)
 
-  v := address{City: "Kharkiv", Street: "Nauky Avenue"}
+  v := []user{{ID: "123", Email: "user1@exxample.com"}, {ID: "456", Email: "user2@exxample.com"}}
 
   slog.Info("Request", "payload", p.Format(v))
 }
 
 // Here is what we'll see in the log:
-Output: `2038/10/25 12:00:01 INFO Request payload="{City: Kharkiv, Street: [####]}`
+Output: `2038/10/25 12:00:01 INFO Request payload="[{ID: 123, Email: [####]}, {ID: 456, Email: [####]}]"
 
 ```
 

@@ -27,9 +27,9 @@ type Formatter struct {
 	// DisplayMapType is used to display map type in the output.
 	// The default value is false.
 	DisplayMapType bool
-	// StringsExcludePatterns contains regexp patterns that are used for the selection
+	// ExcludePatterns contains regexp patterns that are used for the selection
 	// of strings that must be masked.
-	StringsExcludePatterns []string
+	ExcludePatterns []string
 }
 
 // Default returns a default configuration.
@@ -39,10 +39,10 @@ func Default() Config {
 			UseJSONTagName: false,
 		},
 		Formatter: Formatter{
-			MaskValue:              DefaultMaskValue,
-			DisplayStructName:      false,
-			DisplayMapType:         false,
-			StringsExcludePatterns: nil,
+			MaskValue:         DefaultMaskValue,
+			DisplayStructName: false,
+			DisplayMapType:    false,
+			ExcludePatterns:   nil,
 		},
 	}
 }

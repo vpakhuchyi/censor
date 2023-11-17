@@ -31,6 +31,28 @@ func TestFormatter_Slice(t *testing.T) {
 		})
 	})
 
+	t.Run("with_exclude_patterns", func(t *testing.T) {
+		f := Formatter{
+			maskValue:               config.DefaultMaskValue,
+			displayStructName:       false,
+			displayMapType:          false,
+			excludePatterns:         []string{`\d`, `\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`},
+			excludePatternsCompiled: excludePatternsCompiled,
+		}
+
+		require.NotPanics(t, func() {
+			v := models.Slice{
+				Values: []models.Value{
+					{Value: "hell0", Kind: reflect.String},
+					{Value: "hello", Kind: reflect.String},
+				},
+			}
+			got := f.Slice(v)
+			exp := "[[******], hello]"
+			require.Equal(t, exp, got)
+		})
+	})
+
 	t.Run("empty", func(t *testing.T) {
 		require.NotPanics(t, func() {
 			v := models.Slice{

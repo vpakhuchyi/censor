@@ -15,6 +15,7 @@ func TestFormatter_String(t *testing.T) {
 		maskValue:         config.DefaultMaskValue,
 		displayStructName: false,
 		displayMapType:    false,
+		excludePatterns:   nil,
 	}
 
 	t.Run("string", func(t *testing.T) {
@@ -29,6 +30,23 @@ func TestFormatter_String(t *testing.T) {
 	t.Run("non_string_value", func(t *testing.T) {
 		require.PanicsWithValue(t, "provided value is not a string", func() {
 			f.String(models.Value{Value: 44, Kind: reflect.Int})
+		})
+	})
+
+	t.Run("string_with_exclude_patterns", func(t *testing.T) {
+		f := Formatter{
+			maskValue:               config.DefaultMaskValue,
+			displayStructName:       false,
+			displayMapType:          false,
+			excludePatterns:         []string{`\d`, `\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`},
+			excludePatternsCompiled: excludePatternsCompiled,
+		}
+
+		require.NotPanics(t, func() {
+			v := models.Value{Value: "hell0", Kind: reflect.String}
+			got := f.String(v)
+			exp := "[******]"
+			require.Equal(t, exp, got)
 		})
 	})
 }

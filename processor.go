@@ -18,25 +18,39 @@ type Processor struct {
 
 // Censor pkg contains a global instance of Processor.
 // This globalInstance is used by the package-level functions.
-var globalInstance = &Processor{
-	formatter: formatter.New(),
-	parser:    parser.New(),
-}
-
-// New returns a new instance of Processor with default configuration.
-func New() *Processor {
-	return &Processor{
+var globalInstance = func() *Processor {
+	p := &Processor{
 		formatter: formatter.New(),
 		parser:    parser.New(),
 	}
+
+	p.formatter.CompileExcludePatterns()
+
+	return p
+}()
+
+// New returns a new instance of Processor with default configuration.
+func New() *Processor {
+	p := Processor{
+		formatter: formatter.New(),
+		parser:    parser.New(),
+	}
+
+	p.formatter.CompileExcludePatterns()
+
+	return &p
 }
 
 // NewWithConfig returns a new instance of Processor with given configuration.
 func NewWithConfig(c config.Config) *Processor {
-	return &Processor{
+	p := Processor{
 		formatter: formatter.NewWithConfig(c.Formatter),
 		parser:    parser.NewWithConfig(c.Parser),
 	}
+
+	p.formatter.CompileExcludePatterns()
+
+	return &p
 }
 
 /*
@@ -61,7 +75,13 @@ func GetGlobalInstance() *Processor {
 // To override this behaviour, use the `censor:"display"` tag.
 // Formatting is done recursively for all nested structs/slices/arrays/pointers/maps/interfaces.
 func (p *Processor) Format(val any) string {
-	return p.sanitise(val)
+	if reflect.TypeOf(val) == nil {
+		return "nil"
+	}
+
+	v := reflect.ValueOf(val)
+
+	return p.format(v.Kind(), p.parse(v))
 }
 
 // SetMaskValue sets a value that will be used to mask struct fields.
@@ -89,14 +109,20 @@ func (p *Processor) DisplayMapType(v bool) {
 	p.formatter.DisplayMapType(v)
 }
 
-func (p *Processor) sanitise(val any) string {
-	if reflect.TypeOf(val) == nil {
-		return "nil"
-	}
+// AddExcludePatterns adds regexp patterns that are used for the selection of strings that must be masked.
+// Regexp patterns compilation will be triggered automatically after adding new patterns.
+// Note: this method may panic if regexp pattern is invalid.
+func (p *Processor) AddExcludePatterns(patterns ...string) {
+	p.formatter.AddExcludePatterns(patterns...)
+}
 
-	v := reflect.ValueOf(val)
-
-	return p.format(v.Kind(), p.parse(v))
+// SetExcludePatterns sets regexp patterns that are used for the selection of strings that must be masked.
+// The main difference from AddExcludePatterns is that this method will replace all previously added patterns
+// with new ones.
+// Regexp patterns compilation will be triggered automatically after adding new patterns.
+// Note: this method may panic if regexp pattern is invalid.
+func (p *Processor) SetExcludePatterns(patterns ...string) {
+	p.formatter.SetExcludePatterns(patterns...)
 }
 
 //nolint:exhaustive

@@ -99,10 +99,10 @@ func Test_InstanceConfiguration(t *testing.T) {
 	t.Run("with_provided_configuration", func(t *testing.T) {
 		c := config.Config{
 			Formatter: config.Formatter{
-				MaskValue:              "[redacted]",
-				DisplayStructName:      true,
-				DisplayMapType:         false,
-				StringsExcludePatterns: []string{"string"},
+				MaskValue:         "[redacted]",
+				DisplayStructName: true,
+				DisplayMapType:    false,
+				ExcludePatterns:   nil,
 			},
 			Parser: config.Parser{
 				UseJSONTagName: true,
@@ -199,10 +199,10 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 
 		c := config.Config{
 			Formatter: config.Formatter{
-				MaskValue:              "[redacted]",
-				DisplayStructName:      true,
-				DisplayMapType:         false,
-				StringsExcludePatterns: []string{"string"},
+				MaskValue:         "[redacted]",
+				DisplayStructName: true,
+				DisplayMapType:    false,
+				ExcludePatterns:   nil,
 			},
 			Parser: config.Parser{
 				UseJSONTagName: true,
@@ -236,4 +236,60 @@ func Test_SetGlobalInstance(t *testing.T) {
 	SetGlobalInstance(p)
 
 	require.EqualValues(t, globalInstance, p)
+}
+
+func TestGlobalExcludePatterns(t *testing.T) {
+	t.Cleanup(func() { SetGlobalInstance(New()) })
+
+	type testStruct struct {
+		Name  string `censor:"display"`
+		Email string `censor:"display"`
+	}
+
+	v := []testStruct{
+		{Name: "John", Email: "test@exxample.com"},
+		{Name: "John2", Email: "secondtest@exxample.com"},
+		{Name: "John Password", Email: "thirdtest@exxample.com"},
+	}
+	exp := `[{Name: John, Email: test@exxample.com}, {Name: John2, Email: secondtest@exxample.com}, {Name: John Password, Email: thirdtest@exxample.com}]`
+	require.Equal(t, exp, Format(v))
+
+	AddExcludePatterns(`\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`)
+	exp = `[{Name: John, Email: [******]}, {Name: John2, Email: [******]}, {Name: John Password, Email: [******]}]`
+	require.Equal(t, exp, Format(v))
+
+	AddExcludePatterns(`(?i)password`)
+	exp = `[{Name: John, Email: [******]}, {Name: John2, Email: [******]}, {Name: [******], Email: [******]}]`
+	require.Equal(t, exp, Format(v))
+
+	SetExcludePatterns(`\d`)
+	exp = `[{Name: John, Email: test@exxample.com}, {Name: [******], Email: secondtest@exxample.com}, {Name: John Password, Email: thirdtest@exxample.com}]`
+	require.Equal(t, exp, Format(v))
+}
+
+func TestInstanceExcludePatterns(t *testing.T) {
+	type testStruct struct {
+		Name  string `censor:"display"`
+		Email string `censor:"display"`
+	}
+	p := New()
+	v := []testStruct{
+		{Name: "John", Email: "test@exxample.com"},
+		{Name: "John2", Email: "secondtest@exxample.com"},
+		{Name: "John Password", Email: "thirdtest@exxample.com"},
+	}
+	exp := `[{Name: John, Email: test@exxample.com}, {Name: John2, Email: secondtest@exxample.com}, {Name: John Password, Email: thirdtest@exxample.com}]`
+	require.Equal(t, exp, p.Format(v))
+
+	p.AddExcludePatterns(`\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`)
+	exp = `[{Name: John, Email: [******]}, {Name: John2, Email: [******]}, {Name: John Password, Email: [******]}]`
+	require.Equal(t, exp, p.Format(v))
+
+	p.AddExcludePatterns(`(?i)password`)
+	exp = `[{Name: John, Email: [******]}, {Name: John2, Email: [******]}, {Name: [******], Email: [******]}]`
+	require.Equal(t, exp, p.Format(v))
+
+	p.SetExcludePatterns(`\d`)
+	exp = `[{Name: John, Email: test@exxample.com}, {Name: [******], Email: secondtest@exxample.com}, {Name: John Password, Email: thirdtest@exxample.com}]`
+	require.Equal(t, exp, p.Format(v))
 }
