@@ -44,38 +44,38 @@ codebase. This approach ensures consistent field masking throughout your applica
 package main
 
 import (
-	"log/slog"
+  "log/slog"
 
-	"github.com/vpakhuchyi/censor"
+  "github.com/vpakhuchyi/censor"
 )
 
 type request struct {
-	UserID   string  `censor:"display"` // Display value.
-	Address  address `censor:"display"`
-	Email    string  // Mask value.
-	FullName string
+  UserID   string  `censor:"display"` // Display value.
+  Address  address `censor:"display"`
+  Email    string  // Mask value.
+  FullName string
 }
 
 type address struct {
-	City    string `censor:"display"`
-	Country string `censor:"display"`
-	Street  string
-	Zip     int
+  City    string `censor:"display"`
+  Country string `censor:"display"`
+  Street  string
+  Zip     int
 }
 
 // Here is a request struct that contains sensitive information: Email, FullName and Password.
 // We could log only UserID, but it's much easier to control what we're logging by using censor 
 // instead of checking each log line and making sure that we're not logging sensitive information.
 func main() {
-	r := request{
-		UserID:   "123",
-		Address:  address{City: "Kharkiv", Country: "UA", Street: "Nauky Avenue", Zip: 23335},
-		Email:    "viktor.example.email@ggmail.com",
-		FullName: "Viktor Pakhuchyi",
-	}
+  r := request{
+    UserID:   "123",
+    Address:  address{City: "Kharkiv", Country: "UA", Street: "Nauky Avenue", Zip: 23335},
+    Email:    "viktor.example.email@ggmail.com",
+    FullName: "Viktor Pakhuchyi",
+  }
 
-	// In this example we're using censor as a global package-level variable with default configuration.
-	slog.Info("Request", "payload", censor.Format(r))
+  // In this example we're using censor as a global package-level variable with default configuration.
+  slog.Info("Request", "payload", censor.Format(r))
 }
 
 // Here is what we'll see in the log:
@@ -97,18 +97,18 @@ package main
 import "log/slog"
 
 type address struct {
-	City    string `censor:"display"`
-	Country string `censor:"display"`
-	Street  string
+  City    string `censor:"display"`
+  Country string `censor:"display"`
+  Street  string
 }
 
 func main() {
-	// Create a new instance of censor.Processor.
-	p := censor.NewProcessor()
+  // Create a new instance of censor.Processor.
+  p := censor.NewProcessor()
 
-	v := address{City: "Kharkiv", Country: "UA", Street: "Nauky Avenue"}
+  v := address{City: "Kharkiv", Country: "UA", Street: "Nauky Avenue"}
 
-	slog.Info("Request", "payload", p.Format(v))
+  slog.Info("Request", "payload", p.Format(v))
 }
 
 // Here is what we'll see in the log:
@@ -138,39 +138,42 @@ Apart from this, it's possible to define a configuration using `config.Config` s
 package main
 
 import (
-	"log/slog"
+  "log/slog"
 
-	"github.com/vpakhuchyi/censor"
-	"github.com/vpakhuchyi/censor/config"
+  "github.com/vpakhuchyi/censor"
+  "github.com/vpakhuchyi/censor/config"
 )
 
 type user struct {
-	ID    string `censor:"display"`
-	Email string `censor:"display"`
+  ID    string `censor:"display"`
+  Email string `censor:"display"`
 }
 
 func main() {
-	// Describe the configuration.
-	cfg := config.Config{
-		Parser: config.Parser{
-			UseJSONTagName: false,
-		},
-		Formatter: config.Formatter{
-			MaskValue:         "[####]",
-			DisplayStructName: false,
-			DisplayMapType:    false,
-			// ExcludePatterns is a list of regular expressions that will be used to exclude fields from masking.
-			// In this example we're masking all the email addresses.
-			ExcludePatterns: []string{`\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`},
-		},
-	}
+  // Describe the configuration.
+  cfg := config.Config{
+    Parser: config.Parser{
+      UseJSONTagName: false,
+    },
+    Formatter: config.Formatter{
+      MaskValue:         "[####]",
+      DisplayStructName: false,
+      DisplayMapType:    false,
+      // ExcludePatterns is a list of regular expressions that will be used to exclude fields from masking.
+      // In this example we're masking all the email addresses.
+      ExcludePatterns: []string{`\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`},
+    },
+  }
 
-	// Create a new instance of censor.Processor with the specified configuration.
-	p := censor.NewWithConfig(cfg)
+  // Create a new instance of censor.Processor with the specified configuration.
+  p := censor.NewWithConfig(cfg)
 
-	v := []user{{ID: "123", Email: "user1@exxample.com"}, {ID: "456", Email: "user2@exxample.com"}}
+  v := []user{
+    {ID: "123", Email: "user1@exxample.com"},
+    {ID: "456", Email: "user2@exxample.com"},
+  }
 
-	slog.Info("Request", "payload", p.Format(v))
+  slog.Info("Request", "payload", p.Format(v))
 }
 
 // Here is what we'll see in the log:
