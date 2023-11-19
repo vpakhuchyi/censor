@@ -36,18 +36,24 @@ func New() *Formatter {
 }
 
 // NewWithConfig returns a new instance of Formatter with given configuration.
-func NewWithConfig(f config.Formatter) *Formatter {
-	return &Formatter{
-		maskValue:         f.MaskValue,
-		displayStructName: f.DisplayStructName,
-		displayMapType:    f.DisplayMapType,
-		excludePatterns:   f.ExcludePatterns,
+func NewWithConfig(cfg config.Formatter) *Formatter {
+	f := Formatter{
+		maskValue:         cfg.MaskValue,
+		displayStructName: cfg.DisplayStructName,
+		displayMapType:    cfg.DisplayMapType,
+		excludePatterns:   cfg.ExcludePatterns,
 	}
+
+	if len(f.excludePatterns) != 0 {
+		f.compileExcludePatterns()
+	}
+
+	return &f
 }
 
-// CompileExcludePatterns compiles regexp patterns from excludePatterns.
+// compileExcludePatterns compiles regexp patterns from excludePatterns.
 // Note: this method may panic if regexp pattern is invalid.
-func (f *Formatter) CompileExcludePatterns() {
+func (f *Formatter) compileExcludePatterns() {
 	if f.excludePatterns != nil {
 		f.excludePatternsCompiled = make([]*regexp.Regexp, len(f.excludePatterns))
 		for i, pattern := range f.excludePatterns {
@@ -76,7 +82,7 @@ func (f *Formatter) DisplayMapType(v bool) {
 // Note: this method may panic if regexp pattern is invalid.
 func (f *Formatter) AddExcludePatterns(patterns ...string) {
 	f.excludePatterns = append(f.excludePatterns, patterns...)
-	f.CompileExcludePatterns()
+	f.compileExcludePatterns()
 }
 
 // SetExcludePatterns sets regexp patterns that are used for the selection of strings that must be masked.
@@ -86,7 +92,7 @@ func (f *Formatter) AddExcludePatterns(patterns ...string) {
 // Note: this method may panic if regexp pattern is invalid.
 func (f *Formatter) SetExcludePatterns(patterns ...string) {
 	f.excludePatterns = patterns
-	f.CompileExcludePatterns()
+	f.compileExcludePatterns()
 }
 
 //nolint:exhaustive,gocyclo

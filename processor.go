@@ -18,39 +18,22 @@ type Processor struct {
 
 // Censor pkg contains a global instance of Processor.
 // This globalInstance is used by the package-level functions.
-var globalInstance = func() *Processor {
-	p := &Processor{
-		formatter: formatter.New(),
-		parser:    parser.New(),
-	}
-
-	p.formatter.CompileExcludePatterns()
-
-	return p
-}()
+var globalInstance = New()
 
 // New returns a new instance of Processor with default configuration.
 func New() *Processor {
-	p := Processor{
+	return &Processor{
 		formatter: formatter.New(),
 		parser:    parser.New(),
 	}
-
-	p.formatter.CompileExcludePatterns()
-
-	return &p
 }
 
 // NewWithConfig returns a new instance of Processor with given configuration.
 func NewWithConfig(c config.Config) *Processor {
-	p := Processor{
+	return &Processor{
 		formatter: formatter.NewWithConfig(c.Formatter),
 		parser:    parser.NewWithConfig(c.Parser),
 	}
-
-	p.formatter.CompileExcludePatterns()
-
-	return &p
 }
 
 /*

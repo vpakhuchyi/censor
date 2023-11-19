@@ -846,19 +846,56 @@ func TestNew(t *testing.T) {
 }
 
 func TestNewWithConfig(t *testing.T) {
-	got := NewWithConfig(config.Formatter{
-		MaskValue:         "[censored]",
-		DisplayStructName: true,
-		DisplayMapType:    true,
-		ExcludePatterns:   nil,
+	t.Run("with_exclude_patterns", func(t *testing.T) {
+		got := NewWithConfig(config.Formatter{
+			MaskValue:         "[censored]",
+			DisplayStructName: true,
+			DisplayMapType:    true,
+			ExcludePatterns:   []string{`\d`},
+		})
+		exp := &Formatter{
+			maskValue:               "[censored]",
+			displayStructName:       true,
+			displayMapType:          true,
+			excludePatterns:         []string{`\d`},
+			excludePatternsCompiled: []*regexp.Regexp{regexp.MustCompile(`\d`)},
+		}
+		require.EqualValues(t, exp, got)
 	})
-	exp := &Formatter{
-		maskValue:         "[censored]",
-		displayStructName: true,
-		displayMapType:    true,
-		excludePatterns:   nil,
-	}
-	require.EqualValues(t, exp, got)
+
+	t.Run("without_exclude_patterns", func(t *testing.T) {
+		got := NewWithConfig(config.Formatter{
+			MaskValue:         "[censored]",
+			DisplayStructName: true,
+			DisplayMapType:    true,
+			ExcludePatterns:   nil,
+		})
+		exp := &Formatter{
+			maskValue:               "[censored]",
+			displayStructName:       true,
+			displayMapType:          true,
+			excludePatterns:         nil,
+			excludePatternsCompiled: nil,
+		}
+		require.EqualValues(t, exp, got)
+	})
+
+	t.Run("with_empty_exclude_patterns", func(t *testing.T) {
+		got := NewWithConfig(config.Formatter{
+			MaskValue:         "[censored]",
+			DisplayStructName: true,
+			DisplayMapType:    true,
+			ExcludePatterns:   []string{},
+		})
+		exp := &Formatter{
+			maskValue:               "[censored]",
+			displayStructName:       true,
+			displayMapType:          true,
+			excludePatterns:         []string{},
+			excludePatternsCompiled: nil,
+		}
+		require.EqualValues(t, exp, got)
+	})
 }
 
 func TestFormatter_SetMaskValue(t *testing.T) {
@@ -886,7 +923,7 @@ func TestFormatter_CompileExcludePatterns(t *testing.T) {
 			excludePatternsCompiled: nil,
 		}
 
-		f.CompileExcludePatterns()
+		f.compileExcludePatterns()
 		require.Equal(t, excludePatternsCompiled, f.excludePatternsCompiled)
 	})
 }

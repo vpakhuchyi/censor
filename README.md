@@ -29,7 +29,7 @@ go get -u github.com/vpakhuchyi/censor
 ### Usage
 
 **Censor** is a versatile tool designed to mask sensitive information in your Go applications, ensuring that
-only specified fields are displayed. It can be seamlessly integrated into your code to enhance security,
+only specified data is displayed. It can be seamlessly integrated into your code to enhance security,
 particularly in scenarios like logging where inadvertent exposure of sensitive data is a concern.
 
 **Note**: this package uses reflection, which can be slow. It is not recommended to use this package
