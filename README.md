@@ -4,9 +4,16 @@
 ![coverage](https://raw.githubusercontent.com/vpakhuchyi/censor/badges/.badges/main/coverage.svg)
 [![GoDoc](https://godoc.org/github.com/vpakhuchyi/censor?status.svg)](https://godoc.org/github.com/vpakhuchyi/censor)
 
+<div style="display: flex; justify-content: space-between;">
+  <div style="flex: 1;">
 **Censor** is a Go library focused on formatting values into strings, emphasizing the protection
 of sensitive information. Through advanced reflection and specialized formatters, it provides precise,
 easily readable output. Ideal for safeguarding confidential data or enhancing data presentation in Go projects.
+  </div>
+  <div style="flex: 1; text-align: center;">
+  <img width="200" src="static/logo.png" alt="GitHub Logo">
+  </div>
+</div>
 
 <!-- TOC -->
 
