@@ -129,12 +129,15 @@ censor empowers you to confidently manage and safeguard sensitive information.
 All configuration options can be set using the package-level functions as shown below.
 At the same time you can create a new instance of `censor.Processor` and use its methods to configure it.
 
-| Global option                    | Description                                          |
-|----------------------------------|------------------------------------------------------|
-| censor.SetMaskValue(s string)    | Set custom mask value instead of default `[******]`. |
-| censor.UseJSONTagName(b bool)    | Use JSON tag name instead of struct field name.      |
-| censor.DisplayStructName(b bool) | Display struct name in the output.                   |
-| censor.DisplayMapType(b bool)    | Display map type in the output.                      |
+| Global option                                 | Description                                             |
+|-----------------------------------------------|---------------------------------------------------------|
+| censor.SetMaskValue(s string)                 | Set custom mask value instead of default `[******]`.    |
+| censor.UseJSONTagName(b bool)                 | Use JSON tag name instead of struct field name.         |
+| censor.DisplayStructName(b bool)              | Display struct name in the output.                      |
+| censor.DisplayMapType(b bool)                 | Display map type in the output.                         |
+| censor.AddExcludePatterns(patterns ...string) | Add regexp patterns for matched strings values masking. |
+| censor.SetExcludePatterns(patterns ...string) | Set regexp patterns for matched strings values masking. |
+|                                               | Note: it overrides the old patterns.                    |
 
 Apart from this, it's possible to define a configuration using `config.Config` struct.
 
