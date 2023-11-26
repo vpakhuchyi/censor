@@ -12,6 +12,8 @@
 of sensitive information. Through advanced reflection and specialized formatters, it provides precise,
 easily readable output. Ideal for safeguarding confidential data or enhancing data presentation in Go projects.
 
+Documentation: https://vpakhuchyi.github.io/censor
+
 <!-- TOC -->
 
 * [Censor](#censor)
