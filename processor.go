@@ -99,15 +99,6 @@ func (p *Processor) AddExcludePatterns(patterns ...string) {
 	p.formatter.AddExcludePatterns(patterns...)
 }
 
-// SetExcludePatterns sets regexp patterns that are used for the selection of strings that must be masked.
-// The main difference from AddExcludePatterns is that this method will replace all previously added patterns
-// with new ones.
-// Regexp patterns compilation will be triggered automatically after adding new patterns.
-// Note: this method may panic if regexp pattern is invalid.
-func (p *Processor) SetExcludePatterns(patterns ...string) {
-	p.formatter.SetExcludePatterns(patterns...)
-}
-
 //nolint:exhaustive
 func (p *Processor) parse(v reflect.Value) any {
 	switch k := v.Kind(); k {

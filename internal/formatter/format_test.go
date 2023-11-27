@@ -946,12 +946,6 @@ func TestFormatter_ExcludePatterns(t *testing.T) {
 				regexp.MustCompile(`\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`),
 			}
 			require.Equal(t, expPatterns, f.excludePatterns)
-
-			f.SetExcludePatterns(`lol`)
-			expPatterns = []string{`lol`}
-			require.Equal(t, expPatterns, f.excludePatterns)
-			expCompiledPatterns = []*regexp.Regexp{regexp.MustCompile(`lol`)}
-			require.Equal(t, expCompiledPatterns, f.excludePatternsCompiled)
 		})
 	})
 }

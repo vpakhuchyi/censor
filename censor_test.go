@@ -261,10 +261,6 @@ func TestGlobalExcludePatterns(t *testing.T) {
 	AddExcludePatterns(`(?i)password`)
 	exp = `[{Name: John, Email: [******]}, {Name: John2, Email: [******]}, {Name: [******], Email: [******]}]`
 	require.Equal(t, exp, Format(v))
-
-	SetExcludePatterns(`\d`)
-	exp = `[{Name: John, Email: test@exxample.com}, {Name: [******], Email: secondtest@exxample.com}, {Name: John Password, Email: thirdtest@exxample.com}]`
-	require.Equal(t, exp, Format(v))
 }
 
 func TestInstanceExcludePatterns(t *testing.T) {
@@ -287,9 +283,5 @@ func TestInstanceExcludePatterns(t *testing.T) {
 
 	p.AddExcludePatterns(`(?i)password`)
 	exp = `[{Name: John, Email: [******]}, {Name: John2, Email: [******]}, {Name: [******], Email: [******]}]`
-	require.Equal(t, exp, p.Format(v))
-
-	p.SetExcludePatterns(`\d`)
-	exp = `[{Name: John, Email: test@exxample.com}, {Name: [******], Email: secondtest@exxample.com}, {Name: John Password, Email: thirdtest@exxample.com}]`
 	require.Equal(t, exp, p.Format(v))
 }

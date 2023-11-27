@@ -85,16 +85,6 @@ func (f *Formatter) AddExcludePatterns(patterns ...string) {
 	f.compileExcludePatterns()
 }
 
-// SetExcludePatterns sets regexp patterns that are used for the selection of strings that must be masked.
-// The main difference from AddExcludePatterns is that this method will replace all previously added patterns
-// with new ones.
-// Regexp patterns compilation will be triggered automatically after adding new patterns.
-// Note: this method may panic if regexp pattern is invalid.
-func (f *Formatter) SetExcludePatterns(patterns ...string) {
-	f.excludePatterns = patterns
-	f.compileExcludePatterns()
-}
-
 //nolint:exhaustive,gocyclo
 func (f *Formatter) writeValue(buf *strings.Builder, v models.Value) {
 	switch v.Kind {

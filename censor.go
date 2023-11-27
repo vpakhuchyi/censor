@@ -101,12 +101,3 @@ func DisplayMapType(v bool) {
 func AddExcludePatterns(patterns ...string) {
 	globalInstance.formatter.AddExcludePatterns(patterns...)
 }
-
-// SetExcludePatterns sets regexp patterns that are used for the selection of strings that must be masked.
-// The main difference from AddExcludePatterns is that this method will replace all previously added patterns
-// with new ones.
-// Regexp patterns compilation will be triggered automatically after adding new patterns.
-// Note: this method may panic if regexp pattern is invalid.
-func SetExcludePatterns(patterns ...string) {
-	globalInstance.formatter.SetExcludePatterns(patterns...)
-}
