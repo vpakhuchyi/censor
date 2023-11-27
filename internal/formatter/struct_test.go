@@ -28,7 +28,7 @@ func TestFormatter_Struct(t *testing.T) {
 				},
 			}
 			got := f.Struct(v)
-			exp := `{Foo: foo, Bar: [******]}`
+			exp := `{Foo: foo, Bar: [CENSORED]}`
 			require.Equal(t, exp, got)
 		})
 	})
@@ -72,7 +72,7 @@ func TestFormatter_Struct(t *testing.T) {
 				},
 			}
 			got := f.Struct(v)
-			exp := `{Foo: [******], Bar: [******]}`
+			exp := `{Foo: [CENSORED], Bar: [CENSORED]}`
 			require.Equal(t, exp, got)
 		})
 	})

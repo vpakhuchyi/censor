@@ -82,7 +82,7 @@ func main() {
 }
 
 // Here is what we'll see in the log:
-Output: `2038/10/25 12:00:01 INFO Request payload={UserID: 123, Address: {City: Kharkiv, Country: UA, Street: [******], Zip: [******]}, Email: [******], FullName: [******]}`
+Output: `2038/10/25 12:00:01 INFO Request payload={UserID: 123, Address: {City: Kharkiv, Country: UA, Street: [CENSORED], Zip: [CENSORED]}, Email: [CENSORED], FullName: [CENSORED]}`
 
 // All the fields values are masked by default (recursively) except 
 // those fields that has specified `censor:"display"` tag.

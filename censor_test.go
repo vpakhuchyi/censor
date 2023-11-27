@@ -38,7 +38,7 @@ func Test_InstanceConfiguration(t *testing.T) {
 			Age  int
 		}
 
-		exp := `censor.testStruct{Name: John, Age: [******]}`
+		exp := `censor.testStruct{Name: John, Age: [CENSORED]}`
 		got := p.Format(testStruct{Name: "John", Age: 30})
 		require.Equal(t, exp, got)
 	})
@@ -49,7 +49,7 @@ func Test_InstanceConfiguration(t *testing.T) {
 			Age  int
 		}
 
-		exp := `{Name: John, Age: [******]}`
+		exp := `{Name: John, Age: [CENSORED]}`
 		got := New().Format(testStruct{Name: "John", Age: 30})
 		require.Equal(t, exp, got)
 	})
@@ -64,7 +64,7 @@ func Test_InstanceConfiguration(t *testing.T) {
 			Email string
 		}
 
-		exp := `{name: John, age: [******]}`
+		exp := `{name: John, age: [CENSORED]}`
 		got := p.Format(testStruct{Name: "John", Age: 30})
 		require.Equal(t, exp, got)
 	})
@@ -132,7 +132,7 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 			Age  int
 		}
 
-		exp := `censor.testStruct{Name: John, Age: [******]}`
+		exp := `censor.testStruct{Name: John, Age: [CENSORED]}`
 		got := Format(testStruct{Name: "John", Age: 30})
 		require.Equal(t, exp, got)
 	})
@@ -145,7 +145,7 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 			Age  int
 		}
 
-		exp := `{Name: John, Age: [******]}`
+		exp := `{Name: John, Age: [CENSORED]}`
 		got := Format(testStruct{Name: "John", Age: 30})
 		require.Equal(t, exp, got)
 	})
@@ -160,7 +160,7 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 			Age  int    `json:"age"`
 		}
 
-		exp := `{name: John, age: [******]}`
+		exp := `{name: John, age: [CENSORED]}`
 		got := Format(testStruct{Name: "John", Age: 30})
 		require.Equal(t, exp, got)
 	})
@@ -255,11 +255,11 @@ func TestGlobalExcludePatterns(t *testing.T) {
 	require.Equal(t, exp, Format(v))
 
 	AddExcludePatterns(`\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`)
-	exp = `[{Name: John, Email: [******]}, {Name: John2, Email: [******]}, {Name: John Password, Email: [******]}]`
+	exp = `[{Name: John, Email: [CENSORED]}, {Name: John2, Email: [CENSORED]}, {Name: John Password, Email: [CENSORED]}]`
 	require.Equal(t, exp, Format(v))
 
 	AddExcludePatterns(`(?i)password`)
-	exp = `[{Name: John, Email: [******]}, {Name: John2, Email: [******]}, {Name: [******], Email: [******]}]`
+	exp = `[{Name: John, Email: [CENSORED]}, {Name: John2, Email: [CENSORED]}, {Name: [CENSORED], Email: [CENSORED]}]`
 	require.Equal(t, exp, Format(v))
 }
 
@@ -278,10 +278,10 @@ func TestInstanceExcludePatterns(t *testing.T) {
 	require.Equal(t, exp, p.Format(v))
 
 	p.AddExcludePatterns(`\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`)
-	exp = `[{Name: John, Email: [******]}, {Name: John2, Email: [******]}, {Name: John Password, Email: [******]}]`
+	exp = `[{Name: John, Email: [CENSORED]}, {Name: John2, Email: [CENSORED]}, {Name: John Password, Email: [CENSORED]}]`
 	require.Equal(t, exp, p.Format(v))
 
 	p.AddExcludePatterns(`(?i)password`)
-	exp = `[{Name: John, Email: [******]}, {Name: John2, Email: [******]}, {Name: [******], Email: [******]}]`
+	exp = `[{Name: John, Email: [CENSORED]}, {Name: John2, Email: [CENSORED]}, {Name: [CENSORED], Email: [CENSORED]}]`
 	require.Equal(t, exp, p.Format(v))
 }

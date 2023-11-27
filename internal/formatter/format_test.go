@@ -300,7 +300,7 @@ func TestFormatter_writeValue(t *testing.T) {
 				Kind: reflect.Struct,
 			}
 			f.writeValue(&buf, v)
-			exp := `{Name: [******], Ingredients: [Pork, Garlic, Black pepper, Bay leaf, Salt]}`
+			exp := `{Name: [CENSORED], Ingredients: [Pork, Garlic, Black pepper, Bay leaf, Salt]}`
 			require.Equal(t, exp, buf.String())
 		})
 	})
@@ -783,7 +783,7 @@ func TestFormatter_writeField(t *testing.T) {
 				Kind: reflect.Struct,
 			}
 			f.writeField(field, &buf)
-			exp := `Dish: {Name: [******], Ingredients: [Pork, Garlic, Black pepper, Bay leaf, Salt]}`
+			exp := `Dish: {Name: [CENSORED], Ingredients: [Pork, Garlic, Black pepper, Bay leaf, Salt]}`
 			require.Equal(t, exp, buf.String())
 		})
 	})

@@ -1,7 +1,7 @@
 package config
 
 // DefaultMaskValue is used to mask struct fields by default.
-const DefaultMaskValue = "[******]"
+const DefaultMaskValue = "[CENSORED]"
 
 // Config describes the available parser.Parser and formatter.Formatter configuration.
 type Config struct {

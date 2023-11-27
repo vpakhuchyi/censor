@@ -38,7 +38,7 @@ func TestFormatter_Ptr(t *testing.T) {
 		require.NotPanics(t, func() {
 			v := models.Ptr{Value: "hell0", Kind: reflect.String}
 			got := f.Ptr(v)
-			exp := "&[******]"
+			exp := "&[CENSORED]"
 			require.Equal(t, exp, got)
 		})
 	})

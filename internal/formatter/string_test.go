@@ -45,7 +45,7 @@ func TestFormatter_String(t *testing.T) {
 		require.NotPanics(t, func() {
 			v := models.Value{Value: "hell0", Kind: reflect.String}
 			got := f.String(v)
-			exp := "[******]"
+			exp := "[CENSORED]"
 			require.Equal(t, exp, got)
 		})
 	})

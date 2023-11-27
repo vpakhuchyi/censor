@@ -62,7 +62,7 @@ func TestFormatter_Interface(t *testing.T) {
 			}
 
 			got := f.Interface(v)
-			exp := `[Kholodetsʹ, [******]]`
+			exp := `[Kholodetsʹ, [CENSORED]]`
 			require.Equal(t, exp, got)
 		})
 	})

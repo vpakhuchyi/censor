@@ -48,7 +48,7 @@ func TestFormatter_Slice(t *testing.T) {
 				},
 			}
 			got := f.Slice(v)
-			exp := "[[******], hello]"
+			exp := "[[CENSORED], hello]"
 			require.Equal(t, exp, got)
 		})
 	})

@@ -50,7 +50,7 @@ func TestFormatter_Map(t *testing.T) {
 				},
 			}
 			got := f.Map(v)
-			exp := `map[foo: [******], [******]: hello]`
+			exp := `map[foo: [CENSORED], [CENSORED]: hello]`
 			require.Equal(t, exp, got)
 		})
 	})
