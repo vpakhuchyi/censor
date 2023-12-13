@@ -10,9 +10,6 @@
 of sensitive information. Through advanced reflection and specialized formatters, it provides precise,
 easily readable output. Ideal for enhancing data presentation in Go projects.
 
-**Note**: this package uses reflection, which can be slow. It is not recommended to use this package
-in performance-critical scenarios.
-
 ## Installation
 
 ```bash
