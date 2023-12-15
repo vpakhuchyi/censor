@@ -40,9 +40,6 @@ Explore how to use and configure the library effectively, making the most of its
 only specified data is displayed. It can be seamlessly integrated into your code to enhance security,
 particularly in scenarios like logging where inadvertent exposure of sensitive data is a concern.
 
-**Note**: this package uses reflection, which can be slow. It is not recommended to use this package
-in performance-critical scenarios.
-
 ```go
 package main
 

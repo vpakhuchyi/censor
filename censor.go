@@ -13,9 +13,6 @@ This functionality is particularly useful for scenarios such as logging, where t
 can be employed without concerns about exposing sensitive data. By default, this package ensures that sensitive
 information within struct fields remains masked, enhancing security in scenarios where data privacy is crucial.
 
-Note: this package uses reflection, which can be slow. It is not recommended to use this package
-in performance-critical scenarios.
-
 Note: this package includes several functions that may potentially result in panics.
 While extensive testing covers most common use cases, if you encounter any bugs or issues,
 please feel free to report them in https://github.com/vpakhuchyi/censor as new issues.
