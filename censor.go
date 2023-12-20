@@ -78,6 +78,13 @@ func UseJSONTagName(v bool) {
 	globalInstance.parser.UseJSONTagName(v)
 }
 
+// DisplayPointerSymbol sets whether to display the '&' (pointer symbol) before the pointed value.
+// It applies this change to the global instance of Processor.
+// By default, this option is disabled.
+func DisplayPointerSymbol(v bool) {
+	globalInstance.formatter.DisplayPointerSymbol(v)
+}
+
 // DisplayStructName sets whether to display the name of the struct.
 // It applies this change to the global instance of Processor.
 // By default, this option is disabled.

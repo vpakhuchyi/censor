@@ -15,9 +15,12 @@ import (
 
 func TestFormatter_writeValue(t *testing.T) {
 	f := Formatter{
-		maskValue:         config.DefaultMaskValue,
-		displayStructName: false,
-		displayMapType:    false,
+		maskValue:               config.DefaultMaskValue,
+		displayPointerSymbol:    false,
+		displayStructName:       false,
+		displayMapType:          false,
+		excludePatterns:         nil,
+		excludePatternsCompiled: nil,
 	}
 	var buf strings.Builder
 
@@ -344,7 +347,7 @@ func TestFormatter_writeValue(t *testing.T) {
 				Kind: reflect.Ptr,
 			}
 			f.writeValue(&buf, v)
-			exp := `&Kholodetsʹ`
+			exp := `Kholodetsʹ`
 			require.Equal(t, exp, buf.String())
 		})
 	})
@@ -835,7 +838,7 @@ func TestFormatter_writeField(t *testing.T) {
 				Kind: reflect.Ptr,
 			}
 			f.writeField(field, &buf)
-			exp := `Dish: &Kholodetsʹ`
+			exp := `Dish: Kholodetsʹ`
 			require.Equal(t, exp, buf.String())
 		})
 	})
@@ -902,6 +905,12 @@ func TestFormatter_SetMaskValue(t *testing.T) {
 	f := &Formatter{maskValue: config.DefaultMaskValue, displayStructName: false, displayMapType: false}
 	f.SetMaskValue("[censored]")
 	require.EqualValues(t, f, &Formatter{maskValue: "[censored]", displayStructName: false, displayMapType: false})
+}
+
+func TestFormatter_DisplayPointerSymbol(t *testing.T) {
+	f := &Formatter{maskValue: config.DefaultMaskValue, displayPointerSymbol: true, displayStructName: false, displayMapType: false}
+	f.DisplayPointerSymbol(true)
+	require.EqualValues(t, f, &Formatter{maskValue: config.DefaultMaskValue, displayPointerSymbol: true, displayStructName: false, displayMapType: false})
 }
 
 func TestFormatter_DisplayStructName(t *testing.T) {

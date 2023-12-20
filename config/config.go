@@ -21,6 +21,9 @@ type Formatter struct {
 	// MaskValue is used to mask struct fields with sensitive data.
 	// The default value is stored in DefaultMaskValue constant.
 	MaskValue string
+	// DisplayPointerSymbol is used to display '&' (pointer symbol) in the output.
+	// The default value is false.
+	DisplayPointerSymbol bool
 	// DisplayStructName is used to hide struct name in the output.
 	// The default value is false.
 	DisplayStructName bool
@@ -39,10 +42,11 @@ func Default() Config {
 			UseJSONTagName: false,
 		},
 		Formatter: Formatter{
-			MaskValue:         DefaultMaskValue,
-			DisplayStructName: false,
-			DisplayMapType:    false,
-			ExcludePatterns:   nil,
+			MaskValue:            DefaultMaskValue,
+			DisplayPointerSymbol: false,
+			DisplayStructName:    false,
+			DisplayMapType:       false,
+			ExcludePatterns:      nil,
 		},
 	}
 }
