@@ -148,7 +148,7 @@ type address struct {
 
 func main() {
   // Create a new instance of censor.Processor.
-  p := censor.NewProcessor()
+  p := censor.New()
 
   v := address{City: "Kharkiv", Country: "UA", Street: "Nauky Avenue"}
 
