@@ -408,7 +408,7 @@ func TestProcessor_format(t *testing.T) {
 				},
 				Kind: reflect.Struct,
 			}
-			exp := `&{Int64: 123456789, String: string}`
+			exp := `{Int64: 123456789, String: string}`
 
 			got := p.format(reflect.Pointer, val)
 			require.Equal(t, exp, got)
@@ -696,10 +696,11 @@ func TestNewWithConfig(t *testing.T) {
 			UseJSONTagName: false,
 		},
 		Formatter: config.Formatter{
-			MaskValue:         "####",
-			DisplayStructName: false,
-			DisplayMapType:    false,
-			ExcludePatterns:   nil,
+			MaskValue:            "####",
+			DisplayPointerSymbol: false,
+			DisplayStructName:    false,
+			DisplayMapType:       false,
+			ExcludePatterns:      nil,
 		},
 	}
 	got := NewWithConfig(cfg)

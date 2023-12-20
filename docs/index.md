@@ -168,13 +168,14 @@ All configuration options can be set using the package-level functions as shown 
 a new instance of `censor.Processor` and use its methods to configure it. All of these options are available with both
 local and global instances.
 
-| Global option                                 | Description                                             |
-|-----------------------------------------------|---------------------------------------------------------|
-| censor.SetMaskValue(s string)                 | Set custom mask value instead of default `[CENSORED]`.    |
-| censor.UseJSONTagName(b bool)                 | Use JSON tag name instead of struct field name.         |
-| censor.DisplayStructName(b bool)              | Display struct name in the output.                      |
-| censor.DisplayMapType(b bool)                 | Display map type in the output.                         |
-| censor.AddExcludePatterns(patterns ...string) | Add regexp patterns for matched strings values masking. |
+| Global option                                 | Description                                                          |
+|-----------------------------------------------|----------------------------------------------------------------------|
+| censor.SetMaskValue(s string)                 | Set custom mask value instead of default `[CENSORED]`.               |
+| censor.UseJSONTagName(b bool)                 | Use JSON tag name instead of struct field name.                      |
+| censor.DisplayPointerSymbol(b bool)           | Display '&' (pointer symbol) before the pointed value in the output. |
+| censor.DisplayStructName(b bool)              | Display struct name in the output.                                   |
+| censor.DisplayMapType(b bool)                 | Display map type in the output.                                      |
+| censor.AddExcludePatterns(patterns ...string) | Add regexp patterns for matched strings values masking.              |
 
 Apart from this, it's possible to define a configuration using `config.Config` struct.
 
@@ -240,7 +241,11 @@ displaying.
 ```go
 package main
 
-import "log/slog"
+import (
+  "log/slog"
+
+  "github.com/vpakhuchyi/censor"
+)
 
 type address struct {
   City    string `censor:"display"`
@@ -272,7 +277,11 @@ Regarding the slice of strings, all the values will be masked because of the exc
 ```go
 package main
 
-import "log/slog"
+import (
+  "log/slog"
+
+  "github.com/vpakhuchyi/censor"
+)
 
 type user struct {
   ID       string `censor:"display"`
@@ -304,7 +313,11 @@ the `censor.DisplayMapType(b bool)` option. In this case, the output will look l
 ```go
 package main
 
-import "log/slog"
+import (
+  "log/slog"
+
+  "github.com/vpakhuchyi/censor"
+)
 
 func main() {
   censor.DisplayMapType(true)
@@ -347,8 +360,8 @@ func main() {
 
 ### Pointer
 
-A pointer output starts with `&` prefix (except `nil` value). In case of nil pointer, the output will be just `nil`.
 Then the underlying value is formatted using its type rules.
+In case of nil pointer, the output will be just `nil`.
 
 ```go
 package main
@@ -363,6 +376,14 @@ func main() {
   s := []int{1, 2, 3}
   v := &s
 
+  slog.Info("Request", "payload", censor.Format(v))
+  // Here is what we'll see in the log:
+  //Output: `2038/10/25 12:00:01 INFO Request payload=[1, 2, 3]`
+
+  // If you want to display the pointer symbol before the pointed value in the output,
+  // you can use the `censor.DisplayPointerSymbol(b bool)` option. In this case, the output will look like this:
+
+  censor.DisplayPointerSymbol(true)
   slog.Info("Request", "payload", censor.Format(v))
   // Here is what we'll see in the log:
   //Output: `2038/10/25 12:00:01 INFO Request payload=&[1, 2, 3]`
@@ -387,21 +408,21 @@ import (
 )
 
 // This is a regular expression that matches email addresses.
-const emailPattern = `(?P<email>[\w.%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,4})`
+const emailPattern = `(?P<email>[\w.%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2, 4})`
 
 func main() {
   v := "example1.email@ggmail.com"
 
   slog.Info("Request", "payload", censor.Format(v))
   // Here is what we'll see in the log:
-  //Output: `2038/10/25 12:00:01 INFO Request payload=example1.email@ggmail.com`
+  //Output: `2038/10/25 12:00:01 INFO Request payload = example1.email@ggmail.com`
 
   // Add the pattern to the list of patterns to be excluded from the log.
   censor.AddExcludePatterns(emailPattern)
 
   slog.Info("Request", "payload", censor.Format(v))
   // Here is what we'll see in the log:
-  //Output: `2038/10/25 12:00:01 INFO Request payload="[CENSORED]"`
+  //Output: `2038/10/25 12:00:01 INFO Request payload = "[CENSORED]"`
 }
 
 ```

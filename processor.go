@@ -80,6 +80,12 @@ func (p *Processor) UseJSONTagName(v bool) {
 	p.parser.UseJSONTagName(v)
 }
 
+// DisplayPointerSymbol sets whether to display the '&' (pointer symbol) before the pointed value.
+// By default, this option is disabled.
+func (p *Processor) DisplayPointerSymbol(v bool) {
+	p.formatter.DisplayPointerSymbol(v)
+}
+
 // DisplayStructName sets whether to display the name of the struct.
 // By default, this option is disabled.
 func (p *Processor) DisplayStructName(v bool) {

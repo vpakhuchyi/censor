@@ -12,12 +12,27 @@ import (
 
 func TestFormatter_Ptr(t *testing.T) {
 	f := Formatter{
-		maskValue:         config.DefaultMaskValue,
-		displayStructName: false,
-		displayMapType:    false,
+		maskValue:            config.DefaultMaskValue,
+		displayPointerSymbol: false,
+		displayStructName:    false,
+		displayMapType:       false,
 	}
 
 	t.Run("successful", func(t *testing.T) {
+		require.NotPanics(t, func() {
+			v := models.Ptr{Value: 1, Kind: reflect.Int}
+			got := f.Ptr(v)
+			exp := "1"
+			require.Equal(t, exp, got)
+		})
+	})
+
+	t.Run("successful_with_pointer_symbol", func(t *testing.T) {
+		f := Formatter{
+			maskValue:            config.DefaultMaskValue,
+			displayPointerSymbol: true,
+		}
+
 		require.NotPanics(t, func() {
 			v := models.Ptr{Value: 1, Kind: reflect.Int}
 			got := f.Ptr(v)
@@ -29,6 +44,7 @@ func TestFormatter_Ptr(t *testing.T) {
 	t.Run("with_exclude_patterns", func(t *testing.T) {
 		f := Formatter{
 			maskValue:               config.DefaultMaskValue,
+			displayPointerSymbol:    false,
 			displayStructName:       false,
 			displayMapType:          false,
 			excludePatterns:         []string{`\d`, `\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`},
@@ -38,7 +54,7 @@ func TestFormatter_Ptr(t *testing.T) {
 		require.NotPanics(t, func() {
 			v := models.Ptr{Value: "hell0", Kind: reflect.String}
 			got := f.Ptr(v)
-			exp := "&[CENSORED]"
+			exp := "[CENSORED]"
 			require.Equal(t, exp, got)
 		})
 	})

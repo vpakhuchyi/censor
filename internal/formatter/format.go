@@ -14,6 +14,9 @@ type Formatter struct {
 	// maskValue is used to mask struct fields with sensitive data.
 	// The default value is stored in config.DefaultMaskValue constant.
 	maskValue string
+	// displayPointerSymbol is used to display '&' (pointer symbol) in the output.
+	// The default value is false.
+	displayPointerSymbol bool
 	// displayStructName is used to hide struct name in the output.
 	// The default value is false.
 	displayStructName bool
@@ -29,19 +32,23 @@ type Formatter struct {
 // New returns a new instance of Formatter with default configuration.
 func New() *Formatter {
 	return &Formatter{
-		maskValue:         config.DefaultMaskValue,
-		displayStructName: false,
-		displayMapType:    false,
+		maskValue:               config.DefaultMaskValue,
+		displayPointerSymbol:    false,
+		displayStructName:       false,
+		displayMapType:          false,
+		excludePatterns:         nil,
+		excludePatternsCompiled: nil,
 	}
 }
 
 // NewWithConfig returns a new instance of Formatter with given configuration.
 func NewWithConfig(cfg config.Formatter) *Formatter {
 	f := Formatter{
-		maskValue:         cfg.MaskValue,
-		displayStructName: cfg.DisplayStructName,
-		displayMapType:    cfg.DisplayMapType,
-		excludePatterns:   cfg.ExcludePatterns,
+		maskValue:            cfg.MaskValue,
+		displayPointerSymbol: cfg.DisplayPointerSymbol,
+		displayStructName:    cfg.DisplayStructName,
+		displayMapType:       cfg.DisplayMapType,
+		excludePatterns:      cfg.ExcludePatterns,
 	}
 
 	if len(f.excludePatterns) != 0 {
@@ -65,6 +72,11 @@ func (f *Formatter) compileExcludePatterns() {
 // SetMaskValue sets a value that will be used to mask struct fields.
 func (f *Formatter) SetMaskValue(mask string) {
 	f.maskValue = mask
+}
+
+// DisplayPointerSymbol sets whether to display the '&' (pointer symbol) before the pointed value.
+func (f *Formatter) DisplayPointerSymbol(v bool) {
+	f.displayPointerSymbol = v
 }
 
 // DisplayStructName sets whether to display the name of the struct.

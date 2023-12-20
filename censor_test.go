@@ -119,6 +119,19 @@ func Test_InstanceConfiguration(t *testing.T) {
 		got := p.Format(testStruct{Name: "John", Age: 30})
 		require.Equal(t, exp, got)
 	})
+
+	t.Run("display_pointer_symbol", func(t *testing.T) {
+		p := New()
+		p.DisplayPointerSymbol(true)
+
+		type testStruct struct {
+			Names *[]string `censor:"display"`
+		}
+
+		exp := `{Names: &[John, Nazar]}`
+		got := p.Format(testStruct{Names: &[]string{"John", "Nazar"}})
+		require.Equal(t, exp, got)
+	})
 }
 
 func Test_GlobalInstanceConfiguration(t *testing.T) {
@@ -219,6 +232,20 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 
 		exp := `censor.testStruct{age: 30}`
 		got := Format(testStruct{Name: "John", Age: 30})
+		require.Equal(t, exp, got)
+	})
+
+	t.Run("display_pointer_symbol", func(t *testing.T) {
+		t.Cleanup(func() { SetGlobalInstance(New()) })
+
+		DisplayPointerSymbol(true)
+
+		type testStruct struct {
+			Names *[]string `censor:"display"`
+		}
+
+		exp := `{Names: &[John, Nazar]}`
+		got := Format(testStruct{Names: &[]string{"John", "Nazar"}})
 		require.Equal(t, exp, got)
 	})
 }
