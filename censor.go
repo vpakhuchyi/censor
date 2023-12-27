@@ -86,6 +86,7 @@ func DisplayPointerSymbol(v bool) {
 }
 
 // DisplayStructName sets whether to display the name of the struct.
+// A struct name includes the last part of the package path.
 // It applies this change to the global instance of Processor.
 // By default, this option is disabled.
 func DisplayStructName(v bool) {
