@@ -395,8 +395,8 @@ func main() {
 
 By default, string values are handled with no additional formatting.
 
-However, if you want to mask specific values, you can use the `censor.AddExcludePatterns` or `censor.SetExcludePatterns`
-functions to add exclude patterns. All string values that match the specified patterns will be masked.
+However, if you want to mask specific values, you can use the `censor.AddExcludePatterns`
+function to add exclude patterns. All string values that match the specified patterns will be masked.
 
 ```go
 package main
