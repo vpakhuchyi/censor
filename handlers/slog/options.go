@@ -7,9 +7,11 @@ import (
 	"github.com/vpakhuchyi/censor"
 )
 
-// Option represents a set of options for configuring the Slog Handler along with a censor processor.
-// It is used as arguments for the NewJSONHandler function. See NewJSONHandler for more details.
-type Option func(options *config)
+// Option type represents a function that can be used to configure a Slog Handler.
+// Users can create instances of Option to customize the behavior of the Slog Handler.
+// These options can be applied during the initialization of the Slog Handler to modify
+// its configuration.
+type Option func(cfg *config)
 
 // WithCensor sets the censor processor instance for the Slog Handler. If not provided,
 // a default censor processor is used.

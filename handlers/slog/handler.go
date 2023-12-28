@@ -39,6 +39,7 @@ func NewJSONHandler(opts ...Option) *slog.JSONHandler {
 		}
 
 		switch attr.Key {
+		// These attributes are required by Slog. We don't want to censor them.
 		case slog.TimeKey, slog.LevelKey, slog.SourceKey:
 			return attr
 		default:
