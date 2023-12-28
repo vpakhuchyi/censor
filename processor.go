@@ -58,7 +58,7 @@ func GetGlobalInstance() *Processor {
 // To override this behaviour, use the `censor:"display"` tag.
 // Formatting is done recursively for all nested structs/slices/arrays/pointers/maps/interfaces.
 func (p *Processor) Format(val any) string {
-	if reflect.TypeOf(val) == nil {
+	if val == nil || reflect.TypeOf(val) == nil {
 		return "nil"
 	}
 
