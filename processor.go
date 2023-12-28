@@ -74,7 +74,7 @@ func (p *Processor) SetMaskValue(maskValue string) {
 }
 
 // UseJSONTagName sets whether to use the `json` tag to get the name of the struct field.
-// If no `json` tag is present, the name of struct will be an empty string.
+// If no `json` tag is present, the name of the struct field is used.
 // By default, this option is disabled.
 func (p *Processor) UseJSONTagName(v bool) {
 	p.parser.UseJSONTagName(v)
