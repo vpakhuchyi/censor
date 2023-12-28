@@ -550,6 +550,7 @@ func TestParser_StructWithJSONTags(t *testing.T) {
 					{Name: "city", Value: models.Value{Value: "San Francisco", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
 					{Name: "state", Value: models.Value{Value: "CA", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
 					{Name: "street", Value: models.Value{Value: "451 Main St", Kind: reflect.String}, Opts: options.FieldOptions{Display: false}, Kind: reflect.String},
+					{Name: "Zip", Value: models.Value{Value: "55501", Kind: reflect.String}, Opts: options.FieldOptions{Display: false}, Kind: reflect.String},
 				}}
 
 			require.Equal(t, exp, got)

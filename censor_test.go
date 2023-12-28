@@ -64,7 +64,7 @@ func Test_InstanceConfiguration(t *testing.T) {
 			Email string
 		}
 
-		exp := `{name: John, age: [CENSORED]}`
+		exp := `{name: John, age: [CENSORED], Email: [CENSORED]}`
 		got := p.Format(testStruct{Name: "John", Age: 30})
 		require.Equal(t, exp, got)
 	})
@@ -115,7 +115,7 @@ func Test_InstanceConfiguration(t *testing.T) {
 			Age  int    `json:"age" censor:"display"`
 		}
 
-		exp := `censor.testStruct{age: 30}`
+		exp := `censor.testStruct{Name: John, age: 30}`
 		got := p.Format(testStruct{Name: "John", Age: 30})
 		require.Equal(t, exp, got)
 	})
@@ -230,7 +230,7 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 		p := NewWithConfig(c)
 		SetGlobalInstance(p)
 
-		exp := `censor.testStruct{age: 30}`
+		exp := `censor.testStruct{Name: John, age: 30}`
 		got := Format(testStruct{Name: "John", Age: 30})
 		require.Equal(t, exp, got)
 	})

@@ -30,21 +30,21 @@ func (p *Parser) Struct(rv reflect.Value) models.Struct {
 			continue
 		}
 
+		strField := rv.Type().Field(i)
+
 		field := models.Field{
-			Opts: options.Parse(rv.Type().Field(i).Tag.Get(p.censorFieldTag)),
-			Kind: rv.Field(i).Kind(),
+			Opts: options.Parse(strField.Tag.Get(p.censorFieldTag)),
+			Kind: f.Kind(),
 		}
 
 		if p.useJSONTagName {
-			tagValue := rv.Type().Field(i).Tag.Get("json")
-			if tagValue == "" {
-				// If the tag is not present, then such a field will be ignored.
-				continue
+			if jsonName, ok := strField.Tag.Lookup("json"); ok {
+				field.Name = jsonName
+			} else {
+				field.Name = strField.Name // If tag is absent, then a struct filed name shall be used.
 			}
-
-			field.Name = tagValue
 		} else {
-			field.Name = rv.Type().Field(i).Name
+			field.Name = strField.Name
 		}
 
 		switch k := field.Kind; k {
