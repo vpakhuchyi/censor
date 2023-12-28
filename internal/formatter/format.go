@@ -17,7 +17,8 @@ type Formatter struct {
 	// displayPointerSymbol is used to display '&' (pointer symbol) in the output.
 	// The default value is false.
 	displayPointerSymbol bool
-	// displayStructName is used to hide struct name in the output.
+	// displayStructName is used to display struct name in the output.
+	// A struct name includes the last part of the package path.
 	// The default value is false.
 	displayStructName bool
 	// displayMapType is used to display map type in the output.

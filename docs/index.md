@@ -168,14 +168,14 @@ All configuration options can be set using the package-level functions as shown 
 a new instance of `censor.Processor` and use its methods to configure it. All of these options are available with both
 local and global instances.
 
-| Global option                                 | Description                                                          |
-|-----------------------------------------------|----------------------------------------------------------------------|
-| censor.SetMaskValue(s string)                 | Set custom mask value instead of default `[CENSORED]`.               |
-| censor.UseJSONTagName(b bool)                 | Use JSON tag name instead of struct field name.                      |
-| censor.DisplayPointerSymbol(b bool)           | Display '&' (pointer symbol) before the pointed value in the output. |
-| censor.DisplayStructName(b bool)              | Display struct name in the output.                                   |
-| censor.DisplayMapType(b bool)                 | Display map type in the output.                                      |
-| censor.AddExcludePatterns(patterns ...string) | Add regexp patterns for matched strings values masking.              |
+| Global option                                 | Description                                                                      |
+|-----------------------------------------------|----------------------------------------------------------------------------------|
+| censor.SetMaskValue(s string)                 | Set custom mask value instead of default `[CENSORED]`.                           |
+| censor.UseJSONTagName(b bool)                 | Use JSON tag name instead of struct field name.                                  |
+| censor.DisplayPointerSymbol(b bool)           | Display '&' (pointer symbol) before the pointed value in the output.             |
+| censor.DisplayStructName(b bool)              | Display struct name (including the last part of the package path) in the output. |
+| censor.DisplayMapType(b bool)                 | Display map type in the output.                                                  |
+| censor.AddExcludePatterns(patterns ...string) | Add regexp patterns for matched strings values masking.                          |
 
 Apart from this, it's possible to define a configuration using `config.Config` struct.
 
