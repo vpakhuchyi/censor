@@ -3,6 +3,15 @@ package config
 // DefaultMaskValue is used to mask struct fields by default.
 const DefaultMaskValue = "[CENSORED]"
 
+const (
+	// Float32MaxSignificantFigures is the default maximum number of significant figures for float32.
+	Float32MaxSignificantFigures = 7
+	// Float64MaxSignificantFigures is the default maximum number of significant figures for float64.
+	Float64MaxSignificantFigures = 15
+
+	// More details about significant figures: https://en.wikipedia.org/wiki/Significant_figures.
+)
+
 // Config describes the available parser.Parser and formatter.Formatter configuration.
 type Config struct {
 	Parser    Parser
@@ -34,6 +43,12 @@ type Formatter struct {
 	// ExcludePatterns contains regexp patterns that are used for the selection
 	// of strings that must be masked.
 	ExcludePatterns []string
+	// Float32MaxSignificantFigures is the maximum number of significant figures for float32.
+	// More details about significant figures: https://en.wikipedia.org/wiki/Significant_figures.
+	Float32MaxSignificantFigures int
+	// Float64MaxSignificantFigures is the maximum number of significant figures for float64.
+	// More details about significant figures: https://en.wikipedia.org/wiki/Significant_figures.
+	Float64MaxSignificantFigures int
 }
 
 // Default returns a default configuration.
@@ -43,11 +58,13 @@ func Default() Config {
 			UseJSONTagName: false,
 		},
 		Formatter: Formatter{
-			MaskValue:            DefaultMaskValue,
-			DisplayPointerSymbol: false,
-			DisplayStructName:    false,
-			DisplayMapType:       false,
-			ExcludePatterns:      nil,
+			MaskValue:                    DefaultMaskValue,
+			DisplayPointerSymbol:         false,
+			DisplayStructName:            false,
+			DisplayMapType:               false,
+			ExcludePatterns:              nil,
+			Float32MaxSignificantFigures: Float32MaxSignificantFigures,
+			Float64MaxSignificantFigures: Float64MaxSignificantFigures,
 		},
 	}
 }

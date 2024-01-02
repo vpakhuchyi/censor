@@ -176,6 +176,8 @@ local and global instances.
 | censor.DisplayStructName(b bool)              | Display struct name (including the last part of the package path) in the output. |
 | censor.DisplayMapType(b bool)                 | Display map type in the output.                                                  |
 | censor.AddExcludePatterns(patterns ...string) | Add regexp patterns for matched strings values masking.                          |
+| censor.SetFloat32MaxSignificantFigures(v int) | Set the maximum number of significant figures for float32 type.                  |
+| censor.SetFloat64MaxSignificantFigures(v int) | Set the maximum number of significant figures for float64 type.                  |m
 
 Apart from this, it's possible to define a configuration using `config.Config` struct.
 
@@ -429,7 +431,11 @@ func main() {
 
 ### Float64/Float32
 
-Floating-point types are formatted to include up to 15 (float64) and 7 (float32) significant figures respectively.
+By default, the floating-point types are formatted to include up to 15 (float64) and 7 (float32) significant figures 
+respectively. To change the number of significant figures, you can use the `SetFloat32MaxSignificantFigures(v int)` or 
+`SetFloat64MaxSignificantFigures(v int)` functions/methods.
+
+More details about significant figures: https://en.wikipedia.org/wiki/Significant_figures.
 
 ```go
 package main

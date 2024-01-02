@@ -13,11 +13,13 @@ func TestDefault(t *testing.T) {
 			UseJSONTagName: false,
 		},
 		Formatter: Formatter{
-			MaskValue:            DefaultMaskValue,
-			DisplayPointerSymbol: false,
-			DisplayStructName:    false,
-			DisplayMapType:       false,
-			ExcludePatterns:      nil,
+			MaskValue:                    DefaultMaskValue,
+			DisplayPointerSymbol:         false,
+			DisplayStructName:            false,
+			DisplayMapType:               false,
+			ExcludePatterns:              nil,
+			Float32MaxSignificantFigures: Float32MaxSignificantFigures,
+			Float64MaxSignificantFigures: Float64MaxSignificantFigures,
 		},
 	}
 
@@ -36,11 +38,13 @@ func TestConfig_GetParserConfig(t *testing.T) {
 func TestConfig_GetFormatterConfig(t *testing.T) {
 	got := Default().GetFormatterConfig()
 	exp := Formatter{
-		MaskValue:            DefaultMaskValue,
-		DisplayPointerSymbol: false,
-		DisplayStructName:    false,
-		DisplayMapType:       false,
-		ExcludePatterns:      nil,
+		MaskValue:                    DefaultMaskValue,
+		DisplayPointerSymbol:         false,
+		DisplayStructName:            false,
+		DisplayMapType:               false,
+		ExcludePatterns:              nil,
+		Float32MaxSignificantFigures: Float32MaxSignificantFigures,
+		Float64MaxSignificantFigures: Float64MaxSignificantFigures,
 	}
 
 	require.EqualValues(t, exp, got)

@@ -15,12 +15,14 @@ import (
 
 func TestFormatter_writeValue(t *testing.T) {
 	f := Formatter{
-		maskValue:               config.DefaultMaskValue,
-		displayPointerSymbol:    false,
-		displayStructName:       false,
-		displayMapType:          false,
-		excludePatterns:         nil,
-		excludePatternsCompiled: nil,
+		maskValue:                    config.DefaultMaskValue,
+		displayPointerSymbol:         false,
+		displayStructName:            false,
+		displayMapType:               false,
+		excludePatterns:              nil,
+		excludePatternsCompiled:      nil,
+		float32MaxSignificantFigures: config.Float32MaxSignificantFigures,
+		float64MaxSignificantFigures: config.Float64MaxSignificantFigures,
 	}
 	var buf strings.Builder
 
@@ -355,9 +357,11 @@ func TestFormatter_writeValue(t *testing.T) {
 
 func TestFormatter_writeField(t *testing.T) {
 	f := Formatter{
-		maskValue:         config.DefaultMaskValue,
-		displayStructName: false,
-		displayMapType:    false,
+		maskValue:                    config.DefaultMaskValue,
+		displayStructName:            false,
+		displayMapType:               false,
+		float32MaxSignificantFigures: config.Float32MaxSignificantFigures,
+		float64MaxSignificantFigures: config.Float64MaxSignificantFigures,
 	}
 	var buf strings.Builder
 
@@ -845,23 +849,37 @@ func TestFormatter_writeField(t *testing.T) {
 }
 
 func TestNew(t *testing.T) {
-	require.EqualValues(t, &Formatter{maskValue: config.DefaultMaskValue, displayStructName: false, displayMapType: false}, New())
+	exp := &Formatter{
+		maskValue:                    config.DefaultMaskValue,
+		displayPointerSymbol:         false,
+		displayStructName:            false,
+		displayMapType:               false,
+		excludePatterns:              nil,
+		excludePatternsCompiled:      nil,
+		float32MaxSignificantFigures: config.Float32MaxSignificantFigures,
+		float64MaxSignificantFigures: config.Float64MaxSignificantFigures,
+	}
+	require.EqualValues(t, exp, New())
 }
 
 func TestNewWithConfig(t *testing.T) {
 	t.Run("with_exclude_patterns", func(t *testing.T) {
 		got := NewWithConfig(config.Formatter{
-			MaskValue:         "[censored]",
-			DisplayStructName: true,
-			DisplayMapType:    true,
-			ExcludePatterns:   []string{`\d`},
+			MaskValue:                    "[censored]",
+			DisplayStructName:            true,
+			DisplayMapType:               true,
+			ExcludePatterns:              []string{`\d`},
+			Float32MaxSignificantFigures: 5,
+			Float64MaxSignificantFigures: 10,
 		})
 		exp := &Formatter{
-			maskValue:               "[censored]",
-			displayStructName:       true,
-			displayMapType:          true,
-			excludePatterns:         []string{`\d`},
-			excludePatternsCompiled: []*regexp.Regexp{regexp.MustCompile(`\d`)},
+			maskValue:                    "[censored]",
+			displayStructName:            true,
+			displayMapType:               true,
+			excludePatterns:              []string{`\d`},
+			excludePatternsCompiled:      []*regexp.Regexp{regexp.MustCompile(`\d`)},
+			float32MaxSignificantFigures: 5,
+			float64MaxSignificantFigures: 10,
 		}
 		require.EqualValues(t, exp, got)
 	})
@@ -957,4 +975,16 @@ func TestFormatter_ExcludePatterns(t *testing.T) {
 			require.Equal(t, expPatterns, f.excludePatterns)
 		})
 	})
+}
+
+func TestFormatter_SetFloat32MaxSignificantFigures(t *testing.T) {
+	f := &Formatter{}
+	f.SetFloat32MaxSignificantFigures(3)
+	require.EqualValues(t, f, &Formatter{float32MaxSignificantFigures: 3})
+}
+
+func TestFormatter_SetFloat64MaxSignificantFigures(t *testing.T) {
+	f := &Formatter{}
+	f.SetFloat64MaxSignificantFigures(10)
+	require.EqualValues(t, f, &Formatter{float64MaxSignificantFigures: 10})
 }

@@ -696,11 +696,13 @@ func TestNewWithConfig(t *testing.T) {
 			UseJSONTagName: false,
 		},
 		Formatter: config.Formatter{
-			MaskValue:            "####",
-			DisplayPointerSymbol: false,
-			DisplayStructName:    false,
-			DisplayMapType:       false,
-			ExcludePatterns:      nil,
+			MaskValue:                    "####",
+			DisplayPointerSymbol:         false,
+			DisplayStructName:            false,
+			DisplayMapType:               false,
+			ExcludePatterns:              nil,
+			Float32MaxSignificantFigures: 0,
+			Float64MaxSignificantFigures: 0,
 		},
 	}
 	got := NewWithConfig(cfg)

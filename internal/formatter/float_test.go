@@ -12,9 +12,11 @@ import (
 
 func TestFormatter_Float(t *testing.T) {
 	f := Formatter{
-		maskValue:         config.DefaultMaskValue,
-		displayStructName: false,
-		displayMapType:    false,
+		maskValue:                    config.DefaultMaskValue,
+		displayStructName:            false,
+		displayMapType:               false,
+		float32MaxSignificantFigures: config.Float32MaxSignificantFigures,
+		float64MaxSignificantFigures: config.Float64MaxSignificantFigures,
 	}
 
 	t.Run("float32", func(t *testing.T) {

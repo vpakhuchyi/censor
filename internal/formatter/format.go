@@ -28,28 +28,40 @@ type Formatter struct {
 	excludePatterns []string
 	// excludePatternsCompiled contains already compiled regexp patterns from excludePatterns.
 	excludePatternsCompiled []*regexp.Regexp
+	// float32MaxSignificantFigures is the maximum number of significant figures for float32.
+	// The default value is stored in config.Float32MaxSignificantDigits constant.
+	float32MaxSignificantFigures int
+	// float64MaxSignificantFigures is the maximum number of significant figures for float64.
+	// The default value is stored in config.Float64MaxSignificantDigits constant.
+	float64MaxSignificantFigures int
+
+	// More details about significant figures: https://en.wikipedia.org/wiki/Significant_figures.
 }
 
 // New returns a new instance of Formatter with default configuration.
 func New() *Formatter {
 	return &Formatter{
-		maskValue:               config.DefaultMaskValue,
-		displayPointerSymbol:    false,
-		displayStructName:       false,
-		displayMapType:          false,
-		excludePatterns:         nil,
-		excludePatternsCompiled: nil,
+		maskValue:                    config.DefaultMaskValue,
+		displayPointerSymbol:         false,
+		displayStructName:            false,
+		displayMapType:               false,
+		excludePatterns:              nil,
+		excludePatternsCompiled:      nil,
+		float32MaxSignificantFigures: config.Float32MaxSignificantFigures,
+		float64MaxSignificantFigures: config.Float64MaxSignificantFigures,
 	}
 }
 
 // NewWithConfig returns a new instance of Formatter with given configuration.
 func NewWithConfig(cfg config.Formatter) *Formatter {
 	f := Formatter{
-		maskValue:            cfg.MaskValue,
-		displayPointerSymbol: cfg.DisplayPointerSymbol,
-		displayStructName:    cfg.DisplayStructName,
-		displayMapType:       cfg.DisplayMapType,
-		excludePatterns:      cfg.ExcludePatterns,
+		maskValue:                    cfg.MaskValue,
+		displayPointerSymbol:         cfg.DisplayPointerSymbol,
+		displayStructName:            cfg.DisplayStructName,
+		displayMapType:               cfg.DisplayMapType,
+		excludePatterns:              cfg.ExcludePatterns,
+		float32MaxSignificantFigures: cfg.Float32MaxSignificantFigures,
+		float64MaxSignificantFigures: cfg.Float64MaxSignificantFigures,
 	}
 
 	if len(f.excludePatterns) != 0 {
@@ -96,6 +108,16 @@ func (f *Formatter) DisplayMapType(v bool) {
 func (f *Formatter) AddExcludePatterns(patterns ...string) {
 	f.excludePatterns = append(f.excludePatterns, patterns...)
 	f.compileExcludePatterns()
+}
+
+// SetFloat32MaxSignificantFigures sets the maximum number of significant figures for float32.
+func (f *Formatter) SetFloat32MaxSignificantFigures(v int) {
+	f.float32MaxSignificantFigures = v
+}
+
+// SetFloat64MaxSignificantFigures sets the maximum number of significant figures for float64.
+func (f *Formatter) SetFloat64MaxSignificantFigures(v int) {
+	f.float64MaxSignificantFigures = v
 }
 
 //nolint:exhaustive,gocyclo

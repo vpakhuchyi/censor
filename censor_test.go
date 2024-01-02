@@ -1,6 +1,7 @@
 package censor
 
 import (
+	"math"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -132,6 +133,32 @@ func Test_InstanceConfiguration(t *testing.T) {
 		got := p.Format(testStruct{Names: &[]string{"John", "Nazar"}})
 		require.Equal(t, exp, got)
 	})
+
+	t.Run("custom_float32_max_sig_figs", func(t *testing.T) {
+		p := New()
+		p.SetFloat32MaxSignificantFigures(3)
+
+		type testStruct struct {
+			Weight float32 `censor:"display"`
+		}
+
+		exp := `{Weight: 58.9}`
+		got := p.Format(testStruct{Weight: 58.9350})
+		require.Equal(t, exp, got)
+	})
+
+	t.Run("custom_float64_max_sig_figs", func(t *testing.T) {
+		p := New()
+		p.SetFloat64MaxSignificantFigures(10)
+
+		type testStruct struct {
+			Pi float64 `censor:"display"`
+		}
+
+		exp := `{Pi: 3.141592654}`
+		got := p.Format(testStruct{Pi: math.Pi})
+		require.Equal(t, exp, got)
+	})
 }
 
 func Test_GlobalInstanceConfiguration(t *testing.T) {
@@ -246,6 +273,34 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 
 		exp := `{Names: &[John, Nazar]}`
 		got := Format(testStruct{Names: &[]string{"John", "Nazar"}})
+		require.Equal(t, exp, got)
+	})
+
+	t.Run("custom_float32_max_sig_figs", func(t *testing.T) {
+		t.Cleanup(func() { SetGlobalInstance(New()) })
+
+		SetFloat32MaxSignificantFigures(3)
+
+		type testStruct struct {
+			Weight float32 `censor:"display"`
+		}
+
+		exp := `{Weight: 58.9}`
+		got := Format(testStruct{Weight: 58.9350})
+		require.Equal(t, exp, got)
+	})
+
+	t.Run("custom_float64_max_sig_figs", func(t *testing.T) {
+		t.Cleanup(func() { SetGlobalInstance(New()) })
+
+		SetFloat64MaxSignificantFigures(10)
+
+		type testStruct struct {
+			Pi float64 `censor:"display"`
+		}
+
+		exp := `{Pi: 3.141592654}`
+		got := Format(testStruct{Pi: math.Pi})
 		require.Equal(t, exp, got)
 	})
 }

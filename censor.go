@@ -106,3 +106,17 @@ func DisplayMapType(v bool) {
 func AddExcludePatterns(patterns ...string) {
 	globalInstance.formatter.AddExcludePatterns(patterns...)
 }
+
+// SetFloat32MaxSignificantFigures sets the maximum number of significant figures for float32.
+// It applies this change to the global instance of Processor.
+// The default value is stored in the config.Float32MaxSignificantFigures constant.
+func SetFloat32MaxSignificantFigures(v int) {
+	globalInstance.formatter.SetFloat32MaxSignificantFigures(v)
+}
+
+// SetFloat64MaxSignificantFigures sets the maximum number of significant figures for float64.
+// It applies this change to the global instance of Processor.
+// The default value is stored in the config.Float64MaxSignificantFigures constant.
+func SetFloat64MaxSignificantFigures(v int) {
+	globalInstance.formatter.SetFloat64MaxSignificantFigures(v)
+}

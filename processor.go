@@ -105,6 +105,18 @@ func (p *Processor) AddExcludePatterns(patterns ...string) {
 	p.formatter.AddExcludePatterns(patterns...)
 }
 
+// SetFloat32MaxSignificantFigures sets the maximum number of significant figures for float32.
+// The default value is stored in the config.Float32MaxSignificantFigures constant.
+func (p *Processor) SetFloat32MaxSignificantFigures(v int) {
+	p.formatter.SetFloat32MaxSignificantFigures(v)
+}
+
+// SetFloat64MaxSignificantFigures sets the maximum number of significant figures for float64.
+// The default value is stored in the config.Float64MaxSignificantFigures constant.
+func (p *Processor) SetFloat64MaxSignificantFigures(v int) {
+	p.formatter.SetFloat64MaxSignificantFigures(v)
+}
+
 //nolint:exhaustive
 func (p *Processor) parse(v reflect.Value) any {
 	switch k := v.Kind(); k {
