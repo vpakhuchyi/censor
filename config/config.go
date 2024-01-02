@@ -8,8 +8,6 @@ const (
 	Float32MaxSignificantFigures = 7
 	// Float64MaxSignificantFigures is the default maximum number of significant figures for float64.
 	Float64MaxSignificantFigures = 15
-
-	// More details about significant figures: https://en.wikipedia.org/wiki/Significant_figures.
 )
 
 // Config describes the available parser.Parser and formatter.Formatter configuration.
@@ -44,11 +42,11 @@ type Formatter struct {
 	// of strings that must be masked.
 	ExcludePatterns []string
 	// Float32MaxSignificantFigures is the maximum number of significant figures for float32.
-	// More details about significant figures: https://en.wikipedia.org/wiki/Significant_figures.
 	Float32MaxSignificantFigures int
 	// Float64MaxSignificantFigures is the maximum number of significant figures for float64.
-	// More details about significant figures: https://en.wikipedia.org/wiki/Significant_figures.
 	Float64MaxSignificantFigures int
+
+	// More details about significant figures: https://en.wikipedia.org/wiki/Significant_figures.
 }
 
 // Default returns a default configuration.
