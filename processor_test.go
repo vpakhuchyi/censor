@@ -711,3 +711,55 @@ func TestNewWithConfig(t *testing.T) {
 
 	require.Equal(t, exp, got)
 }
+
+func TestNewWithFileConfig(t *testing.T) {
+	t.Run("successful", func(t *testing.T) {
+		t.Cleanup(func() { SetGlobalInstance(New()) })
+
+		cfg, err := config.FromFile("./config/testdata/cfg.yml")
+		require.NoError(t, err)
+
+		want := Processor{
+			formatter: formatter.NewWithConfig(cfg.Formatter),
+			parser:    parser.NewWithConfig(cfg.Parser),
+		}
+
+		p, err := NewWithFileConfig("./config/testdata/cfg.yml")
+		require.NoError(t, err)
+		require.EqualValues(t, want.formatter, p.formatter)
+		require.EqualValues(t, want.parser, p.parser)
+	})
+
+	t.Run("empty_file_path", func(t *testing.T) {
+		t.Cleanup(func() { SetGlobalInstance(New()) })
+
+		var want *Processor
+		p, err := NewWithFileConfig("")
+		require.Error(t, err)
+		require.Equal(t, want, p)
+	})
+
+	t.Run("invalid_file_content", func(t *testing.T) {
+		t.Cleanup(func() { SetGlobalInstance(New()) })
+
+		var want *Processor
+
+		p, err := NewWithFileConfig("./config/testdata/invalid-cfg.yml")
+		require.Error(t, err)
+		require.Equal(t, want, p)
+	})
+
+	t.Run("empty_file_content", func(t *testing.T) {
+		t.Cleanup(func() { SetGlobalInstance(New()) })
+
+		want := &Processor{
+			formatter: &formatter.Formatter{},
+			parser:    parser.New(),
+		}
+
+		p, err := NewWithFileConfig("./config/testdata/empty.yml")
+		require.NoError(t, err)
+		require.EqualValues(t, want.formatter, p.formatter)
+		require.EqualValues(t, want.parser, p.parser)
+	})
+}

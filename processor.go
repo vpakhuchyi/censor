@@ -36,6 +36,17 @@ func NewWithConfig(c config.Config) *Processor {
 	}
 }
 
+// NewWithFileConfig returns a new instance of Processor with configuration from a given file.
+// It returns an error if the file cannot be read or unmarshalled.
+func NewWithFileConfig(path string) (*Processor, error) {
+	cfg, err := config.FromFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read the configuration: %w", err)
+	}
+
+	return NewWithConfig(cfg), nil
+}
+
 /*
 	Pkg-level functions that work with the global instance of Processor.
 */

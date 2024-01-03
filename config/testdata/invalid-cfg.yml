@@ -1,0 +1,8 @@
+parser:
+  @use-json-tag-name: true
+formatter:
+  mask-value: '[CENSORED]'
+  display-pointer-symbol: true
+  display-struct-name: true
+  display-map-type: true
+  exclude-patterns: [ '\d' ]

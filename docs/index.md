@@ -25,7 +25,10 @@ go get -u github.com/vpakhuchyi/censor
     - `float64/float32`, `int/int8/int16/int32/int64/rune`,
     - `uint/uint8/uint16/uint32/uint64/byte`, `bool`,
     - `interface`, `complex64/complex128`.
-- [x] Customizable configuration.
+- [x] Customizable configuration:
+    - Using `.ymal` file
+    - Passing `config.Config` struct
+    - Using package-level functions or instance-level methods
 
 ## Usage
 
@@ -164,6 +167,7 @@ integration that best suits your application's requirements.
 
 ## Configuration
 
+### Functions and methods
 All configuration options can be set using the package-level functions as shown below. At the same time, you can create
 a new instance of `censor.Processor` and use its methods to configure it. All of these options are available with both
 local and global instances.
@@ -177,7 +181,9 @@ local and global instances.
 | censor.DisplayMapType(b bool)                 | Display map type in the output.                                                  |
 | censor.AddExcludePatterns(patterns ...string) | Add regexp patterns for matched strings values masking.                          |
 
-Apart from this, it's possible to define a configuration using `config.Config` struct.
+### Using the `config.Config` struct
+
+It's possible to define a configuration using `config.Config` struct:
 
 ```go
 package main
@@ -221,6 +227,30 @@ func main() {
   slog.Info("Request", "payload", p.Format(v))
   // Here is what we'll see in the log:
   // Output: `2038/10/25 12:00:01 INFO Request payload=[{ID: 123, Email: [####]}, {ID: 456, Email: [####]}]`
+}
+
+```
+
+### Providing `.yml` configuration file
+
+It's also possible to provide a configuration file in `.yml` format. In this case, you can use the `./cfg-example.yml` 
+file as an example:
+
+```go
+package main
+
+import (
+  "github.com/vpakhuchyi/censor"
+)
+
+func main() {
+  pathToConfigFile := "./cfg-example.yml"
+  
+  // Create a new instance of censor.Processor with the configuration file usage.
+  p, err := censor.NewWithFileConfig(pathToConfigFile)
+  if err != nil {
+    // Handle error.
+  }
 }
 
 ```
