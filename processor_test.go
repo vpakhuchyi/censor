@@ -744,7 +744,7 @@ func TestNewWithFileConfig(t *testing.T) {
 
 		var want *Processor
 
-		p, err := NewWithFileConfig("./config/testdata/invalid-cfg.yml")
+		p, err := NewWithFileConfig("./config/testdata/invalid_cfg.yml")
 		require.Error(t, err)
 		require.Equal(t, want, p)
 	})

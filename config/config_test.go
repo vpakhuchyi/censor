@@ -96,7 +96,7 @@ func TestFromFile(t *testing.T) {
 		},
 		"invalid_file_content": {
 			args: args{
-				path: "./testdata/invalid-cfg.yml",
+				path: "./testdata/invalid_cfg.yml",
 			},
 			want:    Config{},
 			wantErr: true,

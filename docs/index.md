@@ -233,7 +233,7 @@ func main() {
 
 ### Providing `.yml` configuration file
 
-It's also possible to provide a configuration file in `.yml` format. In this case, you can use the `./cfg-example.yml` 
+It's also possible to provide a configuration file in `.yml` format. In this case, you can use the `./cfg_mexample.yml` 
 file as an example:
 
 ```go
@@ -244,7 +244,7 @@ import (
 )
 
 func main() {
-  pathToConfigFile := "./cfg-example.yml"
+  pathToConfigFile := "./cfg_example.yml"
   
   // Create a new instance of censor.Processor with the configuration file usage.
   p, err := censor.NewWithFileConfig(pathToConfigFile)
