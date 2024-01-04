@@ -31,9 +31,7 @@ Supported Types:
 | Slice/Array/Map        | Formatted using the same rules as the value it contains.              |
 | Pointer/Interface      |                                                                       |
 |------------------------|-----------------------------------------------------------------------|
-| Float64                | Formatted value has up to 15 significant figures.                     |
-|------------------------|-----------------------------------------------------------------------|
-| Float32                | Formatted value has up to 7 significant figures.                      |
+| Float32/Float64        | Formatted using https://github.com/shopspring/decimal.                |
 |------------------------|-----------------------------------------------------------------------|
 | Int/Int8/Int16/        | Default fmt package formatting is used.                               |
 | Int32/Int64/Rune       |                                                                       |
