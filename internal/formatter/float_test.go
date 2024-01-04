@@ -21,7 +21,7 @@ func TestFormatter_Float(t *testing.T) {
 		require.NotPanics(t, func() {
 			v := models.Value{Value: float32(3.11111111111111), Kind: reflect.Float32}
 			got := f.Float(v)
-			exp := "3.111111"
+			exp := "3.1111112"
 			require.Equal(t, exp, got)
 		})
 	})

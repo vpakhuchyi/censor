@@ -459,7 +459,15 @@ func main() {
 
 ### Float64/Float32
 
-Floating-point types are formatted to include up to 15 (float64) and 7 (float32) significant figures respectively.
+Due to the way Go runtime works, `float64` and `float32` types values are not always kept as the original values. 
+For example, the value `99.123456789123456789` will be stored as `99.12345678912345` for `float64` type and as 
+`99.12346` for `float32` type. That's before any formatting is applied.
+
+Talking about formatting, there are a few strategies that we could use to display float values.
+More details can be found here: https://github.com/golang/go/blob/master/src/fmt/doc.go#L38.
+
+To have a more deterministic output, Censor is using the https://github.com/shopspring/decimal package.
+In such a way, we can display float values that are stored in the runtime with no changes in most cases.
 
 ```go
 package main
@@ -481,7 +489,7 @@ func main() {
 
   slog.Info("Request", "payload", censor.Format(v2))
   // Here is what we'll see in the log:
-  //Output: `2038/10/25 12:00:01 INFO Request payload=9.12345678912346`
+  //Output: `2038/10/25 12:00:01 INFO Request payload=99.12345678912345`
 }
 
 ```
