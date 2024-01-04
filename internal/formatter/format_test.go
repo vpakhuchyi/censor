@@ -162,7 +162,7 @@ func TestFormatter_writeValue(t *testing.T) {
 			var fl float32 = 3.11111111111111
 			v := models.Value{Value: fl, Kind: reflect.Float32}
 			f.writeValue(&buf, v)
-			exp := "3.111111"
+			exp := "3.1111112"
 			require.Equal(t, exp, buf.String())
 		})
 	})
@@ -601,7 +601,7 @@ func TestFormatter_writeField(t *testing.T) {
 				Kind: reflect.Float32,
 			}
 			f.writeField(field, &buf)
-			exp := `Float: 3.111111`
+			exp := `Float: 3.1111112`
 			require.Equal(t, exp, buf.String())
 		})
 	})

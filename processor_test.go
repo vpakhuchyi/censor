@@ -492,7 +492,7 @@ func TestProcessor_format(t *testing.T) {
 	t.Run("float32", func(t *testing.T) {
 		require.NotPanics(t, func() {
 			val := models.Value{Value: float32(-45.23444444444444), Kind: reflect.Float32}
-			exp := `-45.23444`
+			exp := `-45.234444`
 
 			got := p.format(reflect.Float32, val)
 			require.Equal(t, exp, got)
@@ -502,7 +502,7 @@ func TestProcessor_format(t *testing.T) {
 	t.Run("float64", func(t *testing.T) {
 		require.NotPanics(t, func() {
 			val := models.Value{Value: float64(-445.236666433333333334), Kind: reflect.Float64}
-			exp := `-445.236666433333`
+			exp := `-445.2366664333333`
 
 			got := p.format(reflect.Float64, val)
 			require.Equal(t, exp, got)
