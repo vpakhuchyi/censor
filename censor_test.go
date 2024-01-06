@@ -29,20 +29,6 @@ func Test_InstanceFormatPrimitives(t *testing.T) {
 }
 
 func Test_InstanceConfiguration(t *testing.T) {
-	t.Run("display_struct_name", func(t *testing.T) {
-		p := New()
-		p.DisplayStructName(true)
-
-		type testStruct struct {
-			Name string `censor:"display"`
-			Age  int
-		}
-
-		exp := `censor.testStruct{Name: John, Age: [CENSORED]}`
-		got := p.Format(testStruct{Name: "John", Age: 30})
-		require.Equal(t, exp, got)
-	})
-
 	t.Run("hide_struct_name", func(t *testing.T) {
 		type testStruct struct {
 			Name string `censor:"display"`
@@ -51,48 +37,6 @@ func Test_InstanceConfiguration(t *testing.T) {
 
 		exp := `{Name: John, Age: [CENSORED]}`
 		got := New().Format(testStruct{Name: "John", Age: 30})
-		require.Equal(t, exp, got)
-	})
-
-	t.Run("use_json_tag_name", func(t *testing.T) {
-		p := New()
-		p.UseJSONTagName(true)
-
-		type testStruct struct {
-			Name  string `json:"name" censor:"display"`
-			Age   int    `json:"age"`
-			Email string
-		}
-
-		exp := `{name: John, age: [CENSORED], Email: [CENSORED]}`
-		got := p.Format(testStruct{Name: "John", Age: 30})
-		require.Equal(t, exp, got)
-	})
-
-	t.Run("custom_mask_value", func(t *testing.T) {
-		p := New()
-		p.SetMaskValue(`[REDACTED]`)
-
-		type testStruct struct {
-			Name string `censor:"display"`
-			Age  int
-		}
-
-		exp := `{Name: John, Age: [REDACTED]}`
-		got := p.Format(testStruct{Name: "John", Age: 30})
-		require.Equal(t, exp, got)
-	})
-
-	t.Run("display_map_type", func(t *testing.T) {
-		p := New()
-		p.DisplayMapType(true)
-
-		type testStruct struct {
-			M map[string]map[string]int `censor:"display"`
-		}
-
-		exp := `{M: map[string]map[string]int[key1: map[string]int[key1: 1, key2: 2]]}`
-		got := p.Format(testStruct{M: map[string]map[string]int{"key1": {"key1": 1, "key2": 2}}})
 		require.Equal(t, exp, got)
 	})
 
@@ -119,37 +63,9 @@ func Test_InstanceConfiguration(t *testing.T) {
 		got := p.Format(testStruct{Name: "John", Age: 30})
 		require.Equal(t, exp, got)
 	})
-
-	t.Run("display_pointer_symbol", func(t *testing.T) {
-		p := New()
-		p.DisplayPointerSymbol(true)
-
-		type testStruct struct {
-			Names *[]string `censor:"display"`
-		}
-
-		exp := `{Names: &[John, Nazar]}`
-		got := p.Format(testStruct{Names: &[]string{"John", "Nazar"}})
-		require.Equal(t, exp, got)
-	})
 }
 
 func Test_GlobalInstanceConfiguration(t *testing.T) {
-	t.Run("display_struct_name", func(t *testing.T) {
-		t.Cleanup(func() { SetGlobalInstance(New()) })
-
-		DisplayStructName(true)
-
-		type testStruct struct {
-			Name string `censor:"display"`
-			Age  int
-		}
-
-		exp := `censor.testStruct{Name: John, Age: [CENSORED]}`
-		got := Format(testStruct{Name: "John", Age: 30})
-		require.Equal(t, exp, got)
-	})
-
 	t.Run("hide_struct_name", func(t *testing.T) {
 		t.Cleanup(func() { SetGlobalInstance(New()) })
 
@@ -160,50 +76,6 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 
 		exp := `{Name: John, Age: [CENSORED]}`
 		got := Format(testStruct{Name: "John", Age: 30})
-		require.Equal(t, exp, got)
-	})
-
-	t.Run("use_json_tag_name", func(t *testing.T) {
-		t.Cleanup(func() { SetGlobalInstance(New()) })
-
-		UseJSONTagName(true)
-
-		type testStruct struct {
-			Name string `json:"name" censor:"display"`
-			Age  int    `json:"age"`
-		}
-
-		exp := `{name: John, age: [CENSORED]}`
-		got := Format(testStruct{Name: "John", Age: 30})
-		require.Equal(t, exp, got)
-	})
-
-	t.Run("custom_mask_value", func(t *testing.T) {
-		t.Cleanup(func() { SetGlobalInstance(New()) })
-
-		SetMaskValue(`[REDACTED]`)
-
-		type testStruct struct {
-			Name string `censor:"display"`
-			Age  int
-		}
-
-		exp := `{Name: John, Age: [REDACTED]}`
-		got := Format(testStruct{Name: "John", Age: 30})
-		require.Equal(t, exp, got)
-	})
-
-	t.Run("display_map_type", func(t *testing.T) {
-		t.Cleanup(func() { SetGlobalInstance(New()) })
-
-		DisplayMapType(true)
-
-		type testStruct struct {
-			M map[string]map[string]int `censor:"display"`
-		}
-
-		exp := `{M: map[string]map[string]int[key1: map[string]int[key1: 1, key2: 2]]}`
-		got := Format(testStruct{M: map[string]map[string]int{"key1": {"key1": 1, "key2": 2}}})
 		require.Equal(t, exp, got)
 	})
 
@@ -234,20 +106,6 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 		got := Format(testStruct{Name: "John", Age: 30})
 		require.Equal(t, exp, got)
 	})
-
-	t.Run("display_pointer_symbol", func(t *testing.T) {
-		t.Cleanup(func() { SetGlobalInstance(New()) })
-
-		DisplayPointerSymbol(true)
-
-		type testStruct struct {
-			Names *[]string `censor:"display"`
-		}
-
-		exp := `{Names: &[John, Nazar]}`
-		got := Format(testStruct{Names: &[]string{"John", "Nazar"}})
-		require.Equal(t, exp, got)
-	})
 }
 
 func Test_GetGlobalInstance(t *testing.T) {
@@ -257,58 +115,39 @@ func Test_GetGlobalInstance(t *testing.T) {
 func Test_SetGlobalInstance(t *testing.T) {
 	t.Cleanup(func() { SetGlobalInstance(New()) })
 
-	p := New()
-	p.SetMaskValue("[REDACTED]")
+	p := NewWithConfig(config.Config{
+		Formatter: config.Formatter{
+			MaskValue: "[censored]",
+		},
+	})
 
 	SetGlobalInstance(p)
 
-	require.EqualValues(t, globalInstance, p)
+	type testStruct struct {
+		Email string
+	}
+
+	v := testStruct{Email: "test@exxample.com"}
+
+	require.EqualValues(t, globalInstance.Format(v), p.Format(v))
 }
 
-func TestGlobalExcludePatterns(t *testing.T) {
+func TestExcludePatterns(t *testing.T) {
 	t.Cleanup(func() { SetGlobalInstance(New()) })
 
+	p := NewWithConfig(config.Config{
+		Formatter: config.Formatter{
+			MaskValue:       "[CENSORED]",
+			ExcludePatterns: []string{`\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`},
+		},
+	})
+
+	SetGlobalInstance(p)
+
 	type testStruct struct {
-		Name  string `censor:"display"`
 		Email string `censor:"display"`
 	}
 
-	v := []testStruct{
-		{Name: "John", Email: "test@exxample.com"},
-		{Name: "John2", Email: "secondtest@exxample.com"},
-		{Name: "John Password", Email: "thirdtest@exxample.com"},
-	}
-	exp := `[{Name: John, Email: test@exxample.com}, {Name: John2, Email: secondtest@exxample.com}, {Name: John Password, Email: thirdtest@exxample.com}]`
-	require.Equal(t, exp, Format(v))
-
-	AddExcludePatterns(`\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`)
-	exp = `[{Name: John, Email: [CENSORED]}, {Name: John2, Email: [CENSORED]}, {Name: John Password, Email: [CENSORED]}]`
-	require.Equal(t, exp, Format(v))
-
-	AddExcludePatterns(`(?i)password`)
-	exp = `[{Name: John, Email: [CENSORED]}, {Name: John2, Email: [CENSORED]}, {Name: [CENSORED], Email: [CENSORED]}]`
-	require.Equal(t, exp, Format(v))
-}
-
-func TestInstanceExcludePatterns(t *testing.T) {
-	type testStruct struct {
-		Name  string `censor:"display"`
-		Email string `censor:"display"`
-	}
-	p := New()
-	v := []testStruct{
-		{Name: "John", Email: "test@exxample.com"},
-		{Name: "John2", Email: "secondtest@exxample.com"},
-		{Name: "John Password", Email: "thirdtest@exxample.com"},
-	}
-	exp := `[{Name: John, Email: test@exxample.com}, {Name: John2, Email: secondtest@exxample.com}, {Name: John Password, Email: thirdtest@exxample.com}]`
-	require.Equal(t, exp, p.Format(v))
-
-	p.AddExcludePatterns(`\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`)
-	exp = `[{Name: John, Email: [CENSORED]}, {Name: John2, Email: [CENSORED]}, {Name: John Password, Email: [CENSORED]}]`
-	require.Equal(t, exp, p.Format(v))
-
-	p.AddExcludePatterns(`(?i)password`)
-	exp = `[{Name: John, Email: [CENSORED]}, {Name: John2, Email: [CENSORED]}, {Name: [CENSORED], Email: [CENSORED]}]`
-	require.Equal(t, exp, p.Format(v))
+	exp := `{Email: [CENSORED]}`
+	require.Equal(t, exp, p.Format(testStruct{Email: "test@exxample.com"}))
 }

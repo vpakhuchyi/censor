@@ -70,34 +70,6 @@ func (f *Formatter) compileExcludePatterns() {
 	}
 }
 
-// SetMaskValue sets a value that will be used to mask struct fields.
-func (f *Formatter) SetMaskValue(mask string) {
-	f.maskValue = mask
-}
-
-// DisplayPointerSymbol sets whether to display the '&' (pointer symbol) before the pointed value.
-func (f *Formatter) DisplayPointerSymbol(v bool) {
-	f.displayPointerSymbol = v
-}
-
-// DisplayStructName sets whether to display the name of the struct.
-func (f *Formatter) DisplayStructName(v bool) {
-	f.displayStructName = v
-}
-
-// DisplayMapType sets whether to display map type in the output.
-func (f *Formatter) DisplayMapType(v bool) {
-	f.displayMapType = v
-}
-
-// AddExcludePatterns adds regexp patterns that are used for the selection of strings that must be masked.
-// Regexp patterns compilation will be triggered automatically after adding new patterns.
-// Note: this method may panic if regexp pattern is invalid.
-func (f *Formatter) AddExcludePatterns(patterns ...string) {
-	f.excludePatterns = append(f.excludePatterns, patterns...)
-	f.compileExcludePatterns()
-}
-
 //nolint:exhaustive,gocyclo
 func (f *Formatter) writeValue(buf *strings.Builder, v models.Value) {
 	switch v.Kind {
