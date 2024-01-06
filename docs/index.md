@@ -173,14 +173,14 @@ All the configuration options are available in both ways.
 
 Table below shows the names of the configuration options:
 
-| Go name | YML name          | Default value| Description                                                                  |
-| --- |-------------------| --- |------------------------------------------------------------------------------|
-| UseJSONTagName | use-json-tag-name | false | If true, the JSON tag name will be used instead of the Go struct field name. |
-| MaskValue | mask-value | [CENSORED] | The value that will be used to mask the sensitive information.               |
-| DisplayStructName | display-struct-name | false | If true, the struct name will be displayed in the output.                    |
-| DisplayMapType | display-map-type | false | If true, the map type will be displayed in the output.                       |
-| DisplayPointerSymbol | display-pointer-symbol | false | If true, '&' (the pointer symbol) will be displayed in the output.           |
-| ExcludePatterns | exclude-patterns | [] | A list of regular expressions that will be compared against all the string values. <br/>If a value matches any of the patterns, it will be masked.|
+| Go name              | YML name               | Default value  | Description                                                                                                                                        |
+|----------------------|------------------------|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| UseJSONTagName       | use-json-tag-name      | false          | If true, the JSON tag name will be used instead of the Go struct field name.                                                                       |
+| MaskValue            | mask-value             | [CENSORED]     | The value that will be used to mask the sensitive information.                                                                                     |
+| DisplayStructName    | display-struct-name    | false          | If true, the struct name will be displayed in the output.                                                                                          |
+| DisplayMapType       | display-map-type       | false          | If true, the map type will be displayed in the output.                                                                                             |
+| DisplayPointerSymbol | display-pointer-symbol | false          | If true, '&' (the pointer symbol) will be displayed in the output.                                                                                 |
+| ExcludePatterns      | exclude-patterns       | []             | A list of regular expressions that will be compared against all the string values. <br/>If a value matches any of the patterns, it will be masked. |
 
 
 ### Using the `config.Config` struct
