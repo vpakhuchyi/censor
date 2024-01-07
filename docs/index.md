@@ -28,7 +28,6 @@ go get -u github.com/vpakhuchyi/censor
 - [x] Customizable configuration:
     - Using `.ymal` file
     - Passing `config.Config` struct
-    - Using package-level functions or instance-level methods
 
 ## Usage
 
@@ -82,7 +81,7 @@ func main() {
 ### Strings formatting based on provided regexp patterns
 
 By default, *censor* operates without any exclude patterns. However, you have the flexibility to enhance its
-functionality by incorporating exclude patterns through the `censor.AddExcludePatterns` function.
+functionality by incorporating exclude patterns through the `ExcludePatterns` configuration option.
 
 When exclude patterns are introduced, encapsulated formatters compares all string values against the specified patterns,
 masking those that match. This capability proves invaluable when, for instance, you want to conceal all email addresses
@@ -100,35 +99,37 @@ import (
   "log/slog"
 
   "github.com/vpakhuchyi/censor"
+  "github.com/vpakhuchyi/censor/config"
 )
 
 type request struct {
   UserID   string `censor:"display"`
-  Email    string
-  FullName string
+  Email    string `censor:"display"`
 }
 
 func main() {
   // This is a regular expression that matches email addresses.
   const emailPattern = `(?P<email>[\w.%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,4})`
 
-  // We can add exclude patterns to censor to make sure that the values that match the pattern will be masked.
-  censor.AddExcludePatterns(emailPattern)
-
-  v := []interface{}{
-    "Buzyna",
-    request{
-      UserID:   "001",
-      Email:    "viktor.example.email@ggmail.com", // Masked by default because of the lack of "censor:"display"" tag.
-      FullName: "Viktor Pakhuchyi",
+  cfg := config.Config{
+    Formatter: config.Formatter{
+      MaskValue: "[CENSORED]",
+      // We can add exclude patterns to censor to make sure that the values that match the pattern will be masked.
+      ExcludePatterns: []string{emailPattern},
     },
-    []string{"one", "two", "ivan.example.email@ggmail.com"}, // Masked because of the exclude pattern.
-    "mykola.more.example.email@ggmail.com",                  // Masked because of the exclude pattern.
   }
 
+  // Create a new instance of censor.Processor with the specified configuration and set it as a global processor.
+  censor.SetGlobalProcessor(censor.NewWithConfig(cfg))
+  
+  v := request{
+    UserID:   "001",
+    Email:    "viktor.example.email@ggmail.com",
+  }
+  
   slog.Info("Request", "payload", censor.Format(v))
   // Here is what we'll see in the log:
-  // Output: `2038/10/25 12:00:01 INFO Request payload=[Buzyna, {UserID: 001, Email: [CENSORED], FullName: [CENSORED]}, [one, two, [CENSORED]], [CENSORED]]`
+  // Output: `2038/10/25 12:00:01 INFO Request payload={UserID: 001, Email: [CENSORED]}`
 }
 
 ```
@@ -167,19 +168,20 @@ integration that best suits your application's requirements.
 
 ## Configuration
 
-### Functions and methods
-All configuration options can be set using the package-level functions as shown below. At the same time, you can create
-a new instance of `censor.Processor` and use its methods to configure it. All of these options are available with both
-local and global instances.
+Censor supports two ways of configuration: using the `config.Config` struct and providing a `.yml` configuration file.
+All the configuration options are available in both ways.
 
-| Global option                                 | Description                                                                      |
-|-----------------------------------------------|----------------------------------------------------------------------------------|
-| censor.SetMaskValue(s string)                 | Set custom mask value instead of default `[CENSORED]`.                           |
-| censor.UseJSONTagName(b bool)                 | Use JSON tag name instead of struct field name.                                  |
-| censor.DisplayPointerSymbol(b bool)           | Display '&' (pointer symbol) before the pointed value in the output.             |
-| censor.DisplayStructName(b bool)              | Display struct name (including the last part of the package path) in the output. |
-| censor.DisplayMapType(b bool)                 | Display map type in the output.                                                  |
-| censor.AddExcludePatterns(patterns ...string) | Add regexp patterns for matched strings values masking.                          |
+Table below shows the names of the configuration options:
+
+| Go name              | YML name               | Default value  | Description                                                                                                                                        |
+|----------------------|------------------------|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| UseJSONTagName       | use-json-tag-name      | false          | If true, the JSON tag name will be used instead of the Go struct field name.                                                                       |
+| MaskValue            | mask-value             | [CENSORED]     | The value that will be used to mask the sensitive information.                                                                                     |
+| DisplayStructName    | display-struct-name    | false          | If true, the struct name will be displayed in the output.                                                                                          |
+| DisplayMapType       | display-map-type       | false          | If true, the map type will be displayed in the output.                                                                                             |
+| DisplayPointerSymbol | display-pointer-symbol | false          | If true, '&' (the pointer symbol) will be displayed in the output.                                                                                 |
+| ExcludePatterns      | exclude-patterns       | []             | A list of regular expressions that will be compared against all the string values. <br/>If a value matches any of the patterns, it will be masked. |
+
 
 ### Using the `config.Config` struct
 
@@ -189,19 +191,11 @@ It's possible to define a configuration using `config.Config` struct:
 package main
 
 import (
-  "log/slog"
-
   "github.com/vpakhuchyi/censor"
   "github.com/vpakhuchyi/censor/config"
 )
 
-type user struct {
-  ID    string `censor:"display"`
-  Email string `censor:"display"`
-}
-
 func main() {
-  // Describe the configuration.
   cfg := config.Config{
     Parser: config.Parser{
       UseJSONTagName: false,
@@ -210,30 +204,18 @@ func main() {
       MaskValue:         "[####]",
       DisplayStructName: false,
       DisplayMapType:    false,
-      // ExcludePatterns is a list of regular expressions that will be used to exclude fields from masking.
-      // In this example we're masking all the email addresses.
-      ExcludePatterns: []string{`\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`},
+      ExcludePatterns:   []string{`\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`},
     },
   }
 
-  // Create a new instance of censor.Processor with the specified configuration.
   p := censor.NewWithConfig(cfg)
-
-  v := []user{
-    {ID: "123", Email: "user1@exxample.com"},
-    {ID: "456", Email: "user2@exxample.com"},
-  }
-
-  slog.Info("Request", "payload", p.Format(v))
-  // Here is what we'll see in the log:
-  // Output: `2038/10/25 12:00:01 INFO Request payload=[{ID: 123, Email: [####]}, {ID: 456, Email: [####]}]`
 }
 
 ```
 
 ### Providing `.yml` configuration file
 
-It's also possible to provide a configuration file in `.yml` format. In this case, you can use the `./cfg_mexample.yml` 
+It's also possible to provide a configuration file in `.yml` format. In this case, you can use the `./cfg_example.yml` 
 file as an example:
 
 ```go
@@ -311,6 +293,7 @@ import (
   "log/slog"
 
   "github.com/vpakhuchyi/censor"
+  "github.com/vpakhuchyi/censor/config"
 )
 
 type user struct {
@@ -319,26 +302,31 @@ type user struct {
   FullName string
 }
 
-// This is a regular expression that matches email addresses.
-const emailPattern = `(?P<email>[\w.%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,4})`
-
 func main() {
-  censor.AddExcludePatterns(emailPattern)
+  cfg := config.Config{
+    Formatter: config.Formatter{
+      MaskValue: config.DefaultMaskValue,
+      // This is a regular expression that matches email addresses.
+      ExcludePatterns: []string{`(?P<email>[\w.%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,4})`},
+    },
+  }
+
+  p := censor.NewWithConfig(cfg)
 
   v := map[user][]string{
     user{ID: "aaf42135", Balance: 1101, FullName: "Viktor Pakhuchyi"}: []string{"example1.email@ggmail.com", "example2.email@ggmail.com"},
     user{ID: "456mlkn", Balance: 999999, FullName: "Bruce Wayne"}:     []string{"wayne.day.email@ggmail.com", "wayne.night.email@ggmail.com"},
   }
 
-  slog.Info("Request", "payload", censor.Format(v))
+  slog.Info("Request", "payload", p.Format(v))
   // Here is what we'll see in the log:
   //Output: `2038/10/25 12:00:01 INFO Request payload=map[{ID: 456mlkn, Balance: 999999, FullName: [CENSORED]}: [[CENSORED], [CENSORED]], {ID: aaf42135, Balance: 1101, FullName: [CENSORED]}: [[CENSORED], [CENSORED]]]`
 }
 
 ```
 
-There is also an option to display the map type in the output. To do this, you need to set
-the `censor.DisplayMapType(b bool)` option. In this case, the output will look like this:
+There is also an option to display the map type in the output. To do this, you need to enable the `DisplayMapType` 
+option in the configuration struct or file. In such a case, the output will look like this:
 
 ```go
 package main
@@ -347,17 +335,25 @@ import (
   "log/slog"
 
   "github.com/vpakhuchyi/censor"
+  "github.com/vpakhuchyi/censor/config"
 )
 
 func main() {
-  censor.DisplayMapType(true)
+  cfg := config.Config{
+    Formatter: config.Formatter{
+      MaskValue:      config.DefaultMaskValue,
+      DisplayMapType: true,
+    },
+  }
+
+  p := censor.NewWithConfig(cfg)
 
   v := map[string]int{
     "one": 1,
     "two": 2,
   }
 
-  slog.Info("Request", "payload", censor.Format(v))
+  slog.Info("Request", "payload", p.Format(v))
   // Here is what we'll see in the log:
   //Output: `2038/10/25 12:00:01 INFO Request payload=map[string]int[one: 1, two: 2]`
 }
@@ -400,6 +396,7 @@ import (
   "log/slog"
 
   "github.com/vpakhuchyi/censor"
+  "github.com/vpakhuchyi/censor/config"
 )
 
 func main() {
@@ -410,11 +407,19 @@ func main() {
   // Here is what we'll see in the log:
   //Output: `2038/10/25 12:00:01 INFO Request payload=[1, 2, 3]`
 
-  // If you want to display the pointer symbol before the pointed value in the output,
-  // you can use the `censor.DisplayPointerSymbol(b bool)` option. In this case, the output will look like this:
+  cfg := config.Config{
+    Formatter: config.Formatter{
+      MaskValue:            config.DefaultMaskValue,
+      // If you want to display the pointer symbol before the pointed value in the output,
+      // you can use the `DisplayPointerSymbol` configuration option. 
+      // In this case, the output will look like this:
+      DisplayPointerSymbol: true,
+    },
+  }
 
-  censor.DisplayPointerSymbol(true)
-  slog.Info("Request", "payload", censor.Format(v))
+  p := censor.NewWithConfig(cfg)
+
+  slog.Info("Request", "payload", p.Format(v))
   // Here is what we'll see in the log:
   //Output: `2038/10/25 12:00:01 INFO Request payload=&[1, 2, 3]`
 }
@@ -425,9 +430,6 @@ func main() {
 
 By default, string values are handled with no additional formatting.
 
-However, if you want to mask specific values, you can use the `censor.AddExcludePatterns`
-function to add exclude patterns. All string values that match the specified patterns will be masked.
-
 ```go
 package main
 
@@ -435,6 +437,7 @@ import (
   "log/slog"
 
   "github.com/vpakhuchyi/censor"
+  "github.com/vpakhuchyi/censor/config"
 )
 
 // This is a regular expression that matches email addresses.
@@ -447,10 +450,18 @@ func main() {
   // Here is what we'll see in the log:
   //Output: `2038/10/25 12:00:01 INFO Request payload = example1.email@ggmail.com`
 
-  // Add the pattern to the list of patterns to be excluded from the log.
-  censor.AddExcludePatterns(emailPattern)
+  // If you want to mask specific values, you can use the `ExcludePatterns` configuration option
+  // to add exclude patterns. All string values that match the specified patterns will be masked.
+  cfg := config.Config{
+    Formatter: config.Formatter{
+      MaskValue:       config.DefaultMaskValue,
+      ExcludePatterns: []string{emailPattern},
+    },
+  }
 
-  slog.Info("Request", "payload", censor.Format(v))
+  p := censor.NewWithConfig(cfg)
+
+  slog.Info("Request", "payload", p.Format(v))
   // Here is what we'll see in the log:
   //Output: `2038/10/25 12:00:01 INFO Request payload = "[CENSORED]"`
 }

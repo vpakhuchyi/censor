@@ -78,44 +78,6 @@ func (p *Processor) Format(val any) string {
 	return p.format(v.Kind(), p.parse(v))
 }
 
-// SetMaskValue sets a value that will be used to mask struct fields.
-// The default value is stored in the config.DefaultMaskValue constant.
-func (p *Processor) SetMaskValue(maskValue string) {
-	p.formatter.SetMaskValue(maskValue)
-}
-
-// UseJSONTagName sets whether to use the `json` tag to get the name of the struct field.
-// If no `json` tag is present, the name of the struct field is used.
-// By default, this option is disabled.
-func (p *Processor) UseJSONTagName(v bool) {
-	p.parser.UseJSONTagName(v)
-}
-
-// DisplayPointerSymbol sets whether to display the '&' (pointer symbol) before the pointed value.
-// By default, this option is disabled.
-func (p *Processor) DisplayPointerSymbol(v bool) {
-	p.formatter.DisplayPointerSymbol(v)
-}
-
-// DisplayStructName sets whether to display the name of the struct.
-// By default, this option is disabled.
-func (p *Processor) DisplayStructName(v bool) {
-	p.formatter.DisplayStructName(v)
-}
-
-// DisplayMapType sets whether to display map type in the output.
-// By default, this option is disabled.
-func (p *Processor) DisplayMapType(v bool) {
-	p.formatter.DisplayMapType(v)
-}
-
-// AddExcludePatterns adds regexp patterns that are used for the selection of strings that must be masked.
-// Regexp patterns compilation will be triggered automatically after adding new patterns.
-// Note: this method may panic if regexp pattern is invalid.
-func (p *Processor) AddExcludePatterns(patterns ...string) {
-	p.formatter.AddExcludePatterns(patterns...)
-}
-
 //nolint:exhaustive
 func (p *Processor) parse(v reflect.Value) any {
 	switch k := v.Kind(); k {
