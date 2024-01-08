@@ -2,6 +2,7 @@ package censor
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 
@@ -61,6 +62,17 @@ func Test_InstanceConfiguration(t *testing.T) {
 
 		exp := `censor.testStruct{Name: John, age: 30}`
 		got := p.Format(testStruct{Name: "John", Age: 30})
+		require.Equal(t, exp, got)
+	})
+
+	t.Run("time_text_marshaler", func(t *testing.T) {
+		p := New()
+
+		tm, err := time.Parse(time.DateOnly, "2021-01-02")
+		require.NoError(t, err)
+
+		exp := `2021-01-02T00:00:00Z`
+		got := p.Format(tm)
 		require.Equal(t, exp, got)
 	})
 }

@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"encoding"
 	"fmt"
 	"reflect"
 	"strings"
@@ -13,7 +14,7 @@ import (
 // All supported complex types will be parsed recursively.
 // Note: all unexported fields will be ignored.
 //
-//nolint:exhaustive,gocyclo
+//nolint:exhaustive,gocyclo,funlen,gocognit
 func (p *Parser) Struct(rv reflect.Value) models.Struct {
 	if rv.Kind() != reflect.Struct {
 		panic("provided value is not a struct")
@@ -49,7 +50,13 @@ func (p *Parser) Struct(rv reflect.Value) models.Struct {
 
 		switch k := field.Kind; k {
 		case reflect.Struct:
-			field.Value = models.Value{Value: p.Struct(f), Kind: reflect.Struct}
+			// If a field implements encoding.TextMarshaler interface, then it should be marshaled to string.
+			if v, ok := f.Interface().(encoding.TextMarshaler); ok {
+				field.Kind = reflect.String
+				field.Value = models.Value{Value: PrepareTextMarshalerValue(v), Kind: reflect.String}
+			} else {
+				field.Value = models.Value{Value: p.Struct(f), Kind: reflect.Struct}
+			}
 		case reflect.Pointer:
 			field.Value = models.Value{Value: p.Ptr(f), Kind: reflect.Pointer}
 		case reflect.Slice, reflect.Array:
@@ -84,4 +91,14 @@ func getStructName(structValue reflect.Value) string {
 	pkg := strings.Split(t.PkgPath(), "/")
 
 	return fmt.Sprintf("%s.%s", pkg[len(pkg)-1], t.Name())
+}
+
+// PrepareTextMarshalerValue marshals a value that implements [encoding.TextMarshaler] interface to string.
+func PrepareTextMarshalerValue(tm encoding.TextMarshaler) string {
+	data, err := tm.MarshalText()
+	if err != nil {
+		return fmt.Sprintf("!ERROR:%v", err)
+	}
+
+	return string(data)
 }
