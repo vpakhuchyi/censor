@@ -597,3 +597,39 @@ There is no specific formatting for the following types:
 - Bool
 
 Rules of fmt package are applied to them.
+
+### Unsupported types
+
+There are a few types that are not supported by Censor. In case of such types, the output will contain the string
+of the following format: `[Unsupported type: <type>]` - where `<type>` is the type of the value.
+
+```go
+package main
+
+import (
+  "log/slog"
+
+  "github.com/vpakhuchyi/censor"
+)
+
+type s struct {
+  Chan          chan int       `censor:"display"`
+  Func          func()         `censor:"display"`
+  UnsafePointer unsafe.Pointer `censor:"display"`
+  UintPtr       uintptr        `censor:"display"`
+}
+
+func main() {
+  v := s{
+    Chan:          make(chan int),
+    Func:          func() {},
+    UnsafePointer: unsafe.Pointer(uintptr(1)),
+    UintPtr:       uintptr(1),
+  }
+
+  slog.Info("Request", "payload", censor.Format(v))
+  // Here is what we'll see in the log:
+  //Output: `2038/10/25 12:00:01 INFO Request payload={Chan: [Unsupported type: chan], Func: [Unsupported type: func], UnsafePointer: [Unsupported type: unsafe.Pointer], UintPtr: [Unsupported type: uintptr]}`
+}
+
+```
