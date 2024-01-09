@@ -103,8 +103,8 @@ import (
 )
 
 type request struct {
-  UserID   string `censor:"display"`
-  Email    string `censor:"display"`
+  UserID string `censor:"display"`
+  Email  string `censor:"display"`
 }
 
 func main() {
@@ -121,12 +121,12 @@ func main() {
 
   // Create a new instance of censor.Processor with the specified configuration and set it as a global processor.
   censor.SetGlobalProcessor(censor.NewWithConfig(cfg))
-  
+
   v := request{
-    UserID:   "001",
-    Email:    "viktor.example.email@ggmail.com",
+    UserID: "001",
+    Email:  "viktor.example.email@ggmail.com",
   }
-  
+
   slog.Info("Request", "payload", censor.Format(v))
   // Here is what we'll see in the log:
   // Output: `2038/10/25 12:00:01 INFO Request payload={UserID: 001, Email: [CENSORED]}`
@@ -173,15 +173,15 @@ All the configuration options are available in both ways.
 
 Table below shows the names of the configuration options:
 
-| Go name              | YML name               | Default value  | Description                                                                                                                                        |
-|----------------------|------------------------|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
-| UseJSONTagName       | use-json-tag-name      | false          | If true, the JSON tag name will be used instead of the Go struct field name.                                                                       |
-| MaskValue            | mask-value             | [CENSORED]     | The value that will be used to mask the sensitive information.                                                                                     |
-| DisplayStructName    | display-struct-name    | false          | If true, the struct name will be displayed in the output.                                                                                          |
-| DisplayMapType       | display-map-type       | false          | If true, the map type will be displayed in the output.                                                                                             |
-| DisplayPointerSymbol | display-pointer-symbol | false          | If true, '&' (the pointer symbol) will be displayed in the output.                                                                                 |
-| ExcludePatterns      | exclude-patterns       | []             | A list of regular expressions that will be compared against all the string values. <br/>If a value matches any of the patterns, it will be masked. |
-
+| Go name              | YML name               | Default value | Description                                                                                                                                        |
+|----------------------|------------------------|---------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| PrintConfigOnInit    | print-config-on-init   | true          | If true, the configuration will be printed when any of available constructors is used.                                                             |
+| UseJSONTagName       | use-json-tag-name      | false         | If true, the JSON tag name will be used instead of the Go struct field name.                                                                       |
+| MaskValue            | mask-value             | [CENSORED]    | The value that will be used to mask the sensitive information.                                                                                     |
+| DisplayStructName    | display-struct-name    | false         | If true, the struct name will be displayed in the output.                                                                                          |
+| DisplayMapType       | display-map-type       | false         | If true, the map type will be displayed in the output.                                                                                             |
+| DisplayPointerSymbol | display-pointer-symbol | false         | If true, '&' (the pointer symbol) will be displayed in the output.                                                                                 |
+| ExcludePatterns      | exclude-patterns       | []            | A list of regular expressions that will be compared against all the string values. <br/>If a value matches any of the patterns, it will be masked. |
 
 ### Using the `config.Config` struct
 
@@ -215,7 +215,7 @@ func main() {
 
 ### Providing `.yml` configuration file
 
-It's also possible to provide a configuration file in `.yml` format. In this case, you can use the `./cfg_example.yml` 
+It's also possible to provide a configuration file in `.yml` format. In this case, you can use the `./cfg_example.yml`
 file as an example:
 
 ```go
@@ -227,7 +227,7 @@ import (
 
 func main() {
   pathToConfigFile := "./cfg_example.yml"
-  
+
   // Create a new instance of censor.Processor with the configuration file usage.
   p, err := censor.NewWithFileConfig(pathToConfigFile)
   if err != nil {
@@ -325,7 +325,7 @@ func main() {
 
 ```
 
-There is also an option to display the map type in the output. To do this, you need to enable the `DisplayMapType` 
+There is also an option to display the map type in the output. To do this, you need to enable the `DisplayMapType`
 option in the configuration struct or file. In such a case, the output will look like this:
 
 ```go
@@ -409,7 +409,7 @@ func main() {
 
   cfg := config.Config{
     Formatter: config.Formatter{
-      MaskValue:            config.DefaultMaskValue,
+      MaskValue: config.DefaultMaskValue,
       // If you want to display the pointer symbol before the pointed value in the output,
       // you can use the `DisplayPointerSymbol` configuration option. 
       // In this case, the output will look like this:
@@ -470,8 +470,8 @@ func main() {
 
 ### Float64/Float32
 
-Due to the way Go runtime works, `float64` and `float32` types values are not always kept as the original values. 
-For example, the value `99.123456789123456789` will be stored as `99.12345678912345` for `float64` type and as 
+Due to the way Go runtime works, `float64` and `float32` types values are not always kept as the original values.
+For example, the value `99.123456789123456789` will be stored as `99.12345678912345` for `float64` type and as
 `99.12346` for `float32` type. That's before any formatting is applied.
 
 Talking about formatting, there are a few strategies that we could use to display float values.

@@ -30,20 +30,8 @@ type Formatter struct {
 	excludePatternsCompiled []*regexp.Regexp
 }
 
-// New returns a new instance of Formatter with default configuration.
-func New() *Formatter {
-	return &Formatter{
-		maskValue:               config.DefaultMaskValue,
-		displayPointerSymbol:    false,
-		displayStructName:       false,
-		displayMapType:          false,
-		excludePatterns:         nil,
-		excludePatternsCompiled: nil,
-	}
-}
-
-// NewWithConfig returns a new instance of Formatter with given configuration.
-func NewWithConfig(cfg config.Formatter) *Formatter {
+// New returns a new instance of Formatter with given configuration.
+func New(cfg config.Formatter) *Formatter {
 	f := Formatter{
 		maskValue:            cfg.MaskValue,
 		displayPointerSymbol: cfg.DisplayPointerSymbol,

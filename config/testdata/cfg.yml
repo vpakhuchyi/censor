@@ -1,8 +1,12 @@
+general:
+    print-config-on-init: true
 parser:
-  use-json-tag-name: true
+    use-json-tag-name: true
 formatter:
-  mask-value: '[CENSORED]'
-  display-pointer-symbol: true
-  display-struct-name: true
-  display-map-type: true
-  exclude-patterns: [ '\d' ]
+    mask-value: '[CENSORED]'
+    display-pointer-symbol: true
+    display-struct-name: true
+    display-map-type: true
+    exclude-patterns:
+        - \d
+        - ^\w$
