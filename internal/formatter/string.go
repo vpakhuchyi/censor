@@ -15,8 +15,8 @@ func (f *Formatter) String(v models.Value) string {
 
 	if len(f.excludePatterns) != 0 {
 		for _, pattern := range f.excludePatternsCompiled {
-			if pattern.MatchString(v.Value.(string)) {
-				return f.maskValue
+			if s, ok := v.Value.(string); ok && pattern.MatchString(s) {
+				return pattern.ReplaceAllString(s, f.maskValue)
 			}
 		}
 	}

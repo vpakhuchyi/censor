@@ -2,6 +2,7 @@ package formatter
 
 import (
 	"reflect"
+	"regexp"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -36,19 +37,19 @@ func TestFormatter_Slice(t *testing.T) {
 			maskValue:               config.DefaultMaskValue,
 			displayStructName:       false,
 			displayMapType:          false,
-			excludePatterns:         []string{`\d`, `\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`},
-			excludePatternsCompiled: excludePatternsCompiled,
+			excludePatterns:         []string{`[A-Z|a-z]{2}\d{10}`, `\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`},
+			excludePatternsCompiled: []*regexp.Regexp{regexp.MustCompile(`[A-Z|a-z]{2}\d{10}`), compiledRegExpEmail},
 		}
 
 		require.NotPanics(t, func() {
 			v := models.Slice{
 				Values: []models.Value{
-					{Value: "hell0", Kind: reflect.String},
+					{Value: "text with IBAN: UA1234567890 that must not be shown", Kind: reflect.String},
 					{Value: "hello", Kind: reflect.String},
 				},
 			}
 			got := f.Slice(v)
-			exp := "[[CENSORED], hello]"
+			exp := "[text with IBAN: [CENSORED] that must not be shown, hello]"
 			require.Equal(t, exp, got)
 		})
 	})

@@ -84,7 +84,7 @@ By default, *censor* operates without any exclude patterns. However, you have th
 functionality by incorporating exclude patterns through the `ExcludePatterns` configuration option.
 
 When exclude patterns are introduced, encapsulated formatters compares all string values against the specified patterns,
-masking those that match. This capability proves invaluable when, for instance, you want to conceal all email addresses
+masking matched parts of such strings. This capability proves invaluable when, for instance, you want to conceal all email addresses
 within a set of strings. Simply add an email address pattern, and `censor.Format()` will automatically mask all values
 conforming to that pattern. This ensures that even as new values are added in the future, they will be seamlessly
 handled.
@@ -102,34 +102,35 @@ import (
   "github.com/vpakhuchyi/censor/config"
 )
 
-type request struct {
-  UserID string `censor:"display"`
-  Email  string `censor:"display"`
+type email struct {
+  Text string `censor:"display"`
 }
 
 func main() {
   // This is a regular expression that matches email addresses.
   const emailPattern = `(?P<email>[\w.%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,4})`
 
+  // This regular expression matches IBANs.
+  const ibanPattern = `([A-Z]{2}[0-9]{27})`
+
   cfg := config.Config{
     Formatter: config.Formatter{
-      MaskValue: "[CENSORED]",
+      MaskValue: config.DefaultMaskValue,
       // We can add exclude patterns to censor to make sure that the values that match the pattern will be masked.
-      ExcludePatterns: []string{emailPattern},
+      ExcludePatterns: []string{emailPattern, ibanPattern},
     },
   }
 
   // Create a new instance of censor.Processor with the specified configuration and set it as a global processor.
   censor.SetGlobalProcessor(censor.NewWithConfig(cfg))
 
-  v := request{
-    UserID: "001",
-    Email:  "viktor.example.email@ggmail.com",
-  }
+  const msg = `Here are the details of your account: email=user.example.email@ggmail.com, IBAN=UA123456789123456789123456789`
+
+  v := email{Text: msg}
 
   slog.Info("Request", "payload", censor.Format(v))
   // Here is what we'll see in the log:
-  // Output: `2038/10/25 12:00:01 INFO Request payload={UserID: 001, Email: [CENSORED]}`
+  // Output: `2038/10/25 12:00:01 INFO Request payload={Text: Here are the details of your account: email=[CENSORED], IBAN=[CENSORED]}`
 }
 
 ```
@@ -173,15 +174,15 @@ All the configuration options are available in both ways.
 
 Table below shows the names of the configuration options:
 
-| Go name              | YML name               | Default value | Description                                                                                                                                        |
-|----------------------|------------------------|---------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
-| PrintConfigOnInit    | print-config-on-init   | true          | If true, the configuration will be printed when any of available constructors is used.                                                             |
-| UseJSONTagName       | use-json-tag-name      | false         | If true, the JSON tag name will be used instead of the Go struct field name.                                                                       |
-| MaskValue            | mask-value             | [CENSORED]    | The value that will be used to mask the sensitive information.                                                                                     |
-| DisplayStructName    | display-struct-name    | false         | If true, the struct name will be displayed in the output.                                                                                          |
-| DisplayMapType       | display-map-type       | false         | If true, the map type will be displayed in the output.                                                                                             |
-| DisplayPointerSymbol | display-pointer-symbol | false         | If true, '&' (the pointer symbol) will be displayed in the output.                                                                                 |
-| ExcludePatterns      | exclude-patterns       | []            | A list of regular expressions that will be compared against all the string values. <br/>If a value matches any of the patterns, it will be masked. |
+| Go name              | YML name               | Default value   | Description                                                                                                                                                  |
+|----------------------|------------------------|-----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| PrintConfigOnInit    | print-config-on-init   | true            | If true, the configuration will be printed when any of available constructors is used.                                                                       |
+| UseJSONTagName       | use-json-tag-name      | false           | If true, the JSON tag name will be used instead of the Go struct field name.                                                                                 |
+| MaskValue            | mask-value             | [CENSORED]      | The value that will be used to mask the sensitive information.                                                                                               |
+| DisplayStructName    | display-struct-name    | false           | If true, the struct name will be displayed in the output.                                                                                                    |
+| DisplayMapType       | display-map-type       | false           | If true, the map type will be displayed in the output.                                                                                                       |
+| DisplayPointerSymbol | display-pointer-symbol | false           | If true, '&' (the pointer symbol) will be displayed in the output.                                                                                           |
+| ExcludePatterns      | exclude-patterns       | []              | A list of regular expressions that will be compared against all the string values. <br/>If a value matches any of the patterns, that section will be masked. |
 
 ### Using the `config.Config` struct
 
@@ -451,7 +452,7 @@ func main() {
   //Output: `2038/10/25 12:00:01 INFO Request payload = example1.email@ggmail.com`
 
   // If you want to mask specific values, you can use the `ExcludePatterns` configuration option
-  // to add exclude patterns. All string values that match the specified patterns will be masked.
+  // to add exclude patterns. All string values sections that match the specified patterns will be masked.
   cfg := config.Config{
     Formatter: config.Formatter{
       MaskValue:       config.DefaultMaskValue,
