@@ -320,7 +320,7 @@ func TestProcessor_parse(t *testing.T) {
 	t.Run("unsupported_type_chan", func(t *testing.T) {
 		require.NotPanics(t, func() {
 			val := make(chan int)
-			exp := models.Value{Value: "", Kind: reflect.Chan}
+			exp := models.Value{Value: "[Unsupported type: chan]", Kind: reflect.Chan}
 
 			got := p.parse(reflect.ValueOf(val))
 			require.Equal(t, exp, got)
@@ -330,7 +330,7 @@ func TestProcessor_parse(t *testing.T) {
 	t.Run("unsupported_type_func", func(t *testing.T) {
 		require.NotPanics(t, func() {
 			val := func() {}
-			exp := models.Value{Value: "", Kind: reflect.Func}
+			exp := models.Value{Value: "[Unsupported type: func]", Kind: reflect.Func}
 
 			got := p.parse(reflect.ValueOf(val))
 			require.Equal(t, exp, got)
@@ -340,7 +340,7 @@ func TestProcessor_parse(t *testing.T) {
 	t.Run("unsupported_type_unsafe_pointer", func(t *testing.T) {
 		require.NotPanics(t, func() {
 			val := unsafe.Pointer(nil)
-			exp := models.Value{Value: "", Kind: reflect.UnsafePointer}
+			exp := models.Value{Value: "[Unsupported type: unsafe.Pointer]", Kind: reflect.UnsafePointer}
 
 			got := p.parse(reflect.ValueOf(val))
 			require.Equal(t, exp, got)
@@ -349,8 +349,10 @@ func TestProcessor_parse(t *testing.T) {
 
 	t.Run("unsupported_type_uintptr", func(t *testing.T) {
 		require.NotPanics(t, func() {
-			val := uintptr(0)
-			exp := models.Value{Value: "", Kind: reflect.Uintptr}
+
+			var val uintptr = 1374389890440
+
+			exp := models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}
 
 			got := p.parse(reflect.ValueOf(val))
 			require.Equal(t, exp, got)
@@ -652,8 +654,8 @@ func TestProcessor_format(t *testing.T) {
 
 	t.Run("unsupported_type_chan", func(t *testing.T) {
 		require.NotPanics(t, func() {
-			val := models.Value{Value: "", Kind: reflect.Chan}
-			exp := ``
+			val := models.Value{Value: "[Unsupported type: chan]", Kind: reflect.Chan}
+			exp := `[Unsupported type: chan]`
 
 			got := p.format(reflect.Chan, val)
 			require.Equal(t, exp, got)
@@ -662,8 +664,8 @@ func TestProcessor_format(t *testing.T) {
 
 	t.Run("unsupported_type_func", func(t *testing.T) {
 		require.NotPanics(t, func() {
-			val := models.Value{Value: "", Kind: reflect.Func}
-			exp := ``
+			val := models.Value{Value: "[Unsupported type: func]", Kind: reflect.Func}
+			exp := `[Unsupported type: func]`
 
 			got := p.format(reflect.Func, val)
 			require.Equal(t, exp, got)
@@ -672,8 +674,8 @@ func TestProcessor_format(t *testing.T) {
 
 	t.Run("unsupported_type_unsafe_pointer", func(t *testing.T) {
 		require.NotPanics(t, func() {
-			val := models.Value{Value: "", Kind: reflect.UnsafePointer}
-			exp := ``
+			val := models.Value{Value: "[Unsupported type: unsafe.Pointer]", Kind: reflect.Uintptr}
+			exp := `[Unsupported type: unsafe.Pointer]`
 
 			got := p.format(reflect.UnsafePointer, val)
 			require.Equal(t, exp, got)
@@ -682,8 +684,8 @@ func TestProcessor_format(t *testing.T) {
 
 	t.Run("unsupported_type_uintptr", func(t *testing.T) {
 		require.NotPanics(t, func() {
-			val := models.Value{Value: "", Kind: reflect.Uintptr}
-			exp := ``
+			val := models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}
+			exp := `[Unsupported type: uintptr]`
 
 			got := p.format(reflect.Uintptr, val)
 			require.Equal(t, exp, got)

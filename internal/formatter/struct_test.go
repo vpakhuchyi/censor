@@ -77,4 +77,34 @@ func TestFormatter_Struct(t *testing.T) {
 			require.Equal(t, exp, got)
 		})
 	})
+
+	t.Run("with_unsupported_types", func(t *testing.T) {
+		f := Formatter{
+			maskValue:               config.DefaultMaskValue,
+			displayStructName:       false,
+			displayMapType:          false,
+			excludePatterns:         []string{},
+			excludePatternsCompiled: nil,
+		}
+
+		require.NotPanics(t, func() {
+			v := models.Struct{
+				Name: "parser.structWithUnsupportedTypes",
+				Fields: []models.Field{
+					{Name: "ChanWithCensorTag", Value: models.Value{Value: "[Unsupported type: chan]", Kind: reflect.Chan}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Chan},
+					{Name: "Chan", Value: models.Value{Value: "[Unsupported type: chan]", Kind: reflect.Chan}, Opts: options.FieldOptions{Display: false}, Kind: reflect.Chan},
+					{Name: "FuncWithCensorTag", Value: models.Value{Value: "[Unsupported type: func]", Kind: reflect.Func}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Func},
+					{Name: "Func", Value: models.Value{Value: "[Unsupported type: func]", Kind: reflect.Func}, Opts: options.FieldOptions{Display: false}, Kind: reflect.Func},
+					{Name: "UnsafeWithCensorTag", Value: models.Value{Value: "[Unsupported type: unsafe.Pointer]", Kind: reflect.UnsafePointer}, Opts: options.FieldOptions{Display: true}, Kind: reflect.UnsafePointer},
+					{Name: "Unsafe", Value: models.Value{Value: "[Unsupported type: unsafe.Pointer]", Kind: reflect.UnsafePointer}, Opts: options.FieldOptions{Display: false}, Kind: reflect.UnsafePointer},
+					{Name: "UintPtrWithCensorTag", Value: models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Uintptr},
+					{Name: "UintPtr", Value: models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}, Opts: options.FieldOptions{Display: false}, Kind: reflect.Uintptr},
+				},
+			}
+			got := f.Struct(v)
+			exp := `{ChanWithCensorTag: [Unsupported type: chan], Chan: [CENSORED], FuncWithCensorTag: [Unsupported type: func], Func: [CENSORED], UnsafeWithCensorTag: [Unsupported type: unsafe.Pointer], Unsafe: [CENSORED], UintPtrWithCensorTag: [Unsupported type: uintptr], UintPtr: [CENSORED]}`
+			require.Equal(t, exp, got)
+		})
+	})
+
 }
