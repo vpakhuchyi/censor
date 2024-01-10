@@ -11,5 +11,3 @@ Please ensure that your pull request complies with the following requirements:
 
 - [ ] The changes have been tested locally (if applicable).
 - [ ] The documentation has been updated (if applicable).
-- [ ] Reviewers have been added.
-- [ ] Ticket status has been updated.
