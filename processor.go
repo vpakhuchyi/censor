@@ -4,6 +4,9 @@ import (
 	"encoding"
 	"fmt"
 	"reflect"
+	"strings"
+
+	"gopkg.in/yaml.v3"
 
 	"github.com/vpakhuchyi/censor/config"
 	"github.com/vpakhuchyi/censor/internal/formatter"
@@ -15,6 +18,7 @@ import (
 type Processor struct {
 	formatter *formatter.Formatter
 	parser    *parser.Parser
+	cfg       config.Config
 }
 
 // Censor pkg contains a global instance of Processor.
@@ -23,18 +27,29 @@ var globalInstance = New()
 
 // New returns a new instance of Processor with default configuration.
 func New() *Processor {
-	return &Processor{
-		formatter: formatter.New(),
-		parser:    parser.New(),
+	c := config.Default()
+	p := Processor{
+		formatter: formatter.New(c.Formatter),
+		parser:    parser.New(c.Parser),
+		cfg:       c,
 	}
+
+	p.PrintConfig()
+
+	return &p
 }
 
 // NewWithConfig returns a new instance of Processor with given configuration.
 func NewWithConfig(c config.Config) *Processor {
-	return &Processor{
-		formatter: formatter.NewWithConfig(c.Formatter),
-		parser:    parser.NewWithConfig(c.Parser),
+	p := Processor{
+		formatter: formatter.New(c.Formatter),
+		parser:    parser.New(c.Parser),
+		cfg:       c,
 	}
+
+	p.PrintConfig()
+
+	return &p
 }
 
 // NewWithFileConfig returns a new instance of Processor with configuration from a given file.
@@ -83,6 +98,41 @@ func (p *Processor) Format(val any) string {
 	v := reflect.ValueOf(val)
 
 	return p.format(v.Kind(), p.parse(v))
+}
+
+// PrintConfig prints the configuration of the censor Processor.
+func (p *Processor) PrintConfig() {
+	const (
+		lineLength = 69
+		padLength  = 10
+	)
+
+	line := strings.Repeat("-", lineLength) + "\n"
+
+	var b strings.Builder
+	b.WriteString(line)
+	b.WriteString(strings.Repeat(" ", padLength) + "Censor is configured with the following settings:" + "\n")
+	b.WriteString(line)
+
+	cfg := config.Config{
+		General:   p.cfg.General,
+		Parser:    p.cfg.Parser,
+		Formatter: p.cfg.Formatter,
+	}
+
+	// config.Config and its nested fields contain only supported YAML types, so it must be marshalled successfully.
+	// However, if the configuration is changed, it may contain unsupported types. To handle this case,
+	// we have tests that check whether the configuration can be marshalled.
+	// Because such kind of changes can happen only in the development process and considering that such an issue
+	// can't be fixed automatically or by the user, we don't want to fail the application in this case.
+	//
+	//nolint:errcheck
+	d, _ := yaml.Marshal(cfg)
+
+	b.Write(d)
+
+	b.WriteString(line)
+	fmt.Print(b.String())
 }
 
 //nolint:exhaustive

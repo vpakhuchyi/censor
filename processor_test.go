@@ -1,6 +1,7 @@
 package censor
 
 import (
+	"os"
 	"reflect"
 	"testing"
 	"unsafe"
@@ -692,6 +693,9 @@ func TestProcessor_format(t *testing.T) {
 
 func TestNewWithConfig(t *testing.T) {
 	cfg := config.Config{
+		General: config.General{
+			PrintConfigOnInit: true,
+		},
 		Parser: config.Parser{
 			UseJSONTagName: false,
 		},
@@ -705,8 +709,9 @@ func TestNewWithConfig(t *testing.T) {
 	}
 	got := NewWithConfig(cfg)
 	exp := &Processor{
-		formatter: formatter.NewWithConfig(cfg.Formatter),
-		parser:    parser.NewWithConfig(cfg.Parser),
+		formatter: formatter.New(cfg.Formatter),
+		parser:    parser.New(cfg.Parser),
+		cfg:       cfg,
 	}
 
 	require.Equal(t, exp, got)
@@ -720,14 +725,16 @@ func TestNewWithFileConfig(t *testing.T) {
 		require.NoError(t, err)
 
 		want := Processor{
-			formatter: formatter.NewWithConfig(cfg.Formatter),
-			parser:    parser.NewWithConfig(cfg.Parser),
+			formatter: formatter.New(cfg.Formatter),
+			parser:    parser.New(cfg.Parser),
+			cfg:       cfg,
 		}
 
 		p, err := NewWithFileConfig("./config/testdata/cfg.yml")
 		require.NoError(t, err)
 		require.EqualValues(t, want.formatter, p.formatter)
 		require.EqualValues(t, want.parser, p.parser)
+		require.EqualValues(t, want.cfg, p.cfg)
 	})
 
 	t.Run("empty_file_path", func(t *testing.T) {
@@ -753,13 +760,60 @@ func TestNewWithFileConfig(t *testing.T) {
 		t.Cleanup(func() { SetGlobalInstance(New()) })
 
 		want := &Processor{
-			formatter: &formatter.Formatter{},
-			parser:    parser.New(),
+			formatter: formatter.New(config.Formatter{}),
+			parser:    parser.New(config.Parser{}),
 		}
 
 		p, err := NewWithFileConfig("./config/testdata/empty.yml")
 		require.NoError(t, err)
 		require.EqualValues(t, want.formatter, p.formatter)
 		require.EqualValues(t, want.parser, p.parser)
+	})
+}
+
+func TestProcessor_PrintConfig(t *testing.T) {
+	t.Run("successful", func(t *testing.T) {
+		// Open file with valid output.
+		f, err := os.Open("./testdata/valid_config_console_output.txt")
+
+		// Read the expected output.
+		want := make([]byte, 528)
+		_, err = f.Read(want)
+		require.NoError(t, err)
+
+		r, w, err := os.Pipe()
+		require.NoError(t, err)
+
+		// Store previous stdout and replace it with our pipe.
+		stdout := os.Stdout
+		os.Stdout = w
+
+		cfg := config.Config{
+			General: config.General{
+				PrintConfigOnInit: true,
+			},
+			Parser: config.Parser{
+				UseJSONTagName: false,
+			},
+			Formatter: config.Formatter{
+				MaskValue:            config.DefaultMaskValue,
+				DisplayPointerSymbol: true,
+				DisplayStructName:    true,
+				DisplayMapType:       true,
+				ExcludePatterns:      []string{`\d`, `.+@.+`},
+			},
+		}
+
+		p := NewWithConfig(cfg)
+		p.PrintConfig()
+
+		// Restore stdout.
+		os.Stdout = stdout
+
+		// Read from the pipe.
+		got := make([]byte, 528)
+		_, err = r.Read(got)
+		require.NoError(t, err)
+		require.Equal(t, want, got)
 	})
 }
