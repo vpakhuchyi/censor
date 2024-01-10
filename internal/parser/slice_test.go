@@ -3,6 +3,7 @@ package parser
 import (
 	"reflect"
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/require"
 
@@ -288,5 +289,65 @@ func TestParser_Slice(t *testing.T) {
 
 	t.Run("non_slice_value", func(t *testing.T) {
 		require.PanicsWithValue(t, "provided value is not a slice/array", func() { p.Slice(reflect.ValueOf(5.234)) })
+	})
+
+	t.Run("slice_of_chan", func(t *testing.T) {
+		require.NotPanics(t, func() {
+			v := []chan int{make(chan int, 1), make(chan int, 1)}
+			got := p.Slice(reflect.ValueOf(v))
+			exp := models.Slice{
+				Values: []models.Value{
+					{Value: "[Unsupported type: chan]", Kind: reflect.Chan},
+					{Value: "[Unsupported type: chan]", Kind: reflect.Chan},
+				},
+			}
+
+			require.Equal(t, exp, got)
+		})
+	})
+
+	t.Run("slice_of_func", func(t *testing.T) {
+		require.NotPanics(t, func() {
+			v := []func(){func() {}, func() {}}
+			got := p.Slice(reflect.ValueOf(v))
+			exp := models.Slice{
+				Values: []models.Value{
+					{Value: "[Unsupported type: func]", Kind: reflect.Func},
+					{Value: "[Unsupported type: func]", Kind: reflect.Func},
+				},
+			}
+
+			require.Equal(t, exp, got)
+		})
+	})
+
+	t.Run("slice_of_uintptr", func(t *testing.T) {
+		require.NotPanics(t, func() {
+			v := []uintptr{uintptr(1), uintptr(2)}
+			got := p.Slice(reflect.ValueOf(v))
+			exp := models.Slice{
+				Values: []models.Value{
+					{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr},
+					{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr},
+				},
+			}
+
+			require.Equal(t, exp, got)
+		})
+	})
+
+	t.Run("slice_of_unsafe_pointer", func(t *testing.T) {
+		require.NotPanics(t, func() {
+			v := []unsafe.Pointer{unsafe.Pointer(uintptr(1)), unsafe.Pointer(uintptr(2))}
+			got := p.Slice(reflect.ValueOf(v))
+			exp := models.Slice{
+				Values: []models.Value{
+					{Value: "[Unsupported type: unsafe.Pointer]", Kind: reflect.UnsafePointer},
+					{Value: "[Unsupported type: unsafe.Pointer]", Kind: reflect.UnsafePointer},
+				},
+			}
+
+			require.Equal(t, exp, got)
+		})
 	})
 }

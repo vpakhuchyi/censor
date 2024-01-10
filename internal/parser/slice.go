@@ -1,8 +1,10 @@
 package parser
 
 import (
+	"fmt"
 	"reflect"
 
+	"github.com/vpakhuchyi/censor/config"
 	"github.com/vpakhuchyi/censor/internal/models"
 )
 
@@ -42,6 +44,8 @@ func (p *Parser) Slice(rv reflect.Value) models.Slice {
 			slice.Values = append(slice.Values, p.Bool(elem))
 		case reflect.Complex64, reflect.Complex128:
 			slice.Values = append(slice.Values, p.Complex(elem))
+		default:
+			slice.Values = append(slice.Values, models.Value{Value: fmt.Sprintf(config.UnsupportedTypeTmpl, k), Kind: k})
 		}
 	}
 

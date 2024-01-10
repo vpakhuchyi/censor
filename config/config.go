@@ -10,6 +10,9 @@ import (
 // DefaultMaskValue is used to mask struct fields by default.
 const DefaultMaskValue = "[CENSORED]"
 
+// UnsupportedTypeTmpl is a template for a value that is returned when a given type is not supported.
+const UnsupportedTypeTmpl = "[Unsupported type: %s]"
+
 // Config describes the available parser.Parser and formatter.Formatter configuration.
 type Config struct {
 	General   General   `yaml:"general"`

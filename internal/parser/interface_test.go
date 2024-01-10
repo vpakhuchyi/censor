@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/require"
 
@@ -292,7 +293,115 @@ func TestParser_Interface(t *testing.T) {
 					{
 						Name: "Names",
 						Value: models.Value{
-							Value: models.Value{Value: "[unsupported value]", Kind: reflect.Func},
+							Value: models.Value{Value: "[Unsupported type: func]", Kind: reflect.Func},
+							Kind:  reflect.Interface,
+						},
+						Opts: options.FieldOptions{Display: false},
+						Kind: reflect.Interface,
+					},
+				},
+			}
+
+			require.Equal(t, exp, got)
+		})
+	})
+
+	t.Run("struct_with_interface_with_chan_value", func(t *testing.T) {
+		type person struct {
+			Names interface{} `json:"names"`
+		}
+
+		require.NotPanics(t, func() {
+			v := person{Names: make(chan int)}
+			got := p.Struct(reflect.ValueOf(v))
+			exp := models.Struct{
+				Name: "parser.person",
+				Fields: []models.Field{
+					{
+						Name: "Names",
+						Value: models.Value{
+							Value: models.Value{Value: "[Unsupported type: chan]", Kind: reflect.Chan},
+							Kind:  reflect.Interface,
+						},
+						Opts: options.FieldOptions{Display: false},
+						Kind: reflect.Interface,
+					},
+				},
+			}
+
+			require.Equal(t, exp, got)
+		})
+	})
+
+	t.Run("struct_with_interface_with_func_value", func(t *testing.T) {
+		type person struct {
+			Names interface{} `json:"names"`
+		}
+
+		require.NotPanics(t, func() {
+			v := person{Names: func() {}}
+			got := p.Struct(reflect.ValueOf(v))
+			exp := models.Struct{
+				Name: "parser.person",
+				Fields: []models.Field{
+					{
+						Name: "Names",
+						Value: models.Value{
+							Value: models.Value{Value: "[Unsupported type: func]", Kind: reflect.Func},
+							Kind:  reflect.Interface,
+						},
+						Opts: options.FieldOptions{Display: false},
+						Kind: reflect.Interface,
+					},
+				},
+			}
+
+			require.Equal(t, exp, got)
+		})
+	})
+
+	t.Run("struct_with_interface_with_uintptr_value", func(t *testing.T) {
+		type person struct {
+			Names interface{} `json:"names"`
+		}
+
+		require.NotPanics(t, func() {
+			v := person{Names: uintptr(56784757)}
+			got := p.Struct(reflect.ValueOf(v))
+			exp := models.Struct{
+				Name: "parser.person",
+				Fields: []models.Field{
+					{
+						Name: "Names",
+						Value: models.Value{
+							Value: models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr},
+							Kind:  reflect.Interface,
+						},
+						Opts: options.FieldOptions{Display: false},
+						Kind: reflect.Interface,
+					},
+				},
+			}
+
+			require.Equal(t, exp, got)
+		})
+	})
+
+	t.Run("struct_with_interface_with_unsafe_pointer_value", func(t *testing.T) {
+		type person struct {
+			Names interface{} `json:"names"`
+		}
+
+		require.NotPanics(t, func() {
+			v := person{Names: unsafe.Pointer(uintptr(56784757))}
+			got := p.Struct(reflect.ValueOf(v))
+			exp := models.Struct{
+				Name: "parser.person",
+				Fields: []models.Field{
+					{
+						Name: "Names",
+						Value: models.Value{
+							Value: models.Value{Value: "[Unsupported type: unsafe.Pointer]", Kind: reflect.UnsafePointer},
 							Kind:  reflect.Interface,
 						},
 						Opts: options.FieldOptions{Display: false},

@@ -162,7 +162,7 @@ func (p *Processor) parse(v reflect.Value) any {
 			Note: this case covers all unsupported types.
 			In such a case, we return an empty string.
 		*/
-		return models.Value{Value: "", Kind: k}
+		return models.Value{Value: fmt.Sprintf(config.UnsupportedTypeTmpl, k), Kind: k}
 	}
 }
 

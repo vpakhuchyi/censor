@@ -5,6 +5,7 @@ import (
 	"os"
 	"reflect"
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/require"
 
@@ -582,6 +583,44 @@ func TestParser_Struct(t *testing.T) {
 
 	t.Run("non_struct_value", func(t *testing.T) {
 		require.PanicsWithValue(t, "provided value is not a struct", func() { p.Struct(reflect.ValueOf(5.234)) })
+	})
+
+	t.Run("struct_with_unsupported_types", func(t *testing.T) {
+		type structWithUnsupportedTypes struct {
+			ChanWithCensorTag    chan int `censor:"display"`
+			Chan                 chan int
+			FuncWithCensorTag    func() `censor:"display"`
+			Func                 func()
+			UnsafeWithCensorTag  unsafe.Pointer `censor:"display"`
+			Unsafe               unsafe.Pointer
+			UintPtrWithCensorTag uintptr `censor:"display"`
+			UintPtr              uintptr
+		}
+
+		require.NotPanics(t, func() {
+			v := structWithUnsupportedTypes{
+				Chan:    make(chan int),
+				Func:    func() {},
+				Unsafe:  unsafe.Pointer(&mainPkgStruct),
+				UintPtr: uintptr(unsafe.Pointer(&mainPkgStruct)),
+			}
+
+			got := p.Struct(reflect.ValueOf(v))
+			exp := models.Struct{
+				Name: "parser.structWithUnsupportedTypes",
+				Fields: []models.Field{
+					{Name: "ChanWithCensorTag", Value: models.Value{Value: "[Unsupported type: chan]", Kind: reflect.Chan}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Chan},
+					{Name: "Chan", Value: models.Value{Value: "[Unsupported type: chan]", Kind: reflect.Chan}, Opts: options.FieldOptions{Display: false}, Kind: reflect.Chan},
+					{Name: "FuncWithCensorTag", Value: models.Value{Value: "[Unsupported type: func]", Kind: reflect.Func}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Func},
+					{Name: "Func", Value: models.Value{Value: "[Unsupported type: func]", Kind: reflect.Func}, Opts: options.FieldOptions{Display: false}, Kind: reflect.Func},
+					{Name: "UnsafeWithCensorTag", Value: models.Value{Value: "[Unsupported type: unsafe.Pointer]", Kind: reflect.UnsafePointer}, Opts: options.FieldOptions{Display: true}, Kind: reflect.UnsafePointer},
+					{Name: "Unsafe", Value: models.Value{Value: "[Unsupported type: unsafe.Pointer]", Kind: reflect.UnsafePointer}, Opts: options.FieldOptions{Display: false}, Kind: reflect.UnsafePointer},
+					{Name: "UintPtrWithCensorTag", Value: models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Uintptr},
+					{Name: "UintPtr", Value: models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}, Opts: options.FieldOptions{Display: false}, Kind: reflect.Uintptr},
+				},
+			}
+			require.Equal(t, exp, got)
+		})
 	})
 }
 

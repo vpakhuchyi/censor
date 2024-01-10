@@ -48,15 +48,13 @@ Unsupported Types:
 | UnsafePtr  |            |            |
 |------------|------------|------------|
 
-Note: If a value of an unsupported type is provided, an empty string is returned.
+Note: If a value of an unsupported type is provided, a string value with the following format will be returned:
+"[Unsupported type: <type>]" - where `<type>` is the type of the provided value.
 */
 
 // Format takes a supported value and format it into a string, with default struct field masking.
 // Structs, slices, arrays, pointers, maps, and interfaces are parsed recursively.
 // The `censor:"display"` tag can be used to override default struct field masking for specific fields.
-//
-// Note: The function may utilize reflection, introducing potential performance overhead.
-// Avoid in performance-critical scenarios.
 func Format(val any) string {
 	return globalInstance.Format(val)
 }

@@ -1,6 +1,7 @@
 package formatter
 
 import (
+	"fmt"
 	"reflect"
 	"regexp"
 	"strings"
@@ -82,6 +83,8 @@ func (f *Formatter) writeValue(buf *strings.Builder, v models.Value) {
 		buf.WriteString(f.Bool(v))
 	case reflect.Interface:
 		buf.WriteString(f.Interface(v))
+	default:
+		buf.WriteString(fmt.Sprintf(config.UnsupportedTypeTmpl, v.Kind))
 	}
 }
 
@@ -109,5 +112,7 @@ func (f *Formatter) writeField(field models.Field, buf *strings.Builder) {
 		buf.WriteString(formatField(field.Name, f.Map(field.Value.Value.(models.Map))))
 	case reflect.Interface:
 		buf.WriteString(formatField(field.Name, f.Interface(field.Value)))
+	default:
+		buf.WriteString(formatField(field.Name, fmt.Sprintf(config.UnsupportedTypeTmpl, field.Kind)))
 	}
 }
