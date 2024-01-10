@@ -10,7 +10,7 @@
  Note: while extensive testing covers most common use cases, if you encounter any bugs or issues,
  please feel free to report them in https://github.com/vpakhuchyi/censor as new issues.
 
-Documentation: https://vpakhuchyi.github.io/censor
+ Documentation: https://vpakhuchyi.github.io/censor
 
  Main Features:
 
@@ -67,9 +67,8 @@ Documentation: https://vpakhuchyi.github.io/censor
 		}
 
 		logger.Info("Sensitive data:", "payload", u)
-
-	Output:	{"time":"2024-01-10T17:01:39.809303+01:00","level":"INFO","msg":"Sensitive data:","payload":"{Name: Ivan Mazepa, Email: [CENSORED]}"}
-}
+ 	}
+ 	Output:	{"time":"2024-01-10T17:01:39.809303+01:00","level":"INFO","msg":"Sensitive data:","payload":"{Name: Ivan Mazepa, Email: [CENSORED]}"}
 
  By default, Censor ensures that sensitive information remains masked, providing enhanced security in
  scenarios where data privacy is of utmost importance.
