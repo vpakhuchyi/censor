@@ -24,8 +24,8 @@ func TestFormatter_Struct(t *testing.T) {
 			v := models.Struct{
 				Name: "Foo",
 				Fields: []models.Field{
-					{Name: "Foo", Value: models.Value{Value: "foo", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
-					{Name: "Bar", Value: models.Value{Value: 1, Kind: reflect.Int}, Opts: options.FieldOptions{Display: false}, Kind: reflect.Int},
+					{Name: "Foo", Value: models.Value{Value: "foo", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}},
+					{Name: "Bar", Value: models.Value{Value: 1, Kind: reflect.Int}, Opts: options.FieldOptions{Display: false}},
 				},
 			}
 			got := f.Struct(v)
@@ -45,8 +45,8 @@ func TestFormatter_Struct(t *testing.T) {
 			v := models.Struct{
 				Name: "Foo",
 				Fields: []models.Field{
-					{Name: "Foo", Value: models.Value{Value: "foo", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
-					{Name: "Bar", Value: models.Value{Value: 1, Kind: reflect.Int}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Int},
+					{Name: "Foo", Value: models.Value{Value: "foo", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}},
+					{Name: "Bar", Value: models.Value{Value: 1, Kind: reflect.Int}, Opts: options.FieldOptions{Display: true}},
 				},
 			}
 			got := f.Struct(v)
@@ -68,8 +68,8 @@ func TestFormatter_Struct(t *testing.T) {
 			v := models.Struct{
 				Name: "Foo",
 				Fields: []models.Field{
-					{Name: "Foo", Value: models.Value{Value: "testuser@exxxample.com", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}, Kind: reflect.String},
-					{Name: "Bar", Value: models.Value{Value: 1, Kind: reflect.Int}, Opts: options.FieldOptions{Display: false}, Kind: reflect.Int},
+					{Name: "Foo", Value: models.Value{Value: "testuser@exxxample.com", Kind: reflect.String}, Opts: options.FieldOptions{Display: true}},
+					{Name: "Bar", Value: models.Value{Value: 1, Kind: reflect.Int}, Opts: options.FieldOptions{Display: false}},
 				},
 			}
 			got := f.Struct(v)
@@ -91,14 +91,14 @@ func TestFormatter_Struct(t *testing.T) {
 			v := models.Struct{
 				Name: "parser.structWithUnsupportedTypes",
 				Fields: []models.Field{
-					{Name: "ChanWithCensorTag", Value: models.Value{Value: "[Unsupported type: chan]", Kind: reflect.Chan}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Chan},
-					{Name: "Chan", Value: models.Value{Value: "[Unsupported type: chan]", Kind: reflect.Chan}, Opts: options.FieldOptions{Display: false}, Kind: reflect.Chan},
-					{Name: "FuncWithCensorTag", Value: models.Value{Value: "[Unsupported type: func]", Kind: reflect.Func}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Func},
-					{Name: "Func", Value: models.Value{Value: "[Unsupported type: func]", Kind: reflect.Func}, Opts: options.FieldOptions{Display: false}, Kind: reflect.Func},
-					{Name: "UnsafeWithCensorTag", Value: models.Value{Value: "[Unsupported type: unsafe.Pointer]", Kind: reflect.UnsafePointer}, Opts: options.FieldOptions{Display: true}, Kind: reflect.UnsafePointer},
-					{Name: "Unsafe", Value: models.Value{Value: "[Unsupported type: unsafe.Pointer]", Kind: reflect.UnsafePointer}, Opts: options.FieldOptions{Display: false}, Kind: reflect.UnsafePointer},
-					{Name: "UintPtrWithCensorTag", Value: models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}, Opts: options.FieldOptions{Display: true}, Kind: reflect.Uintptr},
-					{Name: "UintPtr", Value: models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}, Opts: options.FieldOptions{Display: false}, Kind: reflect.Uintptr},
+					{Name: "ChanWithCensorTag", Value: models.Value{Value: "[Unsupported type: chan]", Kind: reflect.Chan}, Opts: options.FieldOptions{Display: true}},
+					{Name: "Chan", Value: models.Value{Value: "[Unsupported type: chan]", Kind: reflect.Chan}, Opts: options.FieldOptions{Display: false}},
+					{Name: "FuncWithCensorTag", Value: models.Value{Value: "[Unsupported type: func]", Kind: reflect.Func}, Opts: options.FieldOptions{Display: true}},
+					{Name: "Func", Value: models.Value{Value: "[Unsupported type: func]", Kind: reflect.Func}, Opts: options.FieldOptions{Display: false}},
+					{Name: "UnsafeWithCensorTag", Value: models.Value{Value: "[Unsupported type: unsafe.Pointer]", Kind: reflect.UnsafePointer}, Opts: options.FieldOptions{Display: true}},
+					{Name: "Unsafe", Value: models.Value{Value: "[Unsupported type: unsafe.Pointer]", Kind: reflect.UnsafePointer}, Opts: options.FieldOptions{Display: false}},
+					{Name: "UintPtrWithCensorTag", Value: models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}, Opts: options.FieldOptions{Display: true}},
+					{Name: "UintPtr", Value: models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}, Opts: options.FieldOptions{Display: false}},
 				},
 			}
 			got := f.Struct(v)

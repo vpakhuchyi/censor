@@ -90,7 +90,7 @@ func (f *Formatter) writeValue(buf *strings.Builder, v models.Value) {
 
 //nolint:exhaustive,gocyclo
 func (f *Formatter) writeField(field models.Field, buf *strings.Builder) {
-	switch field.Kind {
+	switch field.Value.Kind {
 	case reflect.String:
 		buf.WriteString(formatField(field.Name, f.String(field.Value)))
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
@@ -113,6 +113,6 @@ func (f *Formatter) writeField(field models.Field, buf *strings.Builder) {
 	case reflect.Interface:
 		buf.WriteString(formatField(field.Name, f.Interface(field.Value)))
 	default:
-		buf.WriteString(formatField(field.Name, fmt.Sprintf(config.UnsupportedTypeTmpl, field.Kind)))
+		buf.WriteString(formatField(field.Name, fmt.Sprintf(config.UnsupportedTypeTmpl, field.Value.Kind)))
 	}
 }
