@@ -2,6 +2,7 @@ package formatter
 
 import (
 	"reflect"
+	"regexp"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -38,7 +39,7 @@ func TestFormatter_Map(t *testing.T) {
 			displayStructName:       false,
 			displayMapType:          false,
 			excludePatterns:         []string{`\d`, `\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`},
-			excludePatternsCompiled: excludePatternsCompiled,
+			excludePatternsCompiled: []*regexp.Regexp{compiledRegExpDigit, compiledRegExpEmail},
 		}
 
 		require.NotPanics(t, func() {
@@ -46,11 +47,11 @@ func TestFormatter_Map(t *testing.T) {
 				Type: "map[string]int",
 				Values: []models.KV{
 					{Key: models.Value{Value: "foo", Kind: reflect.String}, Value: models.Value{Value: "hell0", Kind: reflect.String}},
-					{Key: models.Value{Value: "bar10", Kind: reflect.String}, Value: models.Value{Value: "hello", Kind: reflect.String}},
+					{Key: models.Value{Value: "test@exaample.com", Kind: reflect.String}, Value: models.Value{Value: "hello", Kind: reflect.String}},
 				},
 			}
 			got := f.Map(v)
-			exp := `map[foo: [CENSORED], [CENSORED]: hello]`
+			exp := `map[foo: hell[CENSORED], [CENSORED]: hello]`
 			require.Equal(t, exp, got)
 		})
 	})

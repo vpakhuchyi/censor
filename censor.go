@@ -7,7 +7,7 @@ The primary purpose of this package is to accept a supported value (as listed in
 format it as a string. The main feature is that when a struct is passed (potentially nested within pointers,
 interfaces, slices, or arrays), all its field values are masked by default, except for those fields explicitly
 tagged with `censor:"display"`. On top of that, it's possible to specify regexp patterns that will be used to
-identify strings that must be masked (including nested string).
+identify strings parts that must be masked (including nested string).
 
 This functionality is particularly useful for scenarios such as logging, where the result of `censor.Format()`
 can be employed without concerns about exposing sensitive data. By default, this package ensures that sensitive
