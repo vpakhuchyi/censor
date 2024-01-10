@@ -12,16 +12,16 @@ import (
 )
 
 func TestParser_Interface(t *testing.T) {
+	type person struct {
+		Names interface{} `json:"names" censor:"display"`
+	}
+
 	p := Parser{
 		useJSONTagName: false,
 		censorFieldTag: DefaultCensorFieldTag,
 	}
 
 	t.Run("struct_with_interface_with_slice_value", func(t *testing.T) {
-		type person struct {
-			Names interface{} `json:"names" censor:"display"`
-		}
-
 		require.NotPanics(t, func() {
 			v := person{Names: []string{"John", "Doe"}}
 			got := p.Struct(reflect.ValueOf(v))
@@ -97,10 +97,6 @@ func TestParser_Interface(t *testing.T) {
 	})
 
 	t.Run("struct_with_interface_with_map_value", func(t *testing.T) {
-		type person struct {
-			Names interface{} `json:"names" censor:"display"`
-		}
-
 		require.NotPanics(t, func() {
 			v := person{Names: map[string]string{"first": "John", "last": "Doe"}}
 			got := p.Struct(reflect.ValueOf(v))
@@ -141,10 +137,6 @@ func TestParser_Interface(t *testing.T) {
 	})
 
 	t.Run("struct_with_interface_with_pointer_value", func(t *testing.T) {
-		type person struct {
-			Names interface{} `json:"names" censor:"display"`
-		}
-
 		require.NotPanics(t, func() {
 			f := 43.4
 			v := person{Names: &f}
@@ -172,10 +164,6 @@ func TestParser_Interface(t *testing.T) {
 	})
 
 	t.Run("struct_with_interface_with_complex_value", func(t *testing.T) {
-		type person struct {
-			Names interface{} `json:"names" censor:"display"`
-		}
-
 		require.NotPanics(t, func() {
 			v := person{Names: complex(1.82, 0)}
 			got := p.Struct(reflect.ValueOf(v))
@@ -199,10 +187,6 @@ func TestParser_Interface(t *testing.T) {
 	})
 
 	t.Run("struct_with_interface_with_bool_value", func(t *testing.T) {
-		type person struct {
-			Names interface{} `json:"names" censor:"display"`
-		}
-
 		require.NotPanics(t, func() {
 			v := person{Names: true}
 			got := p.Struct(reflect.ValueOf(v))
@@ -226,10 +210,6 @@ func TestParser_Interface(t *testing.T) {
 	})
 
 	t.Run("struct_with_interface_with_int_value", func(t *testing.T) {
-		type person struct {
-			Names interface{} `json:"names" censor:"display"`
-		}
-
 		require.NotPanics(t, func() {
 			v := person{Names: 13}
 			got := p.Struct(reflect.ValueOf(v))
@@ -253,10 +233,6 @@ func TestParser_Interface(t *testing.T) {
 	})
 
 	t.Run("struct_with_interface_with_float_value", func(t *testing.T) {
-		type person struct {
-			Names interface{} `json:"names" censor:"display"`
-		}
-
 		require.NotPanics(t, func() {
 			v := person{Names: 13.5}
 			got := p.Struct(reflect.ValueOf(v))
@@ -280,10 +256,6 @@ func TestParser_Interface(t *testing.T) {
 	})
 
 	t.Run("struct_with_interface_with_string_value", func(t *testing.T) {
-		type person struct {
-			Names interface{} `json:"names" censor:"display"`
-		}
-
 		require.NotPanics(t, func() {
 			v := person{Names: "John"}
 			got := p.Struct(reflect.ValueOf(v))

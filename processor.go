@@ -1,6 +1,7 @@
 package censor
 
 import (
+	"encoding"
 	"fmt"
 	"reflect"
 
@@ -68,9 +69,15 @@ func GetGlobalInstance() *Processor {
 // Format takes any value and returns a string representation of it masking struct fields by default.
 // To override this behaviour, use the `censor:"display"` tag.
 // Formatting is done recursively for all nested structs/slices/arrays/pointers/maps/interfaces.
+// If a value implements [encoding.TextMarshaler], the result of MarshalText is written.
 func (p *Processor) Format(val any) string {
 	if val == nil || reflect.TypeOf(val) == nil {
 		return "nil"
+	}
+
+	// If a value implements [encoding.TextMarshaler] interface, then it should be marshaled to string.
+	if tm, ok := val.(encoding.TextMarshaler); ok {
+		val = parser.PrepareTextMarshalerValue(tm)
 	}
 
 	v := reflect.ValueOf(val)

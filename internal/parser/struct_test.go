@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"errors"
 	"os"
 	"reflect"
 	"testing"
@@ -12,6 +13,15 @@ import (
 )
 
 var mainPkgStruct any
+
+type user struct {
+	Name string `censor:"display"`
+	err  error
+}
+
+func (u user) MarshalText() (text []byte, err error) {
+	return []byte(u.Name), u.err
+}
 
 func TestParser_Struct(t *testing.T) {
 	type address struct {
@@ -516,6 +526,54 @@ func TestParser_Struct(t *testing.T) {
 			exp := models.Struct{
 				Name:   "parser.person",
 				Fields: []models.Field{},
+			}
+
+			require.Equal(t, exp, got)
+		})
+	})
+
+	t.Run("struct_with_embedded_struct_which_implement_marshal_text", func(t *testing.T) {
+		type person struct {
+			User user `censor:"display"`
+		}
+
+		require.NotPanics(t, func() {
+			v := person{user{Name: "John"}}
+			got := p.Struct(reflect.ValueOf(v))
+			exp := models.Struct{
+				Name: "parser.person",
+				Fields: []models.Field{
+					{
+						Name:  "User",
+						Value: models.Value{Value: "John", Kind: reflect.String},
+						Opts:  options.FieldOptions{Display: true},
+						Kind:  reflect.String,
+					},
+				},
+			}
+
+			require.Equal(t, exp, got)
+		})
+	})
+
+	t.Run("struct_with_embedded_struct_which_implement_marshal_text_with_error", func(t *testing.T) {
+		type person struct {
+			User user `censor:"display"`
+		}
+
+		require.NotPanics(t, func() {
+			v := person{user{Name: "John", err: errors.New("marshal error")}}
+			got := p.Struct(reflect.ValueOf(v))
+			exp := models.Struct{
+				Name: "parser.person",
+				Fields: []models.Field{
+					{
+						Name:  "User",
+						Value: models.Value{Value: "!ERROR:marshal error", Kind: reflect.String},
+						Opts:  options.FieldOptions{Display: true},
+						Kind:  reflect.String,
+					},
+				},
 			}
 
 			require.Equal(t, exp, got)
