@@ -2,6 +2,7 @@ package formatter
 
 import (
 	"reflect"
+	"regexp"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -44,7 +45,7 @@ func TestFormatter_Interface(t *testing.T) {
 			displayStructName:       false,
 			displayMapType:          false,
 			excludePatterns:         []string{`\d`, `\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`},
-			excludePatternsCompiled: excludePatternsCompiled,
+			excludePatternsCompiled: []*regexp.Regexp{compiledRegExpDigit, compiledRegExpEmail},
 		}
 
 		require.NotPanics(t, func() {
@@ -62,7 +63,7 @@ func TestFormatter_Interface(t *testing.T) {
 			}
 
 			got := f.Interface(v)
-			exp := `[Kholodetsʹ, [CENSORED]]`
+			exp := `[Kholodetsʹ, Halushky[CENSORED]]`
 			require.Equal(t, exp, got)
 		})
 	})

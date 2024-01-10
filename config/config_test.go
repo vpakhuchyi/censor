@@ -1,14 +1,19 @@
 package config
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"gopkg.in/yaml.v3"
 )
 
 func TestDefault(t *testing.T) {
 	got := Default()
 	exp := Config{
+		General: General{
+			PrintConfigOnInit: true,
+		},
 		Parser: Parser{
 			UseJSONTagName: false,
 		},
@@ -19,28 +24,6 @@ func TestDefault(t *testing.T) {
 			DisplayMapType:       false,
 			ExcludePatterns:      nil,
 		},
-	}
-
-	require.EqualValues(t, exp, got)
-}
-
-func TestConfig_GetParserConfig(t *testing.T) {
-	got := Default().GetParserConfig()
-	exp := Parser{
-		UseJSONTagName: false,
-	}
-
-	require.EqualValues(t, exp, got)
-}
-
-func TestConfig_GetFormatterConfig(t *testing.T) {
-	got := Default().GetFormatterConfig()
-	exp := Formatter{
-		MaskValue:            DefaultMaskValue,
-		DisplayPointerSymbol: false,
-		DisplayStructName:    false,
-		DisplayMapType:       false,
-		ExcludePatterns:      nil,
 	}
 
 	require.EqualValues(t, exp, got)
@@ -60,6 +43,9 @@ func TestFromFile(t *testing.T) {
 				path: "./testdata/cfg.yml",
 			},
 			want: Config{
+				General: General{
+					PrintConfigOnInit: true,
+				},
 				Parser: Parser{
 					UseJSONTagName: true,
 				},
@@ -68,7 +54,7 @@ func TestFromFile(t *testing.T) {
 					DisplayPointerSymbol: true,
 					DisplayStructName:    true,
 					DisplayMapType:       true,
-					ExcludePatterns:      []string{`\d`},
+					ExcludePatterns:      []string{`\d`, `^\w$`},
 				},
 			},
 			wantErr: false,
@@ -114,4 +100,42 @@ func TestFromFile(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestYAMLMarshal(t *testing.T) {
+	t.Run("default", func(t *testing.T) {
+		want, err := os.ReadFile("./testdata/default.yml")
+		require.NoError(t, err)
+
+		got, err := yaml.Marshal(Default())
+		require.NoError(t, err)
+		require.EqualValues(t, want, got)
+		require.YAMLEq(t, string(want), string(got))
+	})
+
+	t.Run("custom", func(t *testing.T) {
+		want, err := os.ReadFile("./testdata/cfg.yml")
+		require.NoError(t, err)
+
+		cfg := Config{
+			General: General{
+				PrintConfigOnInit: true,
+			},
+			Parser: Parser{
+				UseJSONTagName: true,
+			},
+			Formatter: Formatter{
+				MaskValue:            "[CENSORED]",
+				DisplayPointerSymbol: true,
+				DisplayStructName:    true,
+				DisplayMapType:       true,
+				ExcludePatterns:      []string{`\d`, `^\w$`},
+			},
+		}
+
+		got, err := yaml.Marshal(cfg)
+		require.NoError(t, err)
+		require.EqualValues(t, want, got)
+		require.YAMLEq(t, string(want), string(got))
+	})
 }

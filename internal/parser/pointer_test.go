@@ -3,6 +3,7 @@ package parser
 import (
 	"reflect"
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/require"
 
@@ -196,7 +197,37 @@ func TestParser_Pointer(t *testing.T) {
 		require.NotPanics(t, func() {
 			v := func() {}
 			got := p.Ptr(reflect.ValueOf(&v))
-			exp := models.Ptr{Value: "[unsupported value]", Kind: reflect.Func}
+			exp := models.Ptr{Value: "[Unsupported type: func]", Kind: reflect.Func}
+
+			require.Equal(t, exp, got)
+		})
+	})
+
+	t.Run("pointer_to_chan", func(t *testing.T) {
+		require.NotPanics(t, func() {
+			v := make(chan int)
+			got := p.Ptr(reflect.ValueOf(&v))
+			exp := models.Ptr{Value: "[Unsupported type: chan]", Kind: reflect.Chan}
+
+			require.Equal(t, exp, got)
+		})
+	})
+
+	t.Run("pointer_to_unsafe_pointer", func(t *testing.T) {
+		require.NotPanics(t, func() {
+			v := unsafe.Pointer(nil)
+			got := p.Ptr(reflect.ValueOf(&v))
+			exp := models.Ptr{Value: "[Unsupported type: unsafe.Pointer]", Kind: reflect.UnsafePointer}
+
+			require.Equal(t, exp, got)
+		})
+	})
+
+	t.Run("pointer_to_uintptr", func(t *testing.T) {
+		require.NotPanics(t, func() {
+			v := uintptr(0)
+			got := p.Ptr(reflect.ValueOf(&v))
+			exp := models.Ptr{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}
 
 			require.Equal(t, exp, got)
 		})

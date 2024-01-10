@@ -1,6 +1,7 @@
 package censor
 
 import (
+	"os"
 	"reflect"
 	"testing"
 	"unsafe"
@@ -319,7 +320,7 @@ func TestProcessor_parse(t *testing.T) {
 	t.Run("unsupported_type_chan", func(t *testing.T) {
 		require.NotPanics(t, func() {
 			val := make(chan int)
-			exp := models.Value{Value: "", Kind: reflect.Chan}
+			exp := models.Value{Value: "[Unsupported type: chan]", Kind: reflect.Chan}
 
 			got := p.parse(reflect.ValueOf(val))
 			require.Equal(t, exp, got)
@@ -329,7 +330,7 @@ func TestProcessor_parse(t *testing.T) {
 	t.Run("unsupported_type_func", func(t *testing.T) {
 		require.NotPanics(t, func() {
 			val := func() {}
-			exp := models.Value{Value: "", Kind: reflect.Func}
+			exp := models.Value{Value: "[Unsupported type: func]", Kind: reflect.Func}
 
 			got := p.parse(reflect.ValueOf(val))
 			require.Equal(t, exp, got)
@@ -339,7 +340,7 @@ func TestProcessor_parse(t *testing.T) {
 	t.Run("unsupported_type_unsafe_pointer", func(t *testing.T) {
 		require.NotPanics(t, func() {
 			val := unsafe.Pointer(nil)
-			exp := models.Value{Value: "", Kind: reflect.UnsafePointer}
+			exp := models.Value{Value: "[Unsupported type: unsafe.Pointer]", Kind: reflect.UnsafePointer}
 
 			got := p.parse(reflect.ValueOf(val))
 			require.Equal(t, exp, got)
@@ -348,8 +349,10 @@ func TestProcessor_parse(t *testing.T) {
 
 	t.Run("unsupported_type_uintptr", func(t *testing.T) {
 		require.NotPanics(t, func() {
-			val := uintptr(0)
-			exp := models.Value{Value: "", Kind: reflect.Uintptr}
+
+			var val uintptr = 1374389890440
+
+			exp := models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}
 
 			got := p.parse(reflect.ValueOf(val))
 			require.Equal(t, exp, got)
@@ -651,8 +654,8 @@ func TestProcessor_format(t *testing.T) {
 
 	t.Run("unsupported_type_chan", func(t *testing.T) {
 		require.NotPanics(t, func() {
-			val := models.Value{Value: "", Kind: reflect.Chan}
-			exp := ``
+			val := models.Value{Value: "[Unsupported type: chan]", Kind: reflect.Chan}
+			exp := `[Unsupported type: chan]`
 
 			got := p.format(reflect.Chan, val)
 			require.Equal(t, exp, got)
@@ -661,8 +664,8 @@ func TestProcessor_format(t *testing.T) {
 
 	t.Run("unsupported_type_func", func(t *testing.T) {
 		require.NotPanics(t, func() {
-			val := models.Value{Value: "", Kind: reflect.Func}
-			exp := ``
+			val := models.Value{Value: "[Unsupported type: func]", Kind: reflect.Func}
+			exp := `[Unsupported type: func]`
 
 			got := p.format(reflect.Func, val)
 			require.Equal(t, exp, got)
@@ -671,8 +674,8 @@ func TestProcessor_format(t *testing.T) {
 
 	t.Run("unsupported_type_unsafe_pointer", func(t *testing.T) {
 		require.NotPanics(t, func() {
-			val := models.Value{Value: "", Kind: reflect.UnsafePointer}
-			exp := ``
+			val := models.Value{Value: "[Unsupported type: unsafe.Pointer]", Kind: reflect.Uintptr}
+			exp := `[Unsupported type: unsafe.Pointer]`
 
 			got := p.format(reflect.UnsafePointer, val)
 			require.Equal(t, exp, got)
@@ -681,8 +684,8 @@ func TestProcessor_format(t *testing.T) {
 
 	t.Run("unsupported_type_uintptr", func(t *testing.T) {
 		require.NotPanics(t, func() {
-			val := models.Value{Value: "", Kind: reflect.Uintptr}
-			exp := ``
+			val := models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}
+			exp := `[Unsupported type: uintptr]`
 
 			got := p.format(reflect.Uintptr, val)
 			require.Equal(t, exp, got)
@@ -692,6 +695,9 @@ func TestProcessor_format(t *testing.T) {
 
 func TestNewWithConfig(t *testing.T) {
 	cfg := config.Config{
+		General: config.General{
+			PrintConfigOnInit: true,
+		},
 		Parser: config.Parser{
 			UseJSONTagName: false,
 		},
@@ -705,8 +711,9 @@ func TestNewWithConfig(t *testing.T) {
 	}
 	got := NewWithConfig(cfg)
 	exp := &Processor{
-		formatter: formatter.NewWithConfig(cfg.Formatter),
-		parser:    parser.NewWithConfig(cfg.Parser),
+		formatter: formatter.New(cfg.Formatter),
+		parser:    parser.New(cfg.Parser),
+		cfg:       cfg,
 	}
 
 	require.Equal(t, exp, got)
@@ -720,14 +727,16 @@ func TestNewWithFileConfig(t *testing.T) {
 		require.NoError(t, err)
 
 		want := Processor{
-			formatter: formatter.NewWithConfig(cfg.Formatter),
-			parser:    parser.NewWithConfig(cfg.Parser),
+			formatter: formatter.New(cfg.Formatter),
+			parser:    parser.New(cfg.Parser),
+			cfg:       cfg,
 		}
 
 		p, err := NewWithFileConfig("./config/testdata/cfg.yml")
 		require.NoError(t, err)
 		require.EqualValues(t, want.formatter, p.formatter)
 		require.EqualValues(t, want.parser, p.parser)
+		require.EqualValues(t, want.cfg, p.cfg)
 	})
 
 	t.Run("empty_file_path", func(t *testing.T) {
@@ -753,13 +762,60 @@ func TestNewWithFileConfig(t *testing.T) {
 		t.Cleanup(func() { SetGlobalInstance(New()) })
 
 		want := &Processor{
-			formatter: &formatter.Formatter{},
-			parser:    parser.New(),
+			formatter: formatter.New(config.Formatter{}),
+			parser:    parser.New(config.Parser{}),
 		}
 
 		p, err := NewWithFileConfig("./config/testdata/empty.yml")
 		require.NoError(t, err)
 		require.EqualValues(t, want.formatter, p.formatter)
 		require.EqualValues(t, want.parser, p.parser)
+	})
+}
+
+func TestProcessor_PrintConfig(t *testing.T) {
+	t.Run("successful", func(t *testing.T) {
+		// Open file with valid output.
+		f, err := os.Open("./testdata/valid_config_console_output.txt")
+
+		// Read the expected output.
+		want := make([]byte, 528)
+		_, err = f.Read(want)
+		require.NoError(t, err)
+
+		r, w, err := os.Pipe()
+		require.NoError(t, err)
+
+		// Store previous stdout and replace it with our pipe.
+		stdout := os.Stdout
+		os.Stdout = w
+
+		cfg := config.Config{
+			General: config.General{
+				PrintConfigOnInit: true,
+			},
+			Parser: config.Parser{
+				UseJSONTagName: false,
+			},
+			Formatter: config.Formatter{
+				MaskValue:            config.DefaultMaskValue,
+				DisplayPointerSymbol: true,
+				DisplayStructName:    true,
+				DisplayMapType:       true,
+				ExcludePatterns:      []string{`\d`, `.+@.+`},
+			},
+		}
+
+		p := NewWithConfig(cfg)
+		p.PrintConfig()
+
+		// Restore stdout.
+		os.Stdout = stdout
+
+		// Read from the pipe.
+		got := make([]byte, 528)
+		_, err = r.Read(got)
+		require.NoError(t, err)
+		require.Equal(t, want, got)
 	})
 }

@@ -17,16 +17,8 @@ type Parser struct {
 	censorFieldTag string
 }
 
-// New returns a new instance of Parser with default configuration.
-func New() *Parser {
-	return &Parser{
-		useJSONTagName: false,
-		censorFieldTag: DefaultCensorFieldTag,
-	}
-}
-
-// NewWithConfig returns a new instance of Parser with given configuration.
-func NewWithConfig(p config.Parser) *Parser {
+// New returns a new instance of Parser with given configuration.
+func New(p config.Parser) *Parser {
 	return &Parser{
 		useJSONTagName: p.UseJSONTagName,
 		censorFieldTag: DefaultCensorFieldTag,

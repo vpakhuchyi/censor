@@ -1,8 +1,10 @@
 package parser
 
 import (
+	"fmt"
 	"reflect"
 
+	"github.com/vpakhuchyi/censor/config"
 	"github.com/vpakhuchyi/censor/internal/models"
 )
 
@@ -36,10 +38,9 @@ func (p *Parser) Interface(rv reflect.Value) models.Value {
 	case reflect.Complex64, reflect.Complex128:
 		return p.Complex(rv.Elem())
 	default:
-		// In case of unsupported underlying type, UnsupportedValue const value is returned.
 		return models.Value{
 			Kind:  k,
-			Value: UnsupportedValue,
+			Value: fmt.Sprintf(config.UnsupportedTypeTmpl, k),
 		}
 	}
 }

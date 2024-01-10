@@ -10,10 +10,22 @@ import (
 // DefaultMaskValue is used to mask struct fields by default.
 const DefaultMaskValue = "[CENSORED]"
 
+// UnsupportedTypeTmpl is a template for a value that is returned when a given type is not supported.
+const UnsupportedTypeTmpl = "[Unsupported type: %s]"
+
 // Config describes the available parser.Parser and formatter.Formatter configuration.
 type Config struct {
+	General   General   `yaml:"general"`
 	Parser    Parser    `yaml:"parser"`
 	Formatter Formatter `yaml:"formatter"`
+}
+
+// General describes general configuration settings.
+type General struct {
+	// PrintConfigOnInit sets whether to print the configuration on initialization stage.
+	// If true, on censor.Processor initialization, the configuration will be printed to stdout.
+	// The default value is true.
+	PrintConfigOnInit bool `yaml:"print-config-on-init"`
 }
 
 // Parser describes parser.Parser configuration.
@@ -56,17 +68,10 @@ func Default() Config {
 			DisplayMapType:       false,
 			ExcludePatterns:      nil,
 		},
+		General: General{
+			PrintConfigOnInit: true,
+		},
 	}
-}
-
-// GetParserConfig returns Parser configuration from Config.
-func (c Config) GetParserConfig() Parser {
-	return c.Parser
-}
-
-// GetFormatterConfig returns Formatter configuration from Config.
-func (c Config) GetFormatterConfig() Formatter {
-	return c.Formatter
 }
 
 // FromFile reads a configuration from the given .yml file.

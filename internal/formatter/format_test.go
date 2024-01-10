@@ -351,6 +351,46 @@ func TestFormatter_writeValue(t *testing.T) {
 			require.Equal(t, exp, buf.String())
 		})
 	})
+
+	t.Run("unsupported_type_chan", func(t *testing.T) {
+		t.Cleanup(func() { buf.Reset() })
+		require.NotPanics(t, func() {
+			v := models.Value{Value: "[Unsupported type: chan]", Kind: reflect.Chan}
+			f.writeValue(&buf, v)
+			exp := `[Unsupported type: chan]`
+			require.Equal(t, exp, buf.String())
+		})
+	})
+
+	t.Run("unsupported_type_func", func(t *testing.T) {
+		t.Cleanup(func() { buf.Reset() })
+		require.NotPanics(t, func() {
+			v := models.Value{Value: "[Unsupported type: func]", Kind: reflect.Func}
+			f.writeValue(&buf, v)
+			exp := `[Unsupported type: func]`
+			require.Equal(t, exp, buf.String())
+		})
+	})
+
+	t.Run("unsupported_type_uintptr", func(t *testing.T) {
+		t.Cleanup(func() { buf.Reset() })
+		require.NotPanics(t, func() {
+			v := models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}
+			f.writeValue(&buf, v)
+			exp := `[Unsupported type: uintptr]`
+			require.Equal(t, exp, buf.String())
+		})
+	})
+
+	t.Run("unsupported_type_unsafe_pointer", func(t *testing.T) {
+		t.Cleanup(func() { buf.Reset() })
+		require.NotPanics(t, func() {
+			v := models.Value{Value: "[Unsupported type: unsafe.Pointer]", Kind: reflect.UnsafePointer}
+			f.writeValue(&buf, v)
+			exp := `[Unsupported type: unsafe.Pointer]`
+			require.Equal(t, exp, buf.String())
+		})
+	})
 }
 
 func TestFormatter_writeField(t *testing.T) {
@@ -845,12 +885,8 @@ func TestFormatter_writeField(t *testing.T) {
 }
 
 func TestNew(t *testing.T) {
-	require.EqualValues(t, &Formatter{maskValue: config.DefaultMaskValue, displayStructName: false, displayMapType: false}, New())
-}
-
-func TestNewWithConfig(t *testing.T) {
 	t.Run("with_exclude_patterns", func(t *testing.T) {
-		got := NewWithConfig(config.Formatter{
+		got := New(config.Formatter{
 			MaskValue:         "[censored]",
 			DisplayStructName: true,
 			DisplayMapType:    true,
@@ -867,7 +903,7 @@ func TestNewWithConfig(t *testing.T) {
 	})
 
 	t.Run("without_exclude_patterns", func(t *testing.T) {
-		got := NewWithConfig(config.Formatter{
+		got := New(config.Formatter{
 			MaskValue:         "[censored]",
 			DisplayStructName: true,
 			DisplayMapType:    true,
@@ -884,7 +920,7 @@ func TestNewWithConfig(t *testing.T) {
 	})
 
 	t.Run("with_empty_exclude_patterns", func(t *testing.T) {
-		got := NewWithConfig(config.Formatter{
+		got := New(config.Formatter{
 			MaskValue:         "[censored]",
 			DisplayStructName: true,
 			DisplayMapType:    true,

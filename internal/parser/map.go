@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"sort"
 
+	"github.com/vpakhuchyi/censor/config"
 	"github.com/vpakhuchyi/censor/internal/models"
 )
 
@@ -48,6 +49,8 @@ func (p *Parser) Map(rv reflect.Value) models.Map {
 			pair.Key = p.Bool(key)
 		case reflect.Complex64, reflect.Complex128:
 			pair.Key = p.Complex(key)
+		default:
+			pair.Key = models.Value{Value: fmt.Sprintf(config.UnsupportedTypeTmpl, key.Kind()), Kind: key.Kind()}
 		}
 
 		value := iter.Value()
@@ -74,7 +77,7 @@ func (p *Parser) Map(rv reflect.Value) models.Map {
 		case reflect.Complex64, reflect.Complex128:
 			pair.Value = p.Complex(value)
 		default:
-			pair.Value = models.Value{Value: fmt.Sprintf("unsupported type: %s", k.String()), Kind: reflect.String}
+			pair.Value = models.Value{Value: fmt.Sprintf(config.UnsupportedTypeTmpl, k), Kind: k}
 		}
 
 		m.Values = append(m.Values, pair)

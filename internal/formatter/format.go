@@ -1,6 +1,7 @@
 package formatter
 
 import (
+	"fmt"
 	"reflect"
 	"regexp"
 	"strings"
@@ -30,20 +31,8 @@ type Formatter struct {
 	excludePatternsCompiled []*regexp.Regexp
 }
 
-// New returns a new instance of Formatter with default configuration.
-func New() *Formatter {
-	return &Formatter{
-		maskValue:               config.DefaultMaskValue,
-		displayPointerSymbol:    false,
-		displayStructName:       false,
-		displayMapType:          false,
-		excludePatterns:         nil,
-		excludePatternsCompiled: nil,
-	}
-}
-
-// NewWithConfig returns a new instance of Formatter with given configuration.
-func NewWithConfig(cfg config.Formatter) *Formatter {
+// New returns a new instance of Formatter with given configuration.
+func New(cfg config.Formatter) *Formatter {
 	f := Formatter{
 		maskValue:            cfg.MaskValue,
 		displayPointerSymbol: cfg.DisplayPointerSymbol,
@@ -94,6 +83,8 @@ func (f *Formatter) writeValue(buf *strings.Builder, v models.Value) {
 		buf.WriteString(f.Bool(v))
 	case reflect.Interface:
 		buf.WriteString(f.Interface(v))
+	default:
+		buf.WriteString(fmt.Sprintf(config.UnsupportedTypeTmpl, v.Kind))
 	}
 }
 
@@ -121,5 +112,7 @@ func (f *Formatter) writeField(field models.Field, buf *strings.Builder) {
 		buf.WriteString(formatField(field.Name, f.Map(field.Value.Value.(models.Map))))
 	case reflect.Interface:
 		buf.WriteString(formatField(field.Name, f.Interface(field.Value)))
+	default:
+		buf.WriteString(formatField(field.Name, fmt.Sprintf(config.UnsupportedTypeTmpl, field.Kind)))
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/require"
 
@@ -320,8 +321,56 @@ func TestParser_Map(t *testing.T) {
 			exp := models.Map{
 				Type: "map[string]func()",
 				Values: []models.KV{
-					{Key: models.Value{Value: "key1", Kind: reflect.String}, Value: models.Value{Value: "unsupported type: func", Kind: reflect.String}, SortValue: "key1"},
-					{Key: models.Value{Value: "key2", Kind: reflect.String}, Value: models.Value{Value: "unsupported type: func", Kind: reflect.String}, SortValue: "key2"},
+					{Key: models.Value{Value: "key1", Kind: reflect.String}, Value: models.Value{Value: "[Unsupported type: func]", Kind: reflect.Func}, SortValue: "key1"},
+					{Key: models.Value{Value: "key2", Kind: reflect.String}, Value: models.Value{Value: "[Unsupported type: func]", Kind: reflect.Func}, SortValue: "key2"},
+				},
+			}
+
+			require.Equal(t, exp, got)
+		})
+	})
+
+	t.Run("map_string_chan", func(t *testing.T) {
+		require.NotPanics(t, func() {
+			v := map[string]chan int{"key1": make(chan int), "key2": make(chan int)}
+			got := p.Map(reflect.ValueOf(v))
+			exp := models.Map{
+				Type: "map[string]chan int",
+				Values: []models.KV{
+					{Key: models.Value{Value: "key1", Kind: reflect.String}, Value: models.Value{Value: "[Unsupported type: chan]", Kind: reflect.Chan}, SortValue: "key1"},
+					{Key: models.Value{Value: "key2", Kind: reflect.String}, Value: models.Value{Value: "[Unsupported type: chan]", Kind: reflect.Chan}, SortValue: "key2"},
+				},
+			}
+
+			require.Equal(t, exp, got)
+		})
+	})
+
+	t.Run("map_string_uintptr", func(t *testing.T) {
+		require.NotPanics(t, func() {
+			v := map[string]uintptr{"key1": 4563456346, "key2": 7586784657}
+			got := p.Map(reflect.ValueOf(v))
+			exp := models.Map{
+				Type: "map[string]uintptr",
+				Values: []models.KV{
+					{Key: models.Value{Value: "key1", Kind: reflect.String}, Value: models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}, SortValue: "key1"},
+					{Key: models.Value{Value: "key2", Kind: reflect.String}, Value: models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}, SortValue: "key2"},
+				},
+			}
+
+			require.Equal(t, exp, got)
+		})
+	})
+
+	t.Run("map_string_unsafe_pointer", func(t *testing.T) {
+		require.NotPanics(t, func() {
+			v := map[string]unsafe.Pointer{"key1": unsafe.Pointer(uintptr(4563456346)), "key2": unsafe.Pointer(uintptr(7586784657))}
+			got := p.Map(reflect.ValueOf(v))
+			exp := models.Map{
+				Type: "map[string]unsafe.Pointer",
+				Values: []models.KV{
+					{Key: models.Value{Value: "key1", Kind: reflect.String}, Value: models.Value{Value: "[Unsupported type: unsafe.Pointer]", Kind: reflect.UnsafePointer}, SortValue: "key1"},
+					{Key: models.Value{Value: "key2", Kind: reflect.String}, Value: models.Value{Value: "[Unsupported type: unsafe.Pointer]", Kind: reflect.UnsafePointer}, SortValue: "key2"},
 				},
 			}
 
@@ -548,6 +597,61 @@ func TestParser_Map(t *testing.T) {
 			}
 
 			require.Equal(t, exp, got)
+		})
+	})
+
+	t.Run("map_chan_string", func(t *testing.T) {
+		require.NotPanics(t, func() {
+			v := map[chan int]string{make(chan int): "value1", make(chan int): "value2"}
+			got := p.Map(reflect.ValueOf(v))
+			exp := models.Map{
+				Type: "map[chan int]string",
+				Values: []models.KV{
+					{SortValue: "0x14000098480", Key: models.Value{Value: "[Unsupported type: chan]", Kind: reflect.Chan}, Value: models.Value{Value: "value1", Kind: reflect.String}},
+					{SortValue: "0x140000984e0", Key: models.Value{Value: "[Unsupported type: chan]", Kind: reflect.Chan}, Value: models.Value{Value: "value2", Kind: reflect.String}},
+				},
+			}
+
+			// This kind of comparison is necessary because the map keys are pointers in such a case
+			// and the addresses are not deterministic.
+			require.Equal(t, exp.Type, got.Type)
+			require.Equal(t, exp.Values[0].Value, got.Values[0].Value)
+			require.Equal(t, exp.Values[0].Key, got.Values[0].Key)
+
+		})
+	})
+
+	t.Run("map_uintptr_string", func(t *testing.T) {
+		require.NotPanics(t, func() {
+			v := map[uintptr]string{4563456346: "value1", 7586784657: "value2"}
+			got := p.Map(reflect.ValueOf(v))
+			exp := models.Map{
+				Type: "map[uintptr]string",
+				Values: []models.KV{
+					{SortValue: "4563456346", Key: models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}, Value: models.Value{Value: "value1", Kind: reflect.String}},
+					{SortValue: "7586784657", Key: models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}, Value: models.Value{Value: "value2", Kind: reflect.String}},
+				},
+			}
+
+			require.Equal(t, exp, got)
+
+		})
+	})
+
+	t.Run("map_unsafe_pointer_string", func(t *testing.T) {
+		require.NotPanics(t, func() {
+			v := map[unsafe.Pointer]string{unsafe.Pointer(nil): "value1", unsafe.Pointer(uintptr(7586784657)): "value2"}
+			got := p.Map(reflect.ValueOf(v))
+			exp := models.Map{
+				Type: "map[unsafe.Pointer]string",
+				Values: []models.KV{
+					{SortValue: "0x1c4352591", Key: models.Value{Value: "[Unsupported type: unsafe.Pointer]", Kind: reflect.UnsafePointer}, Value: models.Value{Value: "value2", Kind: reflect.String}},
+					{SortValue: "<nil>", Key: models.Value{Value: "[Unsupported type: unsafe.Pointer]", Kind: reflect.UnsafePointer}, Value: models.Value{Value: "value1", Kind: reflect.String}},
+				},
+			}
+
+			require.Equal(t, exp, got)
+
 		})
 	})
 
