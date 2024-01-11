@@ -25,6 +25,7 @@ go get -u github.com/vpakhuchyi/censor
     - `float64/float32`, `int/int8/int16/int32/int64/rune`,
     - `uint/uint8/uint16/uint32/uint64/byte`, `bool`,
     - `interface`, `complex64/complex128`.
+- [x] Support encoding.TextMarshaler interface for custom types. 
 - [x] Customizable configuration:
     - Using `.ymal` file
     - Passing `config.Config` struct
@@ -585,6 +586,44 @@ func main() {
   // Here is what we'll see in the log:
   //Output: `2038/10/25 12:00:01 INFO Request payload=65`
 }
+
+```
+
+### encoding.TextMarshaler
+
+If a type implements the `encoding.TextMarshaler` interface, the `MarshalText()` method will be used to get the string
+
+```go
+package main
+
+import (
+  "fmt"
+  "log/slog"
+
+  "github.com/vpakhuchyi/censor"
+)
+
+type address struct {
+  City    string `censor:"display"`
+  Country string `censor:"display"`
+  Street  string
+}
+
+func (a address) MarshalText() (text []byte, err error) {
+  return []byte(fmt.Sprintf("%s, %s", a.City, a.Country)), nil
+}
+
+func main() {
+  a := address{
+    City:    "London",
+    Country: "UK",
+  }
+
+  slog.Info("Request", "payload", censor.Format(a))
+  // Here is what we'll see in the log:
+  //Output: `2024/01/10 21:20:35 INFO Request payload="London, UK"`
+}
+
 
 ```
 
