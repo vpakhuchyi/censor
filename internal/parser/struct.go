@@ -36,7 +36,6 @@ func (p *Parser) Struct(rv reflect.Value) models.Struct {
 
 		field := models.Field{
 			Opts: options.Parse(strField.Tag.Get(p.censorFieldTag)),
-			Kind: f.Kind(),
 		}
 
 		if p.useJSONTagName {
@@ -49,11 +48,10 @@ func (p *Parser) Struct(rv reflect.Value) models.Struct {
 			field.Name = strField.Name
 		}
 
-		switch k := field.Kind; k {
+		switch k := f.Kind(); k {
 		case reflect.Struct:
 			// If a field implements encoding.TextMarshaler interface, then it should be marshaled to string.
 			if v, ok := f.Interface().(encoding.TextMarshaler); ok {
-				field.Kind = reflect.String
 				field.Value = models.Value{Value: PrepareTextMarshalerValue(v), Kind: reflect.String}
 			} else {
 				field.Value = models.Value{Value: p.Struct(f), Kind: reflect.Struct}

@@ -279,7 +279,6 @@ func TestFormatter_writeValue(t *testing.T) {
 								Value: "Kholodetsʹ",
 								Kind:  reflect.String,
 							},
-							Kind: reflect.String,
 						},
 						{
 							Name: "Ingredients",
@@ -295,7 +294,6 @@ func TestFormatter_writeValue(t *testing.T) {
 								},
 								Kind: reflect.Slice,
 							},
-							Kind: reflect.Slice,
 							Opts: options.FieldOptions{Display: true},
 						},
 					},
@@ -410,7 +408,6 @@ func TestFormatter_writeField(t *testing.T) {
 					Value: "Kholodetsʹ",
 					Kind:  reflect.String,
 				},
-				Kind: reflect.String,
 			}
 			f.writeField(field, &buf)
 			exp := `Name: Kholodetsʹ`
@@ -427,7 +424,6 @@ func TestFormatter_writeField(t *testing.T) {
 					Value: 44,
 					Kind:  reflect.Int,
 				},
-				Kind: reflect.Int,
 			}
 			f.writeField(field, &buf)
 			exp := `Age: 44`
@@ -444,7 +440,6 @@ func TestFormatter_writeField(t *testing.T) {
 					Value: int8(44),
 					Kind:  reflect.Int8,
 				},
-				Kind: reflect.Int8,
 			}
 			f.writeField(field, &buf)
 			exp := `Age: 44`
@@ -461,7 +456,6 @@ func TestFormatter_writeField(t *testing.T) {
 					Value: int16(44),
 					Kind:  reflect.Int16,
 				},
-				Kind: reflect.Int16,
 			}
 			f.writeField(field, &buf)
 			exp := `Age: 44`
@@ -478,7 +472,6 @@ func TestFormatter_writeField(t *testing.T) {
 					Value: int32(44),
 					Kind:  reflect.Int32,
 				},
-				Kind: reflect.Int32,
 			}
 			f.writeField(field, &buf)
 			exp := `Age: 44`
@@ -495,7 +488,6 @@ func TestFormatter_writeField(t *testing.T) {
 					Value: int64(44),
 					Kind:  reflect.Int64,
 				},
-				Kind: reflect.Int64,
 			}
 			f.writeField(field, &buf)
 			exp := `Age: 44`
@@ -512,7 +504,6 @@ func TestFormatter_writeField(t *testing.T) {
 					Value: uint(44),
 					Kind:  reflect.Uint,
 				},
-				Kind: reflect.Uint,
 			}
 			f.writeField(field, &buf)
 			exp := `Age: 44`
@@ -530,7 +521,6 @@ func TestFormatter_writeField(t *testing.T) {
 					Value: b,
 					Kind:  reflect.Uint8,
 				},
-				Kind: reflect.Uint8,
 			}
 			f.writeField(field, &buf)
 			exp := `Age: 44`
@@ -548,7 +538,6 @@ func TestFormatter_writeField(t *testing.T) {
 					Value: b,
 					Kind:  reflect.Uint16,
 				},
-				Kind: reflect.Uint16,
 			}
 			f.writeField(field, &buf)
 			exp := `Age: 44`
@@ -566,7 +555,6 @@ func TestFormatter_writeField(t *testing.T) {
 					Value: b,
 					Kind:  reflect.Uint32,
 				},
-				Kind: reflect.Uint32,
 			}
 			f.writeField(field, &buf)
 			exp := `Age: 44`
@@ -584,7 +572,6 @@ func TestFormatter_writeField(t *testing.T) {
 					Value: b,
 					Kind:  reflect.Uint64,
 				},
-				Kind: reflect.Uint64,
 			}
 			f.writeField(field, &buf)
 			exp := `Age: 44`
@@ -602,7 +589,6 @@ func TestFormatter_writeField(t *testing.T) {
 					Value: r,
 					Kind:  reflect.Int32,
 				},
-				Kind: reflect.Int32,
 			}
 			f.writeField(field, &buf)
 			exp := `Letter: 65`
@@ -620,7 +606,6 @@ func TestFormatter_writeField(t *testing.T) {
 					Value: b,
 					Kind:  reflect.Uint8,
 				},
-				Kind: reflect.Uint8,
 			}
 			f.writeField(field, &buf)
 			exp := `Age: 44`
@@ -638,7 +623,6 @@ func TestFormatter_writeField(t *testing.T) {
 					Value: fl,
 					Kind:  reflect.Float32,
 				},
-				Kind: reflect.Float32,
 			}
 			f.writeField(field, &buf)
 			exp := `Float: 3.1111112`
@@ -656,7 +640,6 @@ func TestFormatter_writeField(t *testing.T) {
 					Value: fl,
 					Kind:  reflect.Float64,
 				},
-				Kind: reflect.Float64,
 			}
 			f.writeField(field, &buf)
 			exp := `Float: 3.11111111111111`
@@ -674,7 +657,6 @@ func TestFormatter_writeField(t *testing.T) {
 					Value: c,
 					Kind:  reflect.Complex64,
 				},
-				Kind: reflect.Complex64,
 			}
 			f.writeField(field, &buf)
 			exp := `Test: (3.111111+3.111111i)`
@@ -692,7 +674,6 @@ func TestFormatter_writeField(t *testing.T) {
 					Value: c,
 					Kind:  reflect.Complex128,
 				},
-				Kind: reflect.Complex128,
 			}
 			f.writeField(field, &buf)
 			exp := `Test: (3.11111111111111+3.11111111111111i)`
@@ -709,7 +690,6 @@ func TestFormatter_writeField(t *testing.T) {
 					Value: true,
 					Kind:  reflect.Bool,
 				},
-				Kind: reflect.Bool,
 			}
 			f.writeField(field, &buf)
 			exp := `IsAwesome: true`
@@ -734,7 +714,6 @@ func TestFormatter_writeField(t *testing.T) {
 					},
 					Kind: reflect.Interface,
 				},
-				Kind: reflect.Interface,
 			}
 			f.writeField(field, &buf)
 			exp := `Dishes: [Kholodetsʹ, Halushky]`
@@ -756,7 +735,6 @@ func TestFormatter_writeField(t *testing.T) {
 					},
 					Kind: reflect.Slice,
 				},
-				Kind: reflect.Slice,
 			}
 			f.writeField(field, &buf)
 			exp := `Dishes: [Kholodetsʹ, Halushky]`
@@ -778,7 +756,6 @@ func TestFormatter_writeField(t *testing.T) {
 					},
 					Kind: reflect.Slice,
 				},
-				Kind: reflect.Array,
 			}
 			f.writeField(field, &buf)
 			exp := `Dishes: [Kholodetsʹ, Halushky]`
@@ -800,7 +777,6 @@ func TestFormatter_writeField(t *testing.T) {
 									Value: "Kholodetsʹ",
 									Kind:  reflect.String,
 								},
-								Kind: reflect.String,
 							},
 							{
 								Name: "Ingredients",
@@ -816,14 +792,12 @@ func TestFormatter_writeField(t *testing.T) {
 									},
 									Kind: reflect.Slice,
 								},
-								Kind: reflect.Slice,
 								Opts: options.FieldOptions{Display: true},
 							},
 						},
 					},
 					Kind: reflect.Struct,
 				},
-				Kind: reflect.Struct,
 			}
 			f.writeField(field, &buf)
 			exp := `Dish: {Name: [CENSORED], Ingredients: [Pork, Garlic, Black pepper, Bay leaf, Salt]}`
@@ -854,7 +828,6 @@ func TestFormatter_writeField(t *testing.T) {
 					},
 					Kind: reflect.Map,
 				},
-				Kind: reflect.Map,
 			}
 			f.writeField(field, &buf)
 			exp := `Dish: map[Best dish ever: Kholodetsʹ]`
@@ -875,7 +848,6 @@ func TestFormatter_writeField(t *testing.T) {
 					},
 					Kind: reflect.Ptr,
 				},
-				Kind: reflect.Ptr,
 			}
 			f.writeField(field, &buf)
 			exp := `Dish: Kholodetsʹ`

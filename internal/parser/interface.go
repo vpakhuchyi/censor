@@ -9,7 +9,8 @@ import (
 )
 
 // Interface parses an interface and returns an Interface.
-// In case of unsupported underlying type, UnsupportedValue const value is used instead of the real value.
+// In case of a pointer to unsupported type of value, a string built from config.UnsupportedTypeTmpl
+// is used instead of the real value. That string contains a type of the value.
 //
 //nolint:exhaustive,gocyclo
 func (p *Parser) Interface(rv reflect.Value) models.Value {

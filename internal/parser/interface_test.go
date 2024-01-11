@@ -44,7 +44,6 @@ func TestParser_Interface(t *testing.T) {
 							Kind: reflect.Interface,
 						},
 						Opts: options.FieldOptions{Display: true},
-						Kind: reflect.Interface,
 					},
 				},
 			}
@@ -79,7 +78,6 @@ func TestParser_Interface(t *testing.T) {
 											Name:  "Email",
 											Value: models.Value{Value: "example", Kind: reflect.String},
 											Opts:  options.FieldOptions{Display: true},
-											Kind:  reflect.String,
 										},
 									},
 								},
@@ -88,7 +86,6 @@ func TestParser_Interface(t *testing.T) {
 							Kind: reflect.Interface,
 						},
 						Opts: options.FieldOptions{Display: false},
-						Kind: reflect.Interface,
 					},
 				},
 			}
@@ -128,7 +125,6 @@ func TestParser_Interface(t *testing.T) {
 							Kind: reflect.Interface,
 						},
 						Opts: options.FieldOptions{Display: true},
-						Kind: reflect.Interface,
 					},
 				},
 			}
@@ -155,7 +151,6 @@ func TestParser_Interface(t *testing.T) {
 							Kind: reflect.Interface,
 						},
 						Opts: options.FieldOptions{Display: true},
-						Kind: reflect.Interface,
 					},
 				},
 			}
@@ -178,7 +173,6 @@ func TestParser_Interface(t *testing.T) {
 							Kind:  reflect.Interface,
 						},
 						Opts: options.FieldOptions{Display: true},
-						Kind: reflect.Interface,
 					},
 				},
 			}
@@ -201,7 +195,6 @@ func TestParser_Interface(t *testing.T) {
 							Kind:  reflect.Interface,
 						},
 						Opts: options.FieldOptions{Display: true},
-						Kind: reflect.Interface,
 					},
 				},
 			}
@@ -224,7 +217,6 @@ func TestParser_Interface(t *testing.T) {
 							Kind:  reflect.Interface,
 						},
 						Opts: options.FieldOptions{Display: true},
-						Kind: reflect.Interface,
 					},
 				},
 			}
@@ -247,7 +239,6 @@ func TestParser_Interface(t *testing.T) {
 							Kind:  reflect.Interface,
 						},
 						Opts: options.FieldOptions{Display: true},
-						Kind: reflect.Interface,
 					},
 				},
 			}
@@ -270,7 +261,6 @@ func TestParser_Interface(t *testing.T) {
 							Kind:  reflect.Interface,
 						},
 						Opts: options.FieldOptions{Display: true},
-						Kind: reflect.Interface,
 					},
 				},
 			}
@@ -297,7 +287,6 @@ func TestParser_Interface(t *testing.T) {
 							Kind:  reflect.Interface,
 						},
 						Opts: options.FieldOptions{Display: false},
-						Kind: reflect.Interface,
 					},
 				},
 			}
@@ -324,7 +313,6 @@ func TestParser_Interface(t *testing.T) {
 							Kind:  reflect.Interface,
 						},
 						Opts: options.FieldOptions{Display: false},
-						Kind: reflect.Interface,
 					},
 				},
 			}
@@ -351,7 +339,6 @@ func TestParser_Interface(t *testing.T) {
 							Kind:  reflect.Interface,
 						},
 						Opts: options.FieldOptions{Display: false},
-						Kind: reflect.Interface,
 					},
 				},
 			}
@@ -378,7 +365,6 @@ func TestParser_Interface(t *testing.T) {
 							Kind:  reflect.Interface,
 						},
 						Opts: options.FieldOptions{Display: false},
-						Kind: reflect.Interface,
 					},
 				},
 			}
@@ -405,7 +391,6 @@ func TestParser_Interface(t *testing.T) {
 							Kind:  reflect.Interface,
 						},
 						Opts: options.FieldOptions{Display: false},
-						Kind: reflect.Interface,
 					},
 				},
 			}
