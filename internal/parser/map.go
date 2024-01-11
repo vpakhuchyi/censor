@@ -41,7 +41,7 @@ func (p *Parser) Map(rv reflect.Value) models.Map {
 		case reflect.String:
 			pair.Key = p.String(key)
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 			pair.Key = p.Integer(key)
 		case reflect.Float32, reflect.Float64:
 			pair.Key = p.Float(key)
@@ -68,7 +68,7 @@ func (p *Parser) Map(rv reflect.Value) models.Map {
 		case reflect.String:
 			pair.Value = p.String(value)
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 			pair.Value = p.Integer(value)
 		case reflect.Float32, reflect.Float64:
 			pair.Value = p.Float(value)

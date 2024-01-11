@@ -361,7 +361,7 @@ func TestParser_Interface(t *testing.T) {
 					{
 						Name: "Names",
 						Value: models.Value{
-							Value: models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr},
+							Value: models.Value{Value: uintptr(56784757), Kind: reflect.Uintptr},
 							Kind:  reflect.Interface,
 						},
 						Opts: options.FieldOptions{Display: false},

@@ -273,6 +273,16 @@ func TestProcessor_parse(t *testing.T) {
 		})
 	})
 
+	t.Run("uintptr", func(t *testing.T) {
+		require.NotPanics(t, func() {
+			val := uintptr(824634330992)
+			exp := models.Value{Value: uintptr(824634330992), Kind: reflect.Uintptr}
+
+			got := p.parse(reflect.ValueOf(val))
+			require.Equal(t, exp, got)
+		})
+	})
+
 	t.Run("rune", func(t *testing.T) {
 		require.NotPanics(t, func() {
 			val := 'U'
@@ -337,18 +347,6 @@ func TestProcessor_parse(t *testing.T) {
 		require.NotPanics(t, func() {
 			val := unsafe.Pointer(nil)
 			exp := models.Value{Value: "[Unsupported type: unsafe.Pointer]", Kind: reflect.UnsafePointer}
-
-			got := p.parse(reflect.ValueOf(val))
-			require.Equal(t, exp, got)
-		})
-	})
-
-	t.Run("unsupported_type_uintptr", func(t *testing.T) {
-		require.NotPanics(t, func() {
-
-			var val uintptr = 1374389890440
-
-			exp := models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}
 
 			got := p.parse(reflect.ValueOf(val))
 			require.Equal(t, exp, got)
@@ -811,3 +809,56 @@ func TestProcessor_PrintConfig(t *testing.T) {
 		require.Equal(t, want, got)
 	})
 }
+
+//
+//func TestProcessor_Censor(t *testing.T) {
+//	t.Run("successful", func(t *testing.T) {
+//		var v uintptr = 824634330992
+//		got := Format(v)
+//		fmt.Println("got", got)
+//		require.Equal(t, "824634330992", got)
+//	})
+//
+//	t.Run("successful_struct", func(t *testing.T) {
+//		type s struct {
+//			Uintptr uintptr `censor:"display"`
+//		}
+//		v := s{Uintptr: 824634330992}
+//
+//		got := Format(v)
+//		fmt.Println("got", got)
+//		require.Equal(t, "{Uintptr: 824634330992}", got)
+//	})
+//
+//	t.Run("successful_slice", func(t *testing.T) {
+//		v := []uintptr{824634330992, 824634330993}
+//
+//		got := Format(v)
+//		fmt.Println("got", got)
+//		require.Equal(t, "[824634330992, 824634330993]", got)
+//	})
+//
+//	t.Run("successful_map", func(t *testing.T) {
+//		v := map[string]uintptr{"one": 824634330992, "two": 824634330993}
+//
+//		got := Format(v)
+//		fmt.Println("got", got)
+//		require.Equal(t, "map[one: 824634330992, two: 824634330993]", got)
+//	})
+//
+//	t.Run("successful_interface", func(t *testing.T) {
+//		var v interface{} = uintptr(824634330992)
+//
+//		got := Format(v)
+//		fmt.Println("got", got)
+//		require.Equal(t, "824634330992", got)
+//	})
+//
+//	t.Run("successful_ptr", func(t *testing.T) {
+//		var v uintptr = 824634330992
+//
+//		got := Format(&v)
+//		fmt.Println("got", got)
+//		require.Equal(t, "824634330992", got)
+//	})
+//}

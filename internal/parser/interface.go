@@ -30,7 +30,7 @@ func (p *Parser) Interface(rv reflect.Value) models.Value {
 	case reflect.String:
 		return p.String(rv.Elem())
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 		return p.Integer(rv.Elem())
 	case reflect.Float32, reflect.Float64:
 		return p.Float(rv.Elem())

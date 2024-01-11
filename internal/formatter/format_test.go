@@ -134,6 +134,16 @@ func TestFormatter_writeValue(t *testing.T) {
 		})
 	})
 
+	t.Run("uintptr", func(t *testing.T) {
+		t.Cleanup(func() { buf.Reset() })
+		require.NotPanics(t, func() {
+			v := models.Value{Value: uintptr(824634330992), Kind: reflect.Uint64}
+			f.writeValue(&buf, v)
+			exp := "824634330992"
+			require.Equal(t, exp, buf.String())
+		})
+	})
+
 	t.Run("byte", func(t *testing.T) {
 		t.Cleanup(func() { buf.Reset() })
 		require.NotPanics(t, func() {
@@ -370,16 +380,6 @@ func TestFormatter_writeValue(t *testing.T) {
 		})
 	})
 
-	t.Run("unsupported_type_uintptr", func(t *testing.T) {
-		t.Cleanup(func() { buf.Reset() })
-		require.NotPanics(t, func() {
-			v := models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}
-			f.writeValue(&buf, v)
-			exp := `[Unsupported type: uintptr]`
-			require.Equal(t, exp, buf.String())
-		})
-	})
-
 	t.Run("unsupported_type_unsafe_pointer", func(t *testing.T) {
 		t.Cleanup(func() { buf.Reset() })
 		require.NotPanics(t, func() {
@@ -575,6 +575,23 @@ func TestFormatter_writeField(t *testing.T) {
 			}
 			f.writeField(field, &buf)
 			exp := `Age: 44`
+			require.Equal(t, exp, buf.String())
+		})
+	})
+
+	t.Run("uintptr", func(t *testing.T) {
+		t.Cleanup(func() { buf.Reset() })
+		require.NotPanics(t, func() {
+			var b uintptr = 824634330992
+			field := models.Field{
+				Name: "Age",
+				Value: models.Value{
+					Value: b,
+					Kind:  reflect.Uintptr,
+				},
+			}
+			f.writeField(field, &buf)
+			exp := `Age: 824634330992`
 			require.Equal(t, exp, buf.String())
 		})
 	})

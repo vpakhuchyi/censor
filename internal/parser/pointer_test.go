@@ -227,7 +227,7 @@ func TestParser_Pointer(t *testing.T) {
 		require.NotPanics(t, func() {
 			v := uintptr(0)
 			got := p.Ptr(reflect.ValueOf(&v))
-			exp := models.Ptr{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}
+			exp := models.Ptr{Value: uintptr(0), Kind: reflect.Uintptr}
 
 			require.Equal(t, exp, got)
 		})

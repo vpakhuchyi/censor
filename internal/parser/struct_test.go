@@ -56,22 +56,23 @@ func TestParser_Struct(t *testing.T) {
 
 	t.Run("struct_with_integers", func(t *testing.T) {
 		type integers struct {
-			Int    int    `json:"int" censor:"display"`
-			Int8   int8   `json:"int8" censor:"display"`
-			Int16  int16  `json:"int16" censor:"display"`
-			Int32  int32  `json:"int32" censor:"display"`
-			Int64  int64  `json:"int64" censor:"display"`
-			Uint   uint   `json:"uint" censor:"display"`
-			Uint8  uint8  `json:"uint8" censor:"display"`
-			Uint16 uint16 `json:"uint16" censor:"display"`
-			Uint32 uint32 `json:"uint32" censor:"display"`
-			Uint64 uint64 `json:"uint64" censor:"display"`
-			Byte   byte   `json:"byte" censor:"display"`
-			Rune   rune   `json:"rune" censor:"display"`
+			Int     int     `json:"int" censor:"display"`
+			Int8    int8    `json:"int8" censor:"display"`
+			Int16   int16   `json:"int16" censor:"display"`
+			Int32   int32   `json:"int32" censor:"display"`
+			Int64   int64   `json:"int64" censor:"display"`
+			Uint    uint    `json:"uint" censor:"display"`
+			Uint8   uint8   `json:"uint8" censor:"display"`
+			Uint16  uint16  `json:"uint16" censor:"display"`
+			Uint32  uint32  `json:"uint32" censor:"display"`
+			Uint64  uint64  `json:"uint64" censor:"display"`
+			Uintptr uintptr `json:"uintptr" censor:"display"`
+			Byte    byte    `json:"byte" censor:"display"`
+			Rune    rune    `json:"rune" censor:"display"`
 		}
 
 		require.NotPanics(t, func() {
-			v := integers{Int: 1, Int8: 2, Int16: 3, Int32: 4, Int64: 5, Uint: 6, Uint8: 7, Uint16: 8, Uint32: 9, Uint64: 10, Byte: 11, Rune: 'y'}
+			v := integers{Int: 1, Int8: 2, Int16: 3, Int32: 4, Int64: 5, Uint: 6, Uint8: 7, Uint16: 8, Uint32: 9, Uint64: 10, Uintptr: 11, Byte: 12, Rune: 'y'}
 			got := p.Struct(reflect.ValueOf(v))
 			exp := models.Struct{
 				Name: "parser.integers",
@@ -86,7 +87,8 @@ func TestParser_Struct(t *testing.T) {
 					{Name: "Uint16", Value: models.Value{Value: uint16(8), Kind: reflect.Uint16}, Opts: options.FieldOptions{Display: true}},
 					{Name: "Uint32", Value: models.Value{Value: uint32(9), Kind: reflect.Uint32}, Opts: options.FieldOptions{Display: true}},
 					{Name: "Uint64", Value: models.Value{Value: uint64(10), Kind: reflect.Uint64}, Opts: options.FieldOptions{Display: true}},
-					{Name: "Byte", Value: models.Value{Value: byte(11), Kind: reflect.Uint8}, Opts: options.FieldOptions{Display: true}},
+					{Name: "Uintptr", Value: models.Value{Value: uintptr(11), Kind: reflect.Uintptr}, Opts: options.FieldOptions{Display: true}},
+					{Name: "Byte", Value: models.Value{Value: byte(12), Kind: reflect.Uint8}, Opts: options.FieldOptions{Display: true}},
 					{Name: "Rune", Value: models.Value{Value: rune(121), Kind: reflect.Int32}, Opts: options.FieldOptions{Display: true}},
 				},
 			}
@@ -575,22 +577,19 @@ func TestParser_Struct(t *testing.T) {
 
 	t.Run("struct_with_unsupported_types", func(t *testing.T) {
 		type structWithUnsupportedTypes struct {
-			ChanWithCensorTag    chan int `censor:"display"`
-			Chan                 chan int
-			FuncWithCensorTag    func() `censor:"display"`
-			Func                 func()
-			UnsafeWithCensorTag  unsafe.Pointer `censor:"display"`
-			Unsafe               unsafe.Pointer
-			UintPtrWithCensorTag uintptr `censor:"display"`
-			UintPtr              uintptr
+			ChanWithCensorTag   chan int `censor:"display"`
+			Chan                chan int
+			FuncWithCensorTag   func() `censor:"display"`
+			Func                func()
+			UnsafeWithCensorTag unsafe.Pointer `censor:"display"`
+			Unsafe              unsafe.Pointer
 		}
 
 		require.NotPanics(t, func() {
 			v := structWithUnsupportedTypes{
-				Chan:    make(chan int),
-				Func:    func() {},
-				Unsafe:  unsafe.Pointer(&mainPkgStruct),
-				UintPtr: uintptr(unsafe.Pointer(&mainPkgStruct)),
+				Chan:   make(chan int),
+				Func:   func() {},
+				Unsafe: unsafe.Pointer(&mainPkgStruct),
 			}
 
 			got := p.Struct(reflect.ValueOf(v))
@@ -603,8 +602,6 @@ func TestParser_Struct(t *testing.T) {
 					{Name: "Func", Value: models.Value{Value: "[Unsupported type: func]", Kind: reflect.Func}, Opts: options.FieldOptions{Display: false}},
 					{Name: "UnsafeWithCensorTag", Value: models.Value{Value: "[Unsupported type: unsafe.Pointer]", Kind: reflect.UnsafePointer}, Opts: options.FieldOptions{Display: true}},
 					{Name: "Unsafe", Value: models.Value{Value: "[Unsupported type: unsafe.Pointer]", Kind: reflect.UnsafePointer}, Opts: options.FieldOptions{Display: false}},
-					{Name: "UintPtrWithCensorTag", Value: models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}, Opts: options.FieldOptions{Display: true}},
-					{Name: "UintPtr", Value: models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}, Opts: options.FieldOptions{Display: false}},
 				},
 			}
 			require.Equal(t, exp, got)

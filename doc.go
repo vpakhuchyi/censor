@@ -25,7 +25,7 @@
 	- string, bool
 	- float64/float32, complex64/complex128
 	- int/int8/int16/int32/int64/rune
-	- uint/uint8/uint16/uint32/uint64/byte
+	- uint/uint8/uint16/uint32/uint64/uintptr/byte
 
  - Customizable configuration: Offers flexibility in configuration through the use of a `.yaml` file or by
    directly passing a `config.Config` struct.
@@ -97,9 +97,7 @@
 
  Unsupported Types:
  |------------|------------|------------|
- | Chan       | Uintptr    | Func       |
- |------------|------------|------------|
- | UnsafePtr  |            |            |
+ | Chan       | UnsafePtr  | Func       |
  |------------|------------|------------|
 
  If a value of an unsupported type is provided, a string value with the following format will be returned:
