@@ -327,8 +327,8 @@ func TestParser_Slice(t *testing.T) {
 			got := p.Slice(reflect.ValueOf(v))
 			exp := models.Slice{
 				Values: []models.Value{
-					{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr},
-					{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr},
+					{Value: uintptr(1), Kind: reflect.Uintptr},
+					{Value: uintptr(2), Kind: reflect.Uintptr},
 				},
 			}
 

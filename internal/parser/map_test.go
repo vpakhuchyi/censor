@@ -353,8 +353,8 @@ func TestParser_Map(t *testing.T) {
 			exp := models.Map{
 				Type: "map[string]uintptr",
 				Values: []models.KV{
-					{Key: models.Value{Value: "key1", Kind: reflect.String}, Value: models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}, SortValue: "key1"},
-					{Key: models.Value{Value: "key2", Kind: reflect.String}, Value: models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}, SortValue: "key2"},
+					{Key: models.Value{Value: "key1", Kind: reflect.String}, Value: models.Value{Value: uintptr(4563456346), Kind: reflect.Uintptr}, SortValue: "key1"},
+					{Key: models.Value{Value: "key2", Kind: reflect.String}, Value: models.Value{Value: uintptr(7586784657), Kind: reflect.Uintptr}, SortValue: "key2"},
 				},
 			}
 
@@ -628,8 +628,8 @@ func TestParser_Map(t *testing.T) {
 			exp := models.Map{
 				Type: "map[uintptr]string",
 				Values: []models.KV{
-					{SortValue: "4563456346", Key: models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}, Value: models.Value{Value: "value1", Kind: reflect.String}},
-					{SortValue: "7586784657", Key: models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}, Value: models.Value{Value: "value2", Kind: reflect.String}},
+					{SortValue: "4563456346", Key: models.Value{Value: uintptr(4563456346), Kind: reflect.Uintptr}, Value: models.Value{Value: "value1", Kind: reflect.String}},
+					{SortValue: "7586784657", Key: models.Value{Value: uintptr(7586784657), Kind: reflect.Uintptr}, Value: models.Value{Value: "value2", Kind: reflect.String}},
 				},
 			}
 

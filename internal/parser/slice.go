@@ -36,7 +36,7 @@ func (p *Parser) Slice(rv reflect.Value) models.Slice {
 		case reflect.String:
 			slice.Values = append(slice.Values, p.String(elem))
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 			slice.Values = append(slice.Values, p.Integer(elem))
 		case reflect.Float32, reflect.Float64:
 			slice.Values = append(slice.Values, p.Float(elem))

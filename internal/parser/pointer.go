@@ -37,7 +37,7 @@ func (p *Parser) Ptr(rv reflect.Value) models.Ptr {
 	case reflect.String:
 		return models.Ptr(p.String(rv.Elem()))
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 		return models.Ptr(p.Integer(rv.Elem()))
 	case reflect.Float32, reflect.Float64:
 		return models.Ptr(p.Float(rv.Elem()))

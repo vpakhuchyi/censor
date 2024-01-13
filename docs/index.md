@@ -23,7 +23,7 @@ go get -u github.com/vpakhuchyi/censor
 - [x] Wide range of supported types:
     - `struct`, `map`, `slice`, `array`, `pointer`, `string`,
     - `float64/float32`, `int/int8/int16/int32/int64/rune`,
-    - `uint/uint8/uint16/uint32/uint64/byte`, `bool`,
+    - `uint/uint8/uint16/uint32/uint64/uintptr/byte`, `bool`,
     - `interface`, `complex64/complex128`.
 - [x] Support encoding.TextMarshaler interface for custom types. 
 - [x] Customizable configuration:
@@ -632,7 +632,7 @@ func main() {
 There is no specific formatting for the following types:
 
 - Int/Int8/Int16/Int32/Int64
-- Uint/Uint8/Byte/Uint16/Uint32/Uint64
+- Uint/Uint8/Byte/Uint16/Uint32/Uint64/Uintptr
 - Bool
 
 Rules of fmt package are applied to them.
@@ -655,7 +655,6 @@ type s struct {
   Chan          chan int       `censor:"display"`
   Func          func()         `censor:"display"`
   UnsafePointer unsafe.Pointer `censor:"display"`
-  UintPtr       uintptr        `censor:"display"`
 }
 
 func main() {
@@ -663,12 +662,11 @@ func main() {
     Chan:          make(chan int),
     Func:          func() {},
     UnsafePointer: unsafe.Pointer(uintptr(1)),
-    UintPtr:       uintptr(1),
   }
 
   slog.Info("Request", "payload", censor.Format(v))
   // Here is what we'll see in the log:
-  //Output: `2038/10/25 12:00:01 INFO Request payload={Chan: [Unsupported type: chan], Func: [Unsupported type: func], UnsafePointer: [Unsupported type: unsafe.Pointer], UintPtr: [Unsupported type: uintptr]}`
+  //Output: `2038/10/25 12:00:01 INFO Request payload={Chan: [Unsupported type: chan], Func: [Unsupported type: func], UnsafePointer: [Unsupported type: unsafe.Pointer]}`
 }
 
 ```

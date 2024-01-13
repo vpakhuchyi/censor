@@ -105,6 +105,15 @@ func TestParser_Integer(t *testing.T) {
 		})
 	})
 
+	t.Run("successful_uintptr", func(t *testing.T) {
+		require.NotPanics(t, func() {
+			var v uintptr = 824634330992
+			got := p.Integer(reflect.ValueOf(v))
+			exp := models.Value{Value: uintptr(824634330992), Kind: reflect.Uintptr}
+			require.Equal(t, exp, got)
+		})
+	})
+
 	t.Run("successful_byte", func(t *testing.T) {
 		require.NotPanics(t, func() {
 			var v byte = 122

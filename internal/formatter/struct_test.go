@@ -97,12 +97,10 @@ func TestFormatter_Struct(t *testing.T) {
 					{Name: "Func", Value: models.Value{Value: "[Unsupported type: func]", Kind: reflect.Func}, Opts: options.FieldOptions{Display: false}},
 					{Name: "UnsafeWithCensorTag", Value: models.Value{Value: "[Unsupported type: unsafe.Pointer]", Kind: reflect.UnsafePointer}, Opts: options.FieldOptions{Display: true}},
 					{Name: "Unsafe", Value: models.Value{Value: "[Unsupported type: unsafe.Pointer]", Kind: reflect.UnsafePointer}, Opts: options.FieldOptions{Display: false}},
-					{Name: "UintPtrWithCensorTag", Value: models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}, Opts: options.FieldOptions{Display: true}},
-					{Name: "UintPtr", Value: models.Value{Value: "[Unsupported type: uintptr]", Kind: reflect.Uintptr}, Opts: options.FieldOptions{Display: false}},
 				},
 			}
 			got := f.Struct(v)
-			exp := `{ChanWithCensorTag: [Unsupported type: chan], Chan: [CENSORED], FuncWithCensorTag: [Unsupported type: func], Func: [CENSORED], UnsafeWithCensorTag: [Unsupported type: unsafe.Pointer], Unsafe: [CENSORED], UintPtrWithCensorTag: [Unsupported type: uintptr], UintPtr: [CENSORED]}`
+			exp := `{ChanWithCensorTag: [Unsupported type: chan], Chan: [CENSORED], FuncWithCensorTag: [Unsupported type: func], Func: [CENSORED], UnsafeWithCensorTag: [Unsupported type: unsafe.Pointer], Unsafe: [CENSORED]}`
 			require.Equal(t, exp, got)
 		})
 	})

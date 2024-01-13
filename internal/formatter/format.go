@@ -65,7 +65,7 @@ func (f *Formatter) writeValue(buf *strings.Builder, v models.Value) {
 	case reflect.String:
 		buf.WriteString(f.String(v))
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 		buf.WriteString(f.Integer(v))
 	case reflect.Float32, reflect.Float64:
 		buf.WriteString(f.Float(v))
@@ -94,7 +94,7 @@ func (f *Formatter) writeField(field models.Field, buf *strings.Builder) {
 	case reflect.String:
 		buf.WriteString(formatField(field.Name, f.String(field.Value)))
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 		buf.WriteString(formatField(field.Name, f.Integer(field.Value)))
 	case reflect.Float32, reflect.Float64:
 		buf.WriteString(formatField(field.Name, f.Float(field.Value)))
