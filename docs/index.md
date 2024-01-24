@@ -21,10 +21,9 @@ go get -u github.com/vpakhuchyi/censor
 - [x] Struct formatting with a default values masking of all the fields (recursively).
 - [x] Strings values masking based on provided regexp patterns.
 - [x] Wide range of supported types:
-    - `struct`, `map`, `slice`, `array`, `pointer`, `string`,
-    - `float64/float32`, `int/int8/int16/int32/int64/rune`,
-    - `uint/uint8/uint16/uint32/uint64/uintptr/byte`, `bool`,
-    - `interface`, `complex64/complex128`.
+    - `struct`, `map`, `slice`, `array`, `pointer`, `string`
+    - `float64/float32`, `int/int8/int16/int32/int64/rune`
+    - `uint/uint8/uint16/uint32/uint64/uintptr/byte`, `bool`, `interface`
 - [x] Support encoding.TextMarshaler interface for custom types. 
 - [x] Customizable configuration:
     - Using `.ymal` file
@@ -535,36 +534,6 @@ func main() {
 
 ```
 
-### Complex64/Complex128
-
-Both parts are formatted to include up to 15 (complex128) and 7 (complex64) precision digits respectively that is
-similar to float types.
-
-```go
-package main
-
-import (
-  "log/slog"
-
-  "github.com/vpakhuchyi/censor"
-)
-
-func main() {
-  var v complex64 = complex(99.123456789, 22.2222)
-
-  slog.Info("Request", "payload", censor.Format(v))
-  // Here is what we'll see in the log:
-  //Output: `2038/10/25 12:00:01 INFO Request payload=(99.12346+22.2222i)`
-
-  var v2 complex128 = complex(9.123456789123456, 1.050595950)
-
-  slog.Info("Request", "payload", censor.Format(v2))
-  // Here is what we'll see in the log:
-  //Output: `2038/10/25 12:00:01 INFO Request payload=(9.12345678912346+1.05059595i)`
-}
-
-```
-
 ### Rune
 
 Please pay attention that rune type is formatted as int32 type because, under the hood, it's an alias for int32.
@@ -655,6 +624,8 @@ type s struct {
   Chan          chan int       `censor:"display"`
   Func          func()         `censor:"display"`
   UnsafePointer unsafe.Pointer `censor:"display"`
+  Complex64     complex64      `censor:"display"`
+  Complex128    complex128     `censor:"display"`
 }
 
 func main() {
@@ -662,11 +633,13 @@ func main() {
     Chan:          make(chan int),
     Func:          func() {},
     UnsafePointer: unsafe.Pointer(uintptr(1)),
+	Complex64:     complex(1.11231, 2.034),
+	Complex128:    complex(11123.123, 5.5468098889),
   }
 
   slog.Info("Request", "payload", censor.Format(v))
   // Here is what we'll see in the log:
-  //Output: `2038/10/25 12:00:01 INFO Request payload={Chan: [Unsupported type: chan], Func: [Unsupported type: func], UnsafePointer: [Unsupported type: unsafe.Pointer]}`
+  //Output: `2038/10/25 12:00:01 INFO Request payload={Chan: [Unsupported type: chan], Func: [Unsupported type: func], UnsafePointer: [Unsupported type: unsafe.Pointer], Complex64: [Unsupported type: complex64], Complex128: [Unsupported type: complex128]}`
 }
 
 ```

@@ -36,8 +36,6 @@ func (p *Parser) Interface(rv reflect.Value) models.Value {
 		return p.Float(rv.Elem())
 	case reflect.Bool:
 		return p.Bool(rv.Elem())
-	case reflect.Complex64, reflect.Complex128:
-		return p.Complex(rv.Elem())
 	default:
 		return models.Value{
 			Kind:  k,

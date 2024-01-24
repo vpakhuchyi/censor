@@ -113,8 +113,8 @@ func TestParser_Map(t *testing.T) {
 			exp := models.Map{
 				Type: "map[string]complex64",
 				Values: []models.KV{
-					{Key: models.Value{Value: "key1", Kind: reflect.String}, Value: models.Value{Value: complex(float32(1.234), float32(2.345)), Kind: reflect.Complex64}, SortValue: "key1"},
-					{Key: models.Value{Value: "key2", Kind: reflect.String}, Value: models.Value{Value: complex(float32(3.456), float32(4.567)), Kind: reflect.Complex64}, SortValue: "key2"},
+					{Key: models.Value{Value: "key1", Kind: reflect.String}, Value: models.Value{Value: `[Unsupported type: complex64]`, Kind: reflect.Complex64}, SortValue: "key1"},
+					{Key: models.Value{Value: "key2", Kind: reflect.String}, Value: models.Value{Value: `[Unsupported type: complex64]`, Kind: reflect.Complex64}, SortValue: "key2"},
 				},
 			}
 
@@ -129,8 +129,8 @@ func TestParser_Map(t *testing.T) {
 			exp := models.Map{
 				Type: "map[string]complex128",
 				Values: []models.KV{
-					{Key: models.Value{Value: "key1", Kind: reflect.String}, Value: models.Value{Value: complex(float64(1.234), float64(2.345)), Kind: reflect.Complex128}, SortValue: "key1"},
-					{Key: models.Value{Value: "key2", Kind: reflect.String}, Value: models.Value{Value: complex(float64(3.456), float64(4.567)), Kind: reflect.Complex128}, SortValue: "key2"},
+					{Key: models.Value{Value: "key1", Kind: reflect.String}, Value: models.Value{Value: `[Unsupported type: complex128]`, Kind: reflect.Complex128}, SortValue: "key1"},
+					{Key: models.Value{Value: "key2", Kind: reflect.String}, Value: models.Value{Value: `[Unsupported type: complex128]`, Kind: reflect.Complex128}, SortValue: "key2"},
 				},
 			}
 
@@ -450,8 +450,8 @@ func TestParser_Map(t *testing.T) {
 			exp := models.Map{
 				Type: "map[complex64]string",
 				Values: []models.KV{
-					{Key: models.Value{Value: complex(float32(1.234), float32(2.345)), Kind: reflect.Complex64}, Value: models.Value{Value: "value1", Kind: reflect.String}, SortValue: "(1.234+2.345i)"},
-					{Key: models.Value{Value: complex(float32(3.456), float32(4.567)), Kind: reflect.Complex64}, Value: models.Value{Value: "value2", Kind: reflect.String}, SortValue: "(3.456+4.567i)"},
+					{Key: models.Value{Value: `[Unsupported type: complex64]`, Kind: reflect.Complex64}, Value: models.Value{Value: "value1", Kind: reflect.String}, SortValue: "(1.234+2.345i)"},
+					{Key: models.Value{Value: `[Unsupported type: complex64]`, Kind: reflect.Complex64}, Value: models.Value{Value: "value2", Kind: reflect.String}, SortValue: "(3.456+4.567i)"},
 				},
 			}
 
@@ -466,8 +466,8 @@ func TestParser_Map(t *testing.T) {
 			exp := models.Map{
 				Type: "map[complex128]string",
 				Values: []models.KV{
-					{Key: models.Value{Value: complex(float64(1.234), float64(2.345)), Kind: reflect.Complex128}, Value: models.Value{Value: "value1", Kind: reflect.String}, SortValue: "(1.234+2.345i)"},
-					{Key: models.Value{Value: complex(float64(3.456), float64(4.567)), Kind: reflect.Complex128}, Value: models.Value{Value: "value2", Kind: reflect.String}, SortValue: "(3.456+4.567i)"},
+					{Key: models.Value{Value: `[Unsupported type: complex128]`, Kind: reflect.Complex128}, Value: models.Value{Value: "value1", Kind: reflect.String}, SortValue: "(1.234+2.345i)"},
+					{Key: models.Value{Value: `[Unsupported type: complex128]`, Kind: reflect.Complex128}, Value: models.Value{Value: "value2", Kind: reflect.String}, SortValue: "(3.456+4.567i)"},
 				},
 			}
 

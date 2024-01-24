@@ -188,24 +188,24 @@ func TestFormatter_writeValue(t *testing.T) {
 		})
 	})
 
-	t.Run("complex64", func(t *testing.T) {
+	t.Run("unsupported_type_complex64", func(t *testing.T) {
 		t.Cleanup(func() { buf.Reset() })
 		require.NotPanics(t, func() {
 			var c complex64 = 3.11111111111111 + 3.11111111111111i
 			v := models.Value{Value: c, Kind: reflect.Complex64}
 			f.writeValue(&buf, v)
-			exp := "(3.111111+3.111111i)"
+			exp := "[Unsupported type: complex64]"
 			require.Equal(t, exp, buf.String())
 		})
 	})
 
-	t.Run("complex128", func(t *testing.T) {
+	t.Run("unsupported_type_complex128", func(t *testing.T) {
 		t.Cleanup(func() { buf.Reset() })
 		require.NotPanics(t, func() {
 			var c complex128 = 3.11111111111111 + 3.11111111111111i
 			v := models.Value{Value: c, Kind: reflect.Complex128}
 			f.writeValue(&buf, v)
-			exp := "(3.11111111111111+3.11111111111111i)"
+			exp := "[Unsupported type: complex128]"
 			require.Equal(t, exp, buf.String())
 		})
 	})
@@ -664,7 +664,7 @@ func TestFormatter_writeField(t *testing.T) {
 		})
 	})
 
-	t.Run("complex64", func(t *testing.T) {
+	t.Run("unsupported_type_complex64", func(t *testing.T) {
 		t.Cleanup(func() { buf.Reset() })
 		require.NotPanics(t, func() {
 			var c complex64 = 3.11111111111111 + 3.11111111111111i
@@ -676,12 +676,12 @@ func TestFormatter_writeField(t *testing.T) {
 				},
 			}
 			f.writeField(field, &buf)
-			exp := `Test: (3.111111+3.111111i)`
+			exp := `Test: [Unsupported type: complex64]`
 			require.Equal(t, exp, buf.String())
 		})
 	})
 
-	t.Run("complex128", func(t *testing.T) {
+	t.Run("unsupported_type_complex128", func(t *testing.T) {
 		t.Cleanup(func() { buf.Reset() })
 		require.NotPanics(t, func() {
 			var c complex128 = 3.11111111111111 + 3.11111111111111i
@@ -693,7 +693,7 @@ func TestFormatter_writeField(t *testing.T) {
 				},
 			}
 			f.writeField(field, &buf)
-			exp := `Test: (3.11111111111111+3.11111111111111i)`
+			exp := `Test: [Unsupported type: complex128]`
 			require.Equal(t, exp, buf.String())
 		})
 	})

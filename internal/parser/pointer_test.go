@@ -177,7 +177,7 @@ func TestParser_Pointer(t *testing.T) {
 		require.NotPanics(t, func() {
 			v := complex(float32(1.2459), float32(-345.345234))
 			got := p.Ptr(reflect.ValueOf(&v))
-			exp := models.Ptr{Value: complex(float32(1.2459), float32(-345.345234)), Kind: reflect.Complex64}
+			exp := models.Ptr{Value: `[Unsupported type: complex64]`, Kind: reflect.Complex64}
 
 			require.Equal(t, exp, got)
 		})
@@ -187,7 +187,7 @@ func TestParser_Pointer(t *testing.T) {
 		require.NotPanics(t, func() {
 			v := complex(float64(11.24359), float64(-5345.34523768684))
 			got := p.Ptr(reflect.ValueOf(&v))
-			exp := models.Ptr{Value: complex(float64(11.24359), float64(-5345.34523768684)), Kind: reflect.Complex128}
+			exp := models.Ptr{Value: `[Unsupported type: complex128]`, Kind: reflect.Complex128}
 
 			require.Equal(t, exp, got)
 		})
