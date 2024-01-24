@@ -59,7 +59,7 @@ func (f *Formatter) compileExcludePatterns() {
 	}
 }
 
-//nolint:exhaustive,gocyclo
+//nolint:exhaustive
 func (f *Formatter) writeValue(buf *strings.Builder, v models.Value) {
 	switch v.Kind {
 	case reflect.String:
@@ -86,7 +86,7 @@ func (f *Formatter) writeValue(buf *strings.Builder, v models.Value) {
 	}
 }
 
-//nolint:exhaustive,gocyclo
+//nolint:exhaustive
 func (f *Formatter) writeField(field models.Field, buf *strings.Builder) {
 	switch field.Value.Kind {
 	case reflect.String:
