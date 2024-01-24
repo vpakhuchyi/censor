@@ -101,18 +101,35 @@ func (p *Processor) Format(val any) string {
 }
 
 // PrintConfig prints the configuration of the censor Processor.
+//
+//nolint:gomnd
 func (p *Processor) PrintConfig() {
-	const (
-		lineLength = 69
-		padLength  = 10
-	)
-
-	line := strings.Repeat("-", lineLength) + "\n"
+	const lineLength = 69
 
 	var b strings.Builder
-	b.WriteString(line)
-	b.WriteString(strings.Repeat(" ", padLength) + "Censor is configured with the following settings:" + "\n")
-	b.WriteString(line)
+
+	writeLine := func() {
+		b.WriteString(strings.Repeat("-", lineLength) + "\n")
+	}
+
+	// Handle the case when the censor instance isn't initialized.
+	if p == nil {
+		const text = "Censor instance isn't initialized"
+
+		writeLine()
+		b.WriteString(strings.Repeat(" ", (lineLength-len(text))/2) + text + "\n")
+		writeLine()
+
+		fmt.Print(b.String())
+
+		return
+	}
+
+	const text = "Censor is configured with the following settings:"
+
+	writeLine()
+	b.WriteString(strings.Repeat(" ", (lineLength-len(text))/2) + text + "\n")
+	writeLine()
 
 	cfg := config.Config{
 		General:   p.cfg.General,
@@ -131,7 +148,8 @@ func (p *Processor) PrintConfig() {
 
 	b.Write(d)
 
-	b.WriteString(line)
+	writeLine()
+
 	fmt.Print(b.String())
 }
 
