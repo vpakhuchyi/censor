@@ -169,7 +169,7 @@ func TestParser_Interface(t *testing.T) {
 					{
 						Name: "Names",
 						Value: models.Value{
-							Value: models.Value{Value: (1.82 + 0i), Kind: reflect.Complex128},
+							Value: models.Value{Value: `[Unsupported type: complex128]`, Kind: reflect.Complex128},
 							Kind:  reflect.Interface,
 						},
 						Opts: options.FieldOptions{Display: true},

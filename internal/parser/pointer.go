@@ -43,8 +43,6 @@ func (p *Parser) Ptr(rv reflect.Value) models.Ptr {
 		return models.Ptr(p.Float(rv.Elem()))
 	case reflect.Bool:
 		return models.Ptr(p.Bool(rv.Elem()))
-	case reflect.Complex64, reflect.Complex128:
-		return models.Ptr(p.Complex(rv.Elem()))
 	default:
 		return models.Ptr{Value: fmt.Sprintf(config.UnsupportedTypeTmpl, k), Kind: k}
 	}

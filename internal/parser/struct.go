@@ -73,8 +73,6 @@ func (p *Parser) Struct(rv reflect.Value) models.Struct {
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 			field.Value = p.Integer(f)
-		case reflect.Complex64, reflect.Complex128:
-			field.Value = p.Complex(f)
 		default:
 			field.Value = models.Value{Value: fmt.Sprintf(config.UnsupportedTypeTmpl, k), Kind: k}
 		}

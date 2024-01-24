@@ -136,7 +136,7 @@ func TestProcessor_parse(t *testing.T) {
 	t.Run("complex64", func(t *testing.T) {
 		require.NotPanics(t, func() {
 			val := complex(float32(-45.234), float32(11.933))
-			exp := models.Value{Value: complex(float32(-45.234), float32(11.933)), Kind: reflect.Complex64}
+			exp := models.Value{Value: `[Unsupported type: complex64]`, Kind: reflect.Complex64}
 
 			got := p.parse(reflect.ValueOf(val))
 			require.Equal(t, exp, got)
@@ -146,7 +146,7 @@ func TestProcessor_parse(t *testing.T) {
 	t.Run("complex128", func(t *testing.T) {
 		require.NotPanics(t, func() {
 			val := complex(float64(-445.2366664), float64(121.93767763))
-			exp := models.Value{Value: complex(float64(-445.2366664), float64(121.93767763)), Kind: reflect.Complex128}
+			exp := models.Value{Value: `[Unsupported type: complex128]`, Kind: reflect.Complex128}
 
 			got := p.parse(reflect.ValueOf(val))
 			require.Equal(t, exp, got)

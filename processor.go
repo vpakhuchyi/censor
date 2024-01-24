@@ -146,8 +146,6 @@ func (p *Processor) parse(v reflect.Value) any {
 		return p.parser.Ptr(v)
 	case reflect.Map:
 		return p.parser.Map(v)
-	case reflect.Complex64, reflect.Complex128:
-		return p.parser.Complex(v)
 	case reflect.Float32, reflect.Float64:
 		return p.parser.Float(v)
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
@@ -179,8 +177,6 @@ func (p *Processor) format(k reflect.Kind, v any) string {
 		return p.formatter.String(v.(models.Value))
 	case reflect.Float32, reflect.Float64:
 		return p.formatter.Float(v.(models.Value))
-	case reflect.Complex64, reflect.Complex128:
-		return p.formatter.Complex(v.(models.Value))
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		return p.formatter.Integer(v.(models.Value))

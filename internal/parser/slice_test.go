@@ -234,8 +234,8 @@ func TestParser_Slice(t *testing.T) {
 			got := p.Slice(reflect.ValueOf(v))
 			exp := models.Slice{
 				Values: []models.Value{
-					{Value: complex(float32(1), float32(2.2436)), Kind: reflect.Complex64},
-					{Value: complex(float32(-33241), float32(322.4265436)), Kind: reflect.Complex64},
+					{Value: `[Unsupported type: complex64]`, Kind: reflect.Complex64},
+					{Value: `[Unsupported type: complex64]`, Kind: reflect.Complex64},
 				},
 			}
 
@@ -249,8 +249,8 @@ func TestParser_Slice(t *testing.T) {
 			got := p.Slice(reflect.ValueOf(v))
 			exp := models.Slice{
 				Values: []models.Value{
-					{Value: complex(float64(1), float64(2.2436)), Kind: reflect.Complex128},
-					{Value: complex(float64(-33241), float64(322.4265436)), Kind: reflect.Complex128},
+					{Value: `[Unsupported type: complex128]`, Kind: reflect.Complex128},
+					{Value: `[Unsupported type: complex128]`, Kind: reflect.Complex128},
 				},
 			}
 

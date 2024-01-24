@@ -59,7 +59,7 @@ func (f *Formatter) compileExcludePatterns() {
 	}
 }
 
-//nolint:exhaustive,gocyclo
+//nolint:exhaustive
 func (f *Formatter) writeValue(buf *strings.Builder, v models.Value) {
 	switch v.Kind {
 	case reflect.String:
@@ -69,8 +69,6 @@ func (f *Formatter) writeValue(buf *strings.Builder, v models.Value) {
 		buf.WriteString(f.Integer(v))
 	case reflect.Float32, reflect.Float64:
 		buf.WriteString(f.Float(v))
-	case reflect.Complex64, reflect.Complex128:
-		buf.WriteString(f.Complex(v))
 	case reflect.Struct:
 		buf.WriteString(f.Struct(v.Value.(models.Struct)))
 	case reflect.Slice, reflect.Array:
@@ -88,7 +86,7 @@ func (f *Formatter) writeValue(buf *strings.Builder, v models.Value) {
 	}
 }
 
-//nolint:exhaustive,gocyclo
+//nolint:exhaustive
 func (f *Formatter) writeField(field models.Field, buf *strings.Builder) {
 	switch field.Value.Kind {
 	case reflect.String:
@@ -98,8 +96,6 @@ func (f *Formatter) writeField(field models.Field, buf *strings.Builder) {
 		buf.WriteString(formatField(field.Name, f.Integer(field.Value)))
 	case reflect.Float32, reflect.Float64:
 		buf.WriteString(formatField(field.Name, f.Float(field.Value)))
-	case reflect.Complex64, reflect.Complex128:
-		buf.WriteString(formatField(field.Name, f.Complex(field.Value)))
 	case reflect.Struct:
 		buf.WriteString(formatField(field.Name, f.Struct(field.Value.Value.(models.Struct))))
 	case reflect.Slice, reflect.Array:

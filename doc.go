@@ -23,7 +23,7 @@
  - Wide type support: Censor accommodates a variety of types, including:
 	- struct, map, slice, array, pointer, interface
 	- string, bool
-	- float64/float32, complex64/complex128
+	- float64/float32
 	- int/int8/int16/int32/int64/rune
 	- uint/uint8/uint16/uint32/uint64/uintptr/byte
 
@@ -92,13 +92,14 @@
  | Uint/Uint8/Uint16      |                                                                       |
  | Uint32/Uint64/Byte     |                                                                       |
  | String/Bool            |                                                                       |
- | Complex64/Complex128   |                                                                       |
  |------------------------|-----------------------------------------------------------------------|
 
  Unsupported Types:
- |------------|------------|------------|
- | Chan       | UnsafePtr  | Func       |
- |------------|------------|------------|
+ |------------------------|------------|------------|
+ | Chan                   | UnsafePtr  | Func       |
+ |------------------------|------------|------------|
+ | Complex64/Complex128   |            |            |
+ |------------------------|------------|------------|
 
  If a value of an unsupported type is provided, a string value with the following format will be returned:
  "[Unsupported type: <type>]" - where `<type>` is the type of the provided value.

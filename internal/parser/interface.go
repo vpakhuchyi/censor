@@ -12,7 +12,7 @@ import (
 // In case of a pointer to unsupported type of value, a string built from config.UnsupportedTypeTmpl
 // is used instead of the real value. That string contains a type of the value.
 //
-//nolint:exhaustive,gocyclo
+//nolint:exhaustive
 func (p *Parser) Interface(rv reflect.Value) models.Value {
 	if rv.Kind() != reflect.Interface {
 		panic("provided value is not an interface")
@@ -36,8 +36,6 @@ func (p *Parser) Interface(rv reflect.Value) models.Value {
 		return p.Float(rv.Elem())
 	case reflect.Bool:
 		return p.Bool(rv.Elem())
-	case reflect.Complex64, reflect.Complex128:
-		return p.Complex(rv.Elem())
 	default:
 		return models.Value{
 			Kind:  k,

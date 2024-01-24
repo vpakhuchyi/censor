@@ -17,10 +17,9 @@ easily readable output. Ideal for safeguarding confidential data or enhancing da
 - [x] Struct formatting with a default values masking of all the fields (recursively).
 - [x] Strings values masking based on provided regexp patterns.
 - [x] Wide range of supported types:
-    - `struct`, `map`, `slice`, `array`, `pointer`, `string`,
-    - `float64/float32`, `int/int8/int16/int32/int64/rune`,
-    - `uint/uint8/uint16/uint32/uint64/byte`, `bool`,
-    - `interface`, `complex64/complex128`.
+    - `struct`, `map`, `slice`, `array`, `pointer`, `string`
+    - `float64/float32`, `int/int8/int16/int32/int64/rune`
+    - `uint/uint8/uint16/uint32/uint64/byte`, `bool`, `interface`
 - [x] Customizable configuration.
 
 ### Installation

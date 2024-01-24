@@ -47,8 +47,6 @@ func (p *Parser) Map(rv reflect.Value) models.Map {
 			pair.Key = p.Float(key)
 		case reflect.Bool:
 			pair.Key = p.Bool(key)
-		case reflect.Complex64, reflect.Complex128:
-			pair.Key = p.Complex(key)
 		default:
 			pair.Key = models.Value{Value: fmt.Sprintf(config.UnsupportedTypeTmpl, key.Kind()), Kind: key.Kind()}
 		}
@@ -74,8 +72,6 @@ func (p *Parser) Map(rv reflect.Value) models.Map {
 			pair.Value = p.Float(value)
 		case reflect.Bool:
 			pair.Value = p.Bool(value)
-		case reflect.Complex64, reflect.Complex128:
-			pair.Value = p.Complex(value)
 		default:
 			pair.Value = models.Value{Value: fmt.Sprintf(config.UnsupportedTypeTmpl, k), Kind: k}
 		}

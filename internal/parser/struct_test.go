@@ -148,8 +148,8 @@ func TestParser_Struct(t *testing.T) {
 			exp := models.Struct{
 				Name: "parser.person",
 				Fields: []models.Field{
-					{Name: "Height", Value: models.Value{Value: complex64(complex(1.82, 0)), Kind: reflect.Complex64}, Opts: options.FieldOptions{Display: false}},
-					{Name: "Weight", Value: models.Value{Value: complex128(complex(82.5, 0)), Kind: reflect.Complex128}, Opts: options.FieldOptions{Display: false}},
+					{Name: "Height", Value: models.Value{Value: `[Unsupported type: complex64]`, Kind: reflect.Complex64}, Opts: options.FieldOptions{Display: false}},
+					{Name: "Weight", Value: models.Value{Value: `[Unsupported type: complex128]`, Kind: reflect.Complex128}, Opts: options.FieldOptions{Display: false}},
 				}}
 
 			require.Equal(t, exp, got)
@@ -474,7 +474,7 @@ func TestParser_Struct(t *testing.T) {
 					{
 						Name: "Names",
 						Value: models.Value{
-							Value: models.Value{Value: (1.82 + 0i), Kind: reflect.Complex128},
+							Value: models.Value{Value: `[Unsupported type: complex128]`, Kind: reflect.Complex128},
 							Kind:  reflect.Interface,
 						},
 						Opts: options.FieldOptions{Display: true},
