@@ -37,75 +37,100 @@ func TestNewHandler(t *testing.T) {
 		Zip:     12345,
 	}
 
-	type args struct {
-		opts []Option
-	}
+	t.Run("without output option", func(t *testing.T) {
+		// GIVEN
+		handler := NewJSONHandler()
+		log := slog.New(handler)
+		// WHEN
+		log.Info("test", slog.Any("payload", payload))
+	})
 
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
-		{
-			name: "with_default_handler_options",
-			want: `{"level": "INFO",
-    				 "msg": "test",
-					 "payload": "{City: Kyiv, Country: Ukraine, Street: [CENSORED], Zip: [CENSORED]}"}`,
-		},
-		{
-			name: "with_add_source_option",
-			want: `{"level": "INFO",
-    				 "msg": "test",
-    				 "payload": "{City: Kyiv, Country: Ukraine, Street: [CENSORED], Zip: [CENSORED]}",
-    				 "source": {"function": "github.com/vpakhuchyi/censor/handlers/slog.TestNewHandler.func2"}}`,
-			args: args{
-				opts: []Option{WithAddSource()},
-			},
-		},
-		{
-			name: "with_level_error_option",
-			want: "",
-			args: args{
-				opts: []Option{WithLevel(slog.LevelError)},
-			},
-		},
-		{
-			name: "with_replace_attr_option",
-			want: `{"level": "TEST",
-    				 "msg": "test",
-					 "payload": "{City: Kyiv, Country: Ukraine, Street: [CENSORED], Zip: [CENSORED]}"}`,
-			args: args{
-				opts: []Option{WithReplaceAttr(func(groups []string, a slog.Attr) slog.Attr {
-					if a.Key == "level" {
-						return slog.Any("level", "TEST")
+	t.Run("with default handler options", func(t *testing.T) {
+		// GIVEN
+		var buf bytes.Buffer
+		out := bufio.NewWriter(&buf)
+		log := slog.New(NewJSONHandler([]Option{WithOut(out)}...))
+		want := `{
+    				"level": "INFO",
+    				"msg": "test",
+    				"payload": "{City: Kyiv, Country: Ukraine, Street: [CENSORED], Zip: [CENSORED]}"
+				 }`
+
+		// WHEN
+		log.Info("test", slog.Any("payload", payload))
+
+		// THEN
+		require.NoError(t, out.Flush())
+		got := buf.String()
+		require.JSONEq(t, want, prepareLogEntry(t, got))
+	})
+
+	t.Run("with add source option", func(t *testing.T) {
+		// GIVEN
+		var buf bytes.Buffer
+		out := bufio.NewWriter(&buf)
+		log := slog.New(NewJSONHandler([]Option{WithOut(out), WithAddSource()}...))
+		want := `{
+					"level": "INFO",
+					"msg": "test",
+					"payload": "{City: Kyiv, Country: Ukraine, Street: [CENSORED], Zip: [CENSORED]}",
+					"source": {
+						"function": "github.com/vpakhuchyi/censor/handlers/slog.TestNewHandler.func3"
 					}
+				 }`
 
-					return a
-				})},
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			var buf bytes.Buffer
-			out := bufio.NewWriter(&buf)
-			options := []Option{WithOut(out)}
+		// WHEN
+		log.Info("test", slog.Any("payload", payload))
 
-			opts := append(options, tt.args.opts...)
-			handler := NewJSONHandler(opts...)
-			log := slog.New(handler)
-			log.Info("test", slog.Any("payload", payload))
+		// THEN
+		require.NoError(t, out.Flush())
+		got := buf.String()
+		require.JSONEq(t, want, prepareLogEntry(t, got))
+	})
 
-			require.NoError(t, out.Flush())
-			got := buf.String()
-			if tt.want == "" {
-				require.Equal(t, tt.want, got)
-				return
-			}
+	t.Run("with level error option", func(t *testing.T) {
+		// GIVEN
+		var buf bytes.Buffer
+		out := bufio.NewWriter(&buf)
+		log := slog.New(NewJSONHandler([]Option{WithOut(out), WithLevel(slog.LevelError)}...))
 
-			require.JSONEq(t, tt.want, prepareLogEntry(t, got))
-		})
-	}
+		// WHEN
+		log.Info("test", slog.Any("payload", payload))
+
+		// THEN
+		require.NoError(t, out.Flush())
+		got := buf.String()
+		require.Equal(t, "", got)
+	})
+
+	t.Run("with replace attr option", func(t *testing.T) {
+		// GIVEN
+		var buf bytes.Buffer
+		out := bufio.NewWriter(&buf)
+		log := slog.New(NewJSONHandler([]Option{
+			WithOut(out),
+			WithReplaceAttr(func(groups []string, a slog.Attr) slog.Attr {
+				if a.Key == "level" {
+					return slog.Any("level", "TEST")
+				}
+
+				return a
+			})}...),
+		)
+		want := `{
+					"level": "TEST",
+					"msg": "test",
+					"payload": "{City: Kyiv, Country: Ukraine, Street: [CENSORED], Zip: [CENSORED]}"
+				 }`
+
+		// WHEN
+		log.Info("test", slog.Any("payload", payload))
+
+		// THEN
+		require.NoError(t, out.Flush())
+		got := buf.String()
+		require.JSONEq(t, want, prepareLogEntry(t, got))
+	})
 }
 
 func prepareLogEntry(t *testing.T, s string) string {
