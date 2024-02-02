@@ -8,7 +8,6 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/vpakhuchyi/censor/config"
 	"github.com/vpakhuchyi/censor/internal/formatter"
 	"github.com/vpakhuchyi/censor/internal/models"
 	"github.com/vpakhuchyi/censor/internal/options"
@@ -684,14 +683,14 @@ func TestProcessor_format(t *testing.T) {
 }
 
 func TestNewWithConfig(t *testing.T) {
-	cfg := config.Config{
-		General: config.General{
+	cfg := Config{
+		General: General{
 			PrintConfigOnInit: true,
 		},
-		Parser: config.Parser{
+		Parser: ParserConfig{
 			UseJSONTagName: false,
 		},
-		Formatter: config.Formatter{
+		Formatter: FormatterConfig{
 			MaskValue:            "####",
 			DisplayPointerSymbol: false,
 			DisplayStructName:    false,
@@ -700,9 +699,22 @@ func TestNewWithConfig(t *testing.T) {
 		},
 	}
 	got := NewWithConfig(cfg)
+
+	fConfig := formatter.Config{
+		MaskValue:            cfg.Formatter.MaskValue,
+		DisplayPointerSymbol: cfg.Formatter.DisplayPointerSymbol,
+		DisplayStructName:    cfg.Formatter.DisplayStructName,
+		DisplayMapType:       cfg.Formatter.DisplayMapType,
+		ExcludePatterns:      cfg.Formatter.ExcludePatterns,
+	}
+
+	pConfig := parser.Config{
+		UseJSONTagName: cfg.Parser.UseJSONTagName,
+	}
+
 	exp := &Processor{
-		formatter: formatter.New(cfg.Formatter),
-		parser:    parser.New(cfg.Parser),
+		formatter: formatter.New(fConfig),
+		parser:    parser.New(pConfig),
 		cfg:       cfg,
 	}
 
@@ -713,16 +725,28 @@ func TestNewWithFileConfig(t *testing.T) {
 	t.Run("successful", func(t *testing.T) {
 		t.Cleanup(func() { SetGlobalInstance(New()) })
 
-		cfg, err := config.FromFile("./config/testdata/cfg.yml")
+		cfg, err := ConfigFromFile("./testdata/cfg.yml")
 		require.NoError(t, err)
 
+		fConfig := formatter.Config{
+			MaskValue:            cfg.Formatter.MaskValue,
+			DisplayPointerSymbol: cfg.Formatter.DisplayPointerSymbol,
+			DisplayStructName:    cfg.Formatter.DisplayStructName,
+			DisplayMapType:       cfg.Formatter.DisplayMapType,
+			ExcludePatterns:      cfg.Formatter.ExcludePatterns,
+		}
+
+		pConfig := parser.Config{
+			UseJSONTagName: cfg.Parser.UseJSONTagName,
+		}
+
 		want := Processor{
-			formatter: formatter.New(cfg.Formatter),
-			parser:    parser.New(cfg.Parser),
+			formatter: formatter.New(fConfig),
+			parser:    parser.New(pConfig),
 			cfg:       cfg,
 		}
 
-		p, err := NewWithFileConfig("./config/testdata/cfg.yml")
+		p, err := NewWithFileConfig("./testdata/cfg.yml")
 		require.NoError(t, err)
 		require.EqualValues(t, want.formatter, p.formatter)
 		require.EqualValues(t, want.parser, p.parser)
@@ -752,11 +776,11 @@ func TestNewWithFileConfig(t *testing.T) {
 		t.Cleanup(func() { SetGlobalInstance(New()) })
 
 		want := &Processor{
-			formatter: formatter.New(config.Formatter{}),
-			parser:    parser.New(config.Parser{}),
+			formatter: formatter.New(formatter.Config{}),
+			parser:    parser.New(parser.Config{}),
 		}
 
-		p, err := NewWithFileConfig("./config/testdata/empty.yml")
+		p, err := NewWithFileConfig("./testdata/empty.yml")
 		require.NoError(t, err)
 		require.EqualValues(t, want.formatter, p.formatter)
 		require.EqualValues(t, want.parser, p.parser)
@@ -780,15 +804,15 @@ func TestProcessor_PrintConfig(t *testing.T) {
 		stdout := os.Stdout
 		os.Stdout = w
 
-		cfg := config.Config{
-			General: config.General{
+		cfg := Config{
+			General: General{
 				PrintConfigOnInit: true,
 			},
-			Parser: config.Parser{
+			Parser: ParserConfig{
 				UseJSONTagName: false,
 			},
-			Formatter: config.Formatter{
-				MaskValue:            config.DefaultMaskValue,
+			Formatter: FormatterConfig{
+				MaskValue:            DefaultMaskValue,
 				DisplayPointerSymbol: true,
 				DisplayStructName:    true,
 				DisplayMapType:       true,

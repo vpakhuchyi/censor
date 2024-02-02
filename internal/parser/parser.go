@@ -1,11 +1,10 @@
 package parser
 
-import (
-	"github.com/vpakhuchyi/censor/config"
-)
-
 // DefaultCensorFieldTag is a default tag name for censor fields.
 const DefaultCensorFieldTag = "censor"
+
+// UnsupportedTypeTmpl is a template for a value that is returned when a given type is not supported.
+const UnsupportedTypeTmpl = "[Unsupported type: %s]"
 
 // Parser is a struct that contains options for parsing.
 type Parser struct {
@@ -18,9 +17,9 @@ type Parser struct {
 }
 
 // New returns a new instance of Parser with given configuration.
-func New(p config.Parser) *Parser {
+func New(c Config) *Parser {
 	return &Parser{
-		useJSONTagName: p.UseJSONTagName,
+		useJSONTagName: c.UseJSONTagName,
 		censorFieldTag: DefaultCensorFieldTag,
 	}
 }

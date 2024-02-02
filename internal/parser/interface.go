@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/vpakhuchyi/censor/config"
 	"github.com/vpakhuchyi/censor/internal/models"
 )
 
 // Interface parses an interface and returns an Interface.
-// In case of a pointer to unsupported type of value, a string built from config.UnsupportedTypeTmpl
+// In case of a pointer to unsupported type of value, a string built from UnsupportedTypeTmpl
 // is used instead of the real value. That string contains a type of the value.
 //
 //nolint:exhaustive
@@ -39,7 +38,7 @@ func (p *Parser) Interface(rv reflect.Value) models.Value {
 	default:
 		return models.Value{
 			Kind:  k,
-			Value: fmt.Sprintf(config.UnsupportedTypeTmpl, k),
+			Value: fmt.Sprintf(UnsupportedTypeTmpl, k),
 		}
 	}
 }

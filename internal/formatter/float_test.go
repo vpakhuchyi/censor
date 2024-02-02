@@ -6,13 +6,12 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/vpakhuchyi/censor/config"
 	"github.com/vpakhuchyi/censor/internal/models"
 )
 
 func TestFormatter_Float(t *testing.T) {
 	f := Formatter{
-		maskValue:         config.DefaultMaskValue,
+		maskValue:         "[CENSORED]",
 		displayStructName: false,
 		displayMapType:    false,
 	}

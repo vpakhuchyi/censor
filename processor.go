@@ -8,7 +8,6 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/vpakhuchyi/censor/config"
 	"github.com/vpakhuchyi/censor/internal/formatter"
 	"github.com/vpakhuchyi/censor/internal/models"
 	"github.com/vpakhuchyi/censor/internal/parser"
@@ -18,7 +17,7 @@ import (
 type Processor struct {
 	formatter *formatter.Formatter
 	parser    *parser.Parser
-	cfg       config.Config
+	cfg       Config
 }
 
 // Censor pkg contains a global instance of Processor.
@@ -27,10 +26,23 @@ var globalInstance = New()
 
 // New returns a new instance of Processor with default configuration.
 func New() *Processor {
-	c := config.Default()
+	c := Default()
+
+	fConfig := formatter.Config{
+		MaskValue:            c.Formatter.MaskValue,
+		DisplayPointerSymbol: c.Formatter.DisplayPointerSymbol,
+		DisplayStructName:    c.Formatter.DisplayStructName,
+		DisplayMapType:       c.Formatter.DisplayMapType,
+		ExcludePatterns:      c.Formatter.ExcludePatterns,
+	}
+
+	pConfig := parser.Config{
+		UseJSONTagName: c.Parser.UseJSONTagName,
+	}
+
 	p := Processor{
-		formatter: formatter.New(c.Formatter),
-		parser:    parser.New(c.Parser),
+		formatter: formatter.New(fConfig),
+		parser:    parser.New(pConfig),
 		cfg:       c,
 	}
 
@@ -40,10 +52,22 @@ func New() *Processor {
 }
 
 // NewWithConfig returns a new instance of Processor with given configuration.
-func NewWithConfig(c config.Config) *Processor {
+func NewWithConfig(c Config) *Processor {
+	fConfig := formatter.Config{
+		MaskValue:            c.Formatter.MaskValue,
+		DisplayPointerSymbol: c.Formatter.DisplayPointerSymbol,
+		DisplayStructName:    c.Formatter.DisplayStructName,
+		DisplayMapType:       c.Formatter.DisplayMapType,
+		ExcludePatterns:      c.Formatter.ExcludePatterns,
+	}
+
+	pConfig := parser.Config{
+		UseJSONTagName: c.Parser.UseJSONTagName,
+	}
+
 	p := Processor{
-		formatter: formatter.New(c.Formatter),
-		parser:    parser.New(c.Parser),
+		formatter: formatter.New(fConfig),
+		parser:    parser.New(pConfig),
 		cfg:       c,
 	}
 
@@ -55,7 +79,7 @@ func NewWithConfig(c config.Config) *Processor {
 // NewWithFileConfig returns a new instance of Processor with configuration from a given file.
 // It returns an error if the file cannot be read or unmarshalled.
 func NewWithFileConfig(path string) (*Processor, error) {
-	cfg, err := config.FromFile(path)
+	cfg, err := ConfigFromFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read the configuration: %w", err)
 	}
@@ -131,7 +155,7 @@ func (p *Processor) PrintConfig() {
 	b.WriteString(strings.Repeat(" ", (lineLength-len(text))/2) + text + "\n")
 	writeLine()
 
-	cfg := config.Config{
+	cfg := Config{
 		General:   p.cfg.General,
 		Parser:    p.cfg.Parser,
 		Formatter: p.cfg.Formatter,
@@ -178,7 +202,7 @@ func (p *Processor) parse(v reflect.Value) any {
 			Note: this case covers all unsupported types.
 			In such a case, we return an empty string.
 		*/
-		return models.Value{Value: fmt.Sprintf(config.UnsupportedTypeTmpl, k), Kind: k}
+		return models.Value{Value: fmt.Sprintf(parser.UnsupportedTypeTmpl, k), Kind: k}
 	}
 }
 

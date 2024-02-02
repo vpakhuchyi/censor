@@ -7,14 +7,13 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/vpakhuchyi/censor/config"
 	"github.com/vpakhuchyi/censor/internal/models"
 	"github.com/vpakhuchyi/censor/internal/options"
 )
 
 func TestFormatter_Struct(t *testing.T) {
 	f := Formatter{
-		maskValue:         config.DefaultMaskValue,
+		maskValue:         "[CENSORED]",
 		displayStructName: false,
 		displayMapType:    false,
 	}
@@ -36,7 +35,7 @@ func TestFormatter_Struct(t *testing.T) {
 
 	t.Run("with_display_struct_name", func(t *testing.T) {
 		f := Formatter{
-			maskValue:         config.DefaultMaskValue,
+			maskValue:         "[CENSORED]",
 			displayStructName: true,
 			displayMapType:    false,
 		}
@@ -57,7 +56,7 @@ func TestFormatter_Struct(t *testing.T) {
 
 	t.Run("with_exclude_patterns", func(t *testing.T) {
 		f := Formatter{
-			maskValue:               config.DefaultMaskValue,
+			maskValue:               "[CENSORED]",
 			displayStructName:       false,
 			displayMapType:          false,
 			excludePatterns:         []string{`\d`, `\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`},
@@ -80,7 +79,7 @@ func TestFormatter_Struct(t *testing.T) {
 
 	t.Run("with_unsupported_types", func(t *testing.T) {
 		f := Formatter{
-			maskValue:               config.DefaultMaskValue,
+			maskValue:               "[CENSORED]",
 			displayStructName:       false,
 			displayMapType:          false,
 			excludePatterns:         []string{},

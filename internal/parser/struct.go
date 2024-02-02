@@ -6,7 +6,6 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/vpakhuchyi/censor/config"
 	"github.com/vpakhuchyi/censor/internal/models"
 	"github.com/vpakhuchyi/censor/internal/options"
 )
@@ -74,7 +73,7 @@ func (p *Parser) Struct(rv reflect.Value) models.Struct {
 			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 			field.Value = p.Integer(f)
 		default:
-			field.Value = models.Value{Value: fmt.Sprintf(config.UnsupportedTypeTmpl, k), Kind: k}
+			field.Value = models.Value{Value: fmt.Sprintf(UnsupportedTypeTmpl, k), Kind: k}
 		}
 
 		s.Fields = append(s.Fields, field)
