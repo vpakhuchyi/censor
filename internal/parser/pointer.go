@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/vpakhuchyi/censor/config"
 	"github.com/vpakhuchyi/censor/internal/models"
 )
 
 // Ptr parses a given value and returns a Ptr.
 // If the value is nil, it returns a Ptr with a nil Value.
-// In case of a pointer to unsupported type of value, a string built from config.UnsupportedTypeTmpl
+// In case of a pointer to unsupported type of value, a string built from UnsupportedTypeTmpl
 // is used instead of the real value. That string contains a type of the value.
 //
 //nolint:exhaustive,gocyclo
@@ -44,6 +43,6 @@ func (p *Parser) Ptr(rv reflect.Value) models.Ptr {
 	case reflect.Bool:
 		return models.Ptr(p.Bool(rv.Elem()))
 	default:
-		return models.Ptr{Value: fmt.Sprintf(config.UnsupportedTypeTmpl, k), Kind: k}
+		return models.Ptr{Value: fmt.Sprintf(UnsupportedTypeTmpl, k), Kind: k}
 	}
 }

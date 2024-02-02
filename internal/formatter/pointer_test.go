@@ -7,13 +7,12 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/vpakhuchyi/censor/config"
 	"github.com/vpakhuchyi/censor/internal/models"
 )
 
 func TestFormatter_Ptr(t *testing.T) {
 	f := Formatter{
-		maskValue:            config.DefaultMaskValue,
+		maskValue:            "[CENSORED]",
 		displayPointerSymbol: false,
 		displayStructName:    false,
 		displayMapType:       false,
@@ -30,7 +29,7 @@ func TestFormatter_Ptr(t *testing.T) {
 
 	t.Run("successful_with_pointer_symbol", func(t *testing.T) {
 		f := Formatter{
-			maskValue:            config.DefaultMaskValue,
+			maskValue:            "[CENSORED]",
 			displayPointerSymbol: true,
 		}
 
@@ -44,7 +43,7 @@ func TestFormatter_Ptr(t *testing.T) {
 
 	t.Run("with_exclude_patterns", func(t *testing.T) {
 		f := Formatter{
-			maskValue:               config.DefaultMaskValue,
+			maskValue:               "[CENSORED]",
 			displayPointerSymbol:    false,
 			displayStructName:       false,
 			displayMapType:          false,

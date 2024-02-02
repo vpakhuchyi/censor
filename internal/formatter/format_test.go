@@ -8,14 +8,13 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/vpakhuchyi/censor/config"
 	"github.com/vpakhuchyi/censor/internal/models"
 	"github.com/vpakhuchyi/censor/internal/options"
 )
 
 func TestFormatter_writeValue(t *testing.T) {
 	f := Formatter{
-		maskValue:               config.DefaultMaskValue,
+		maskValue:               "[CENSORED]",
 		displayPointerSymbol:    false,
 		displayStructName:       false,
 		displayMapType:          false,
@@ -191,8 +190,7 @@ func TestFormatter_writeValue(t *testing.T) {
 	t.Run("unsupported_type_complex64", func(t *testing.T) {
 		t.Cleanup(func() { buf.Reset() })
 		require.NotPanics(t, func() {
-			var c complex64 = 3.11111111111111 + 3.11111111111111i
-			v := models.Value{Value: c, Kind: reflect.Complex64}
+			v := models.Value{Value: "[Unsupported type: complex64]", Kind: reflect.Complex64}
 			f.writeValue(&buf, v)
 			exp := "[Unsupported type: complex64]"
 			require.Equal(t, exp, buf.String())
@@ -202,8 +200,7 @@ func TestFormatter_writeValue(t *testing.T) {
 	t.Run("unsupported_type_complex128", func(t *testing.T) {
 		t.Cleanup(func() { buf.Reset() })
 		require.NotPanics(t, func() {
-			var c complex128 = 3.11111111111111 + 3.11111111111111i
-			v := models.Value{Value: c, Kind: reflect.Complex128}
+			v := models.Value{Value: "[Unsupported type: complex128]", Kind: reflect.Complex128}
 			f.writeValue(&buf, v)
 			exp := "[Unsupported type: complex128]"
 			require.Equal(t, exp, buf.String())
@@ -393,7 +390,7 @@ func TestFormatter_writeValue(t *testing.T) {
 
 func TestFormatter_writeField(t *testing.T) {
 	f := Formatter{
-		maskValue:         config.DefaultMaskValue,
+		maskValue:         "[CENSORED]",
 		displayStructName: false,
 		displayMapType:    false,
 	}
@@ -667,11 +664,10 @@ func TestFormatter_writeField(t *testing.T) {
 	t.Run("unsupported_type_complex64", func(t *testing.T) {
 		t.Cleanup(func() { buf.Reset() })
 		require.NotPanics(t, func() {
-			var c complex64 = 3.11111111111111 + 3.11111111111111i
 			field := models.Field{
 				Name: "Test",
 				Value: models.Value{
-					Value: c,
+					Value: "[Unsupported type: complex64]",
 					Kind:  reflect.Complex64,
 				},
 			}
@@ -684,11 +680,10 @@ func TestFormatter_writeField(t *testing.T) {
 	t.Run("unsupported_type_complex128", func(t *testing.T) {
 		t.Cleanup(func() { buf.Reset() })
 		require.NotPanics(t, func() {
-			var c complex128 = 3.11111111111111 + 3.11111111111111i
 			field := models.Field{
 				Name: "Test",
 				Value: models.Value{
-					Value: c,
+					Value: "[Unsupported type: complex128]",
 					Kind:  reflect.Complex128,
 				},
 			}
@@ -875,7 +870,7 @@ func TestFormatter_writeField(t *testing.T) {
 
 func TestNew(t *testing.T) {
 	t.Run("with_exclude_patterns", func(t *testing.T) {
-		got := New(config.Formatter{
+		got := New(Config{
 			MaskValue:         "[censored]",
 			DisplayStructName: true,
 			DisplayMapType:    true,
@@ -892,7 +887,7 @@ func TestNew(t *testing.T) {
 	})
 
 	t.Run("without_exclude_patterns", func(t *testing.T) {
-		got := New(config.Formatter{
+		got := New(Config{
 			MaskValue:         "[censored]",
 			DisplayStructName: true,
 			DisplayMapType:    true,
@@ -909,7 +904,7 @@ func TestNew(t *testing.T) {
 	})
 
 	t.Run("with_empty_exclude_patterns", func(t *testing.T) {
-		got := New(config.Formatter{
+		got := New(Config{
 			MaskValue:         "[censored]",
 			DisplayStructName: true,
 			DisplayMapType:    true,

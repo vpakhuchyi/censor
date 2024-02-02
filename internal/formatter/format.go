@@ -1,12 +1,10 @@
 package formatter
 
 import (
-	"fmt"
 	"reflect"
 	"regexp"
 	"strings"
 
-	"github.com/vpakhuchyi/censor/config"
 	"github.com/vpakhuchyi/censor/internal/models"
 )
 
@@ -32,7 +30,7 @@ type Formatter struct {
 }
 
 // New returns a new instance of Formatter with given configuration.
-func New(cfg config.Formatter) *Formatter {
+func New(cfg Config) *Formatter {
 	f := Formatter{
 		maskValue:            cfg.MaskValue,
 		displayPointerSymbol: cfg.DisplayPointerSymbol,
@@ -59,7 +57,7 @@ func (f *Formatter) compileExcludePatterns() {
 	}
 }
 
-//nolint:exhaustive
+//nolint:exhaustive,gocyclo
 func (f *Formatter) writeValue(buf *strings.Builder, v models.Value) {
 	switch v.Kind {
 	case reflect.String:
@@ -82,11 +80,13 @@ func (f *Formatter) writeValue(buf *strings.Builder, v models.Value) {
 	case reflect.Interface:
 		buf.WriteString(f.Interface(v))
 	default:
-		buf.WriteString(fmt.Sprintf(config.UnsupportedTypeTmpl, v.Kind))
+		if s, ok := v.Value.(string); ok {
+			buf.WriteString(s)
+		}
 	}
 }
 
-//nolint:exhaustive
+//nolint:exhaustive,gocyclo
 func (f *Formatter) writeField(field models.Field, buf *strings.Builder) {
 	switch field.Value.Kind {
 	case reflect.String:
@@ -109,6 +109,8 @@ func (f *Formatter) writeField(field models.Field, buf *strings.Builder) {
 	case reflect.Interface:
 		buf.WriteString(formatField(field.Name, f.Interface(field.Value)))
 	default:
-		buf.WriteString(formatField(field.Name, fmt.Sprintf(config.UnsupportedTypeTmpl, field.Value.Kind)))
+		if s, ok := field.Value.Value.(string); ok {
+			buf.WriteString(formatField(field.Name, s))
+		}
 	}
 }

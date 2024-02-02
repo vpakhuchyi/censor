@@ -27,7 +27,7 @@ go get -u github.com/vpakhuchyi/censor
 - [x] Support encoding.TextMarshaler interface for custom types. 
 - [x] Customizable configuration:
     - Using `.ymal` file
-    - Passing `config.Config` struct
+    - Passing `censor.Config` struct
 
 ## Usage
 
@@ -99,7 +99,6 @@ import (
   "log/slog"
 
   "github.com/vpakhuchyi/censor"
-  "github.com/vpakhuchyi/censor/config"
 )
 
 type email struct {
@@ -113,9 +112,9 @@ func main() {
   // This regular expression matches IBANs.
   const ibanPattern = `([A-Z]{2}[0-9]{27})`
 
-  cfg := config.Config{
-    Formatter: config.Formatter{
-      MaskValue: config.DefaultMaskValue,
+  cfg := censor.Config{
+    Formatter: censor.FormatterConfig{
+      MaskValue: censor.DefaultMaskValue,
       // We can add exclude patterns to censor to make sure that the values that match the pattern will be masked.
       ExcludePatterns: []string{emailPattern, ibanPattern},
     },
@@ -169,7 +168,7 @@ integration that best suits your application's requirements.
 
 ## Configuration
 
-Censor supports two ways of configuration: using the `config.Config` struct and providing a `.yml` configuration file.
+Censor supports two ways of configuration: using the `censor.Config` struct and providing a `.yml` configuration file.
 All the configuration options are available in both ways.
 
 Table below shows the names of the configuration options:
@@ -184,24 +183,23 @@ Table below shows the names of the configuration options:
 | DisplayPointerSymbol | display-pointer-symbol | false           | If true, '&' (the pointer symbol) will be displayed in the output.                                                                                           |
 | ExcludePatterns      | exclude-patterns       | []              | A list of regular expressions that will be compared against all the string values. <br/>If a value matches any of the patterns, that section will be masked. |
 
-### Using the `config.Config` struct
+### Using the `censor.Config` struct
 
-It's possible to define a configuration using `config.Config` struct:
+It's possible to define a configuration using `censor.Config` struct:
 
 ```go
 package main
 
 import (
   "github.com/vpakhuchyi/censor"
-  "github.com/vpakhuchyi/censor/config"
 )
 
 func main() {
-  cfg := config.Config{
-    Parser: config.Parser{
+  cfg := censor.Config{
+    Parser: censor.ParserConfig{
       UseJSONTagName: false,
     },
-    Formatter: config.Formatter{
+    Formatter: censor.FormatterConfig{
       MaskValue:         "[####]",
       DisplayStructName: false,
       DisplayMapType:    false,
@@ -294,7 +292,6 @@ import (
   "log/slog"
 
   "github.com/vpakhuchyi/censor"
-  "github.com/vpakhuchyi/censor/config"
 )
 
 type user struct {
@@ -304,9 +301,9 @@ type user struct {
 }
 
 func main() {
-  cfg := config.Config{
-    Formatter: config.Formatter{
-      MaskValue: config.DefaultMaskValue,
+  cfg := censor.Config{
+    Formatter: censor.FormatterConfig{
+      MaskValue: censor.DefaultMaskValue,
       // This is a regular expression that matches email addresses.
       ExcludePatterns: []string{`(?P<email>[\w.%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,4})`},
     },
@@ -336,13 +333,12 @@ import (
   "log/slog"
 
   "github.com/vpakhuchyi/censor"
-  "github.com/vpakhuchyi/censor/config"
 )
 
 func main() {
-  cfg := config.Config{
-    Formatter: config.Formatter{
-      MaskValue:      config.DefaultMaskValue,
+  cfg := censor.Config{
+    Formatter: censor.FormatterConfig{
+      MaskValue:      censor.DefaultMaskValue,
       DisplayMapType: true,
     },
   }
@@ -397,7 +393,6 @@ import (
   "log/slog"
 
   "github.com/vpakhuchyi/censor"
-  "github.com/vpakhuchyi/censor/config"
 )
 
 func main() {
@@ -408,9 +403,9 @@ func main() {
   // Here is what we'll see in the log:
   //Output: `2038/10/25 12:00:01 INFO Request payload=[1, 2, 3]`
 
-  cfg := config.Config{
-    Formatter: config.Formatter{
-      MaskValue: config.DefaultMaskValue,
+  cfg := censor.Config{
+    Formatter: censor.FormatterConfig{
+      MaskValue: censor.DefaultMaskValue,
       // If you want to display the pointer symbol before the pointed value in the output,
       // you can use the `DisplayPointerSymbol` configuration option. 
       // In this case, the output will look like this:
@@ -438,7 +433,6 @@ import (
   "log/slog"
 
   "github.com/vpakhuchyi/censor"
-  "github.com/vpakhuchyi/censor/config"
 )
 
 // This is a regular expression that matches email addresses.
@@ -453,9 +447,9 @@ func main() {
 
   // If you want to mask specific values, you can use the `ExcludePatterns` configuration option
   // to add exclude patterns. All string values sections that match the specified patterns will be masked.
-  cfg := config.Config{
-    Formatter: config.Formatter{
-      MaskValue:       config.DefaultMaskValue,
+  cfg := censor.Config{
+    Formatter: censor.FormatterConfig{
+      MaskValue:       censor.DefaultMaskValue,
       ExcludePatterns: []string{emailPattern},
     },
   }

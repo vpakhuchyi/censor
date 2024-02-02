@@ -1,4 +1,4 @@
-package config
+package censor
 
 import (
 	"os"
@@ -14,10 +14,10 @@ func TestDefault(t *testing.T) {
 		General: General{
 			PrintConfigOnInit: true,
 		},
-		Parser: Parser{
+		Parser: ParserConfig{
 			UseJSONTagName: false,
 		},
-		Formatter: Formatter{
+		Formatter: FormatterConfig{
 			MaskValue:            DefaultMaskValue,
 			DisplayPointerSymbol: false,
 			DisplayStructName:    false,
@@ -46,10 +46,10 @@ func TestFromFile(t *testing.T) {
 				General: General{
 					PrintConfigOnInit: true,
 				},
-				Parser: Parser{
+				Parser: ParserConfig{
 					UseJSONTagName: true,
 				},
-				Formatter: Formatter{
+				Formatter: FormatterConfig{
 					MaskValue:            "[CENSORED]",
 					DisplayPointerSymbol: true,
 					DisplayStructName:    true,
@@ -91,7 +91,7 @@ func TestFromFile(t *testing.T) {
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			got, err := FromFile(tt.args.path)
+			got, err := ConfigFromFile(tt.args.path)
 			require.Equal(t, tt.want, got)
 			if tt.wantErr {
 				require.Error(t, err)
@@ -121,10 +121,10 @@ func TestYAMLMarshal(t *testing.T) {
 			General: General{
 				PrintConfigOnInit: true,
 			},
-			Parser: Parser{
+			Parser: ParserConfig{
 				UseJSONTagName: true,
 			},
-			Formatter: Formatter{
+			Formatter: FormatterConfig{
 				MaskValue:            "[CENSORED]",
 				DisplayPointerSymbol: true,
 				DisplayStructName:    true,

@@ -7,13 +7,12 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/vpakhuchyi/censor/config"
 	"github.com/vpakhuchyi/censor/internal/models"
 )
 
 func TestFormatter_String(t *testing.T) {
 	f := Formatter{
-		maskValue:         config.DefaultMaskValue,
+		maskValue:         "[CENSORED]",
 		displayStructName: false,
 		displayMapType:    false,
 		excludePatterns:   nil,
@@ -36,7 +35,7 @@ func TestFormatter_String(t *testing.T) {
 
 	t.Run("string_with_exclude_patterns", func(t *testing.T) {
 		f := Formatter{
-			maskValue:               config.DefaultMaskValue,
+			maskValue:               "[CENSORED]",
 			displayStructName:       false,
 			displayMapType:          false,
 			excludePatterns:         []string{`\d`, `\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`},
