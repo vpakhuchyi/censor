@@ -687,10 +687,10 @@ func TestNewWithConfig(t *testing.T) {
 		General: General{
 			PrintConfigOnInit: true,
 		},
-		Parser: parser.Config{
+		Parser: ParserConfig{
 			UseJSONTagName: false,
 		},
-		Formatter: formatter.Config{
+		Formatter: FormatterConfig{
 			MaskValue:            "####",
 			DisplayPointerSymbol: false,
 			DisplayStructName:    false,
@@ -700,7 +700,7 @@ func TestNewWithConfig(t *testing.T) {
 	}
 	got := NewWithConfig(cfg)
 
-	fConfig := formatter.Config{
+	fConfig := FormatterConfig{
 		MaskValue:            cfg.Formatter.MaskValue,
 		DisplayPointerSymbol: cfg.Formatter.DisplayPointerSymbol,
 		DisplayStructName:    cfg.Formatter.DisplayStructName,
@@ -708,7 +708,7 @@ func TestNewWithConfig(t *testing.T) {
 		ExcludePatterns:      cfg.Formatter.ExcludePatterns,
 	}
 
-	pConfig := parser.Config{
+	pConfig := ParserConfig{
 		UseJSONTagName: cfg.Parser.UseJSONTagName,
 	}
 
@@ -728,7 +728,7 @@ func TestNewWithFileConfig(t *testing.T) {
 		cfg, err := ConfigFromFile("./testdata/cfg.yml")
 		require.NoError(t, err)
 
-		fConfig := formatter.Config{
+		fConfig := FormatterConfig{
 			MaskValue:            cfg.Formatter.MaskValue,
 			DisplayPointerSymbol: cfg.Formatter.DisplayPointerSymbol,
 			DisplayStructName:    cfg.Formatter.DisplayStructName,
@@ -736,7 +736,7 @@ func TestNewWithFileConfig(t *testing.T) {
 			ExcludePatterns:      cfg.Formatter.ExcludePatterns,
 		}
 
-		pConfig := parser.Config{
+		pConfig := ParserConfig{
 			UseJSONTagName: cfg.Parser.UseJSONTagName,
 		}
 
@@ -776,8 +776,8 @@ func TestNewWithFileConfig(t *testing.T) {
 		t.Cleanup(func() { SetGlobalInstance(New()) })
 
 		want := &Processor{
-			formatter: formatter.New(formatter.Config{}),
-			parser:    parser.New(parser.Config{}),
+			formatter: formatter.New(FormatterConfig{}),
+			parser:    parser.New(ParserConfig{}),
 		}
 
 		p, err := NewWithFileConfig("./testdata/empty.yml")
@@ -808,10 +808,10 @@ func TestProcessor_PrintConfig(t *testing.T) {
 			General: General{
 				PrintConfigOnInit: true,
 			},
-			Parser: parser.Config{
+			Parser: ParserConfig{
 				UseJSONTagName: false,
 			},
-			Formatter: formatter.Config{
+			Formatter: FormatterConfig{
 				MaskValue:            DefaultMaskValue,
 				DisplayPointerSymbol: true,
 				DisplayStructName:    true,
