@@ -687,10 +687,10 @@ func TestNewWithConfig(t *testing.T) {
 		General: General{
 			PrintConfigOnInit: true,
 		},
-		Parser: ParserConfig{
+		Parser: parser.Config{
 			UseJSONTagName: false,
 		},
-		Formatter: FormatterConfig{
+		Formatter: formatter.Config{
 			MaskValue:            "####",
 			DisplayPointerSymbol: false,
 			DisplayStructName:    false,
@@ -808,10 +808,10 @@ func TestProcessor_PrintConfig(t *testing.T) {
 			General: General{
 				PrintConfigOnInit: true,
 			},
-			Parser: ParserConfig{
+			Parser: parser.Config{
 				UseJSONTagName: false,
 			},
-			Formatter: FormatterConfig{
+			Formatter: formatter.Config{
 				MaskValue:            DefaultMaskValue,
 				DisplayPointerSymbol: true,
 				DisplayStructName:    true,

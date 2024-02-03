@@ -6,6 +6,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
+
+	"github.com/vpakhuchyi/censor/internal/formatter"
+	"github.com/vpakhuchyi/censor/internal/parser"
 )
 
 func TestDefault(t *testing.T) {
@@ -14,10 +17,10 @@ func TestDefault(t *testing.T) {
 		General: General{
 			PrintConfigOnInit: true,
 		},
-		Parser: ParserConfig{
+		Parser: parser.Config{
 			UseJSONTagName: false,
 		},
-		Formatter: FormatterConfig{
+		Formatter: formatter.Config{
 			MaskValue:            DefaultMaskValue,
 			DisplayPointerSymbol: false,
 			DisplayStructName:    false,
@@ -46,10 +49,10 @@ func TestFromFile(t *testing.T) {
 				General: General{
 					PrintConfigOnInit: true,
 				},
-				Parser: ParserConfig{
+				Parser: parser.Config{
 					UseJSONTagName: true,
 				},
-				Formatter: FormatterConfig{
+				Formatter: formatter.Config{
 					MaskValue:            "[CENSORED]",
 					DisplayPointerSymbol: true,
 					DisplayStructName:    true,
@@ -121,10 +124,10 @@ func TestYAMLMarshal(t *testing.T) {
 			General: General{
 				PrintConfigOnInit: true,
 			},
-			Parser: ParserConfig{
+			Parser: parser.Config{
 				UseJSONTagName: true,
 			},
-			Formatter: FormatterConfig{
+			Formatter: formatter.Config{
 				MaskValue:            "[CENSORED]",
 				DisplayPointerSymbol: true,
 				DisplayStructName:    true,
