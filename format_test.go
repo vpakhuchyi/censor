@@ -5,6 +5,9 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/vpakhuchyi/censor/internal/formatter"
+	"github.com/vpakhuchyi/censor/internal/parser"
 )
 
 func Test_InstanceFormatPrimitives(t *testing.T) {
@@ -41,13 +44,13 @@ func Test_InstanceConfiguration(t *testing.T) {
 
 	t.Run("with_provided_configuration", func(t *testing.T) {
 		c := Config{
-			Formatter: FormatterConfig{
+			Formatter: formatter.Config{
 				MaskValue:         "[redacted]",
 				DisplayStructName: true,
 				DisplayMapType:    false,
 				ExcludePatterns:   nil,
 			},
-			Parser: ParserConfig{
+			Parser: parser.Config{
 				UseJSONTagName: true,
 			},
 		}
@@ -93,13 +96,13 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 		t.Cleanup(func() { SetGlobalInstance(New()) })
 
 		c := Config{
-			Formatter: FormatterConfig{
+			Formatter: formatter.Config{
 				MaskValue:         "[redacted]",
 				DisplayStructName: true,
 				DisplayMapType:    false,
 				ExcludePatterns:   nil,
 			},
-			Parser: ParserConfig{
+			Parser: parser.Config{
 				UseJSONTagName: true,
 			},
 		}
@@ -126,7 +129,7 @@ func Test_SetGlobalInstance(t *testing.T) {
 	t.Cleanup(func() { SetGlobalInstance(New()) })
 
 	p := NewWithConfig(Config{
-		Formatter: FormatterConfig{
+		Formatter: formatter.Config{
 			MaskValue: "[censored]",
 		},
 	})
@@ -146,7 +149,7 @@ func TestExcludePatterns(t *testing.T) {
 	t.Cleanup(func() { SetGlobalInstance(New()) })
 
 	p := NewWithConfig(Config{
-		Formatter: FormatterConfig{
+		Formatter: formatter.Config{
 			MaskValue:       "[CENSORED]",
 			ExcludePatterns: []string{`\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`},
 		},

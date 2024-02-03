@@ -15,9 +15,9 @@ const DefaultMaskValue = "[CENSORED]"
 
 // Config describes the available parser.Parser and formatter.Formatter configuration.
 type Config struct {
-	General   General         `yaml:"general"`
-	Parser    ParserConfig    `yaml:"parser"`
-	Formatter FormatterConfig `yaml:"formatter"`
+	General   General          `yaml:"general"`
+	Parser    parser.Config    `yaml:"parser"`
+	Formatter formatter.Config `yaml:"formatter"`
 }
 
 // General describes general configuration settings.
@@ -37,10 +37,10 @@ type FormatterConfig = formatter.Config
 // Default returns a default configuration.
 func Default() Config {
 	return Config{
-		Parser: ParserConfig{
+		Parser: parser.Config{
 			UseJSONTagName: false,
 		},
-		Formatter: FormatterConfig{
+		Formatter: formatter.Config{
 			MaskValue:            DefaultMaskValue,
 			DisplayPointerSymbol: false,
 			DisplayStructName:    false,
