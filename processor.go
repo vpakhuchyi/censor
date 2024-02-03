@@ -47,7 +47,9 @@ func NewWithConfig(c Config) *Processor {
 		cfg:       c,
 	}
 
-	p.PrintConfig()
+	if c.General.PrintConfigOnInit {
+		p.PrintConfig()
+	}
 
 	return &p
 }
