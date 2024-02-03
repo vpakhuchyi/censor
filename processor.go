@@ -28,21 +28,9 @@ var globalInstance = New()
 func New() *Processor {
 	c := Default()
 
-	fConfig := formatter.Config{
-		MaskValue:            c.Formatter.MaskValue,
-		DisplayPointerSymbol: c.Formatter.DisplayPointerSymbol,
-		DisplayStructName:    c.Formatter.DisplayStructName,
-		DisplayMapType:       c.Formatter.DisplayMapType,
-		ExcludePatterns:      c.Formatter.ExcludePatterns,
-	}
-
-	pConfig := parser.Config{
-		UseJSONTagName: c.Parser.UseJSONTagName,
-	}
-
 	p := Processor{
-		formatter: formatter.New(fConfig),
-		parser:    parser.New(pConfig),
+		formatter: formatter.New(c.Formatter),
+		parser:    parser.New(c.Parser),
 		cfg:       c,
 	}
 
@@ -53,21 +41,9 @@ func New() *Processor {
 
 // NewWithConfig returns a new instance of Processor with given configuration.
 func NewWithConfig(c Config) *Processor {
-	fConfig := formatter.Config{
-		MaskValue:            c.Formatter.MaskValue,
-		DisplayPointerSymbol: c.Formatter.DisplayPointerSymbol,
-		DisplayStructName:    c.Formatter.DisplayStructName,
-		DisplayMapType:       c.Formatter.DisplayMapType,
-		ExcludePatterns:      c.Formatter.ExcludePatterns,
-	}
-
-	pConfig := parser.Config{
-		UseJSONTagName: c.Parser.UseJSONTagName,
-	}
-
 	p := Processor{
-		formatter: formatter.New(fConfig),
-		parser:    parser.New(pConfig),
+		formatter: formatter.New(c.Formatter),
+		parser:    parser.New(c.Parser),
 		cfg:       c,
 	}
 
