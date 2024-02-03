@@ -28,6 +28,12 @@ type General struct {
 	PrintConfigOnInit bool `yaml:"print-config-on-init"`
 }
 
+// ParserConfig describes censor Parser configuration.
+type ParserConfig = parser.Config
+
+// FormatterConfig describes censor Formatter configuration.
+type FormatterConfig = formatter.Config
+
 // Default returns a default configuration.
 func Default() Config {
 	return Config{
