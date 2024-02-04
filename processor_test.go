@@ -856,3 +856,39 @@ func TestProcessor_PrintConfig(t *testing.T) {
 		require.Equal(t, want, got)
 	})
 }
+
+func TestClone(t *testing.T) {
+	cfg := Config{
+		General: General{
+			PrintConfigOnInit: false,
+		},
+		Parser: ParserConfig{
+			UseJSONTagName: true,
+		},
+		Formatter: FormatterConfig{
+			MaskValue:            "####",
+			DisplayPointerSymbol: true,
+			DisplayStructName:    true,
+			DisplayMapType:       true,
+			ExcludePatterns:      nil,
+		},
+	}
+
+	original := NewWithConfig(cfg)
+	clone := original.Clone()
+
+	// Check if the original and clone have the same configuration.
+	require.Equal(t, original.cfg, clone.cfg)
+
+	type s struct {
+		Int64  int64
+		String string         `censor:"display"`
+		Map    map[string]int `censor:"display"`
+		Ptr    *int           `censor:"display"`
+	}
+
+	v := []s{{Int64: 123456789, String: "string", Map: map[string]int{"one": 1, "two": 2}, Ptr: new(int)}}
+
+	// Ensure that the original and clone have the same behavior.
+	require.Equal(t, original.Format(v), clone.Format(v))
+}
