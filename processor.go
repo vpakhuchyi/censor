@@ -102,6 +102,11 @@ func (p *Processor) Format(val any) string {
 	return p.format(v.Kind(), p.parse(v))
 }
 
+// Clone returns a new instance of Processor with the same configuration as the original one.
+func (p *Processor) Clone() *Processor {
+	return NewWithConfig(p.cfg)
+}
+
 // PrintConfig prints the configuration of the censor Processor.
 //
 //nolint:gomnd
