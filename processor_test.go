@@ -698,7 +698,9 @@ func TestNewWithConfig(t *testing.T) {
 			ExcludePatterns:      nil,
 		},
 	}
-	got := NewWithConfig(cfg)
+
+	got, err := NewWithOpts(WithConfig(&cfg))
+	require.NoError(t, err)
 
 	fConfig := FormatterConfig{
 		MaskValue:            cfg.Formatter.MaskValue,
@@ -746,8 +748,9 @@ func TestNewWithFileConfig(t *testing.T) {
 			cfg:       cfg,
 		}
 
-		p, err := NewWithFileConfig("./testdata/cfg.yml")
+		p, err := NewWithOpts(WithConfigPath("./testdata/cfg.yml"))
 		require.NoError(t, err)
+
 		require.EqualValues(t, want.formatter, p.formatter)
 		require.EqualValues(t, want.parser, p.parser)
 		require.EqualValues(t, want.cfg, p.cfg)
@@ -756,9 +759,9 @@ func TestNewWithFileConfig(t *testing.T) {
 	t.Run("empty_file_path", func(t *testing.T) {
 		t.Cleanup(func() { SetGlobalInstance(New()) })
 
-		var want *Processor
-		p, err := NewWithFileConfig("")
-		require.Error(t, err)
+		want := New()
+		p, err := NewWithOpts(WithConfigPath(""))
+		require.NoError(t, err)
 		require.Equal(t, want, p)
 	})
 
@@ -767,7 +770,7 @@ func TestNewWithFileConfig(t *testing.T) {
 
 		var want *Processor
 
-		p, err := NewWithFileConfig("./config/testdata/invalid_cfg.yml")
+		p, err := NewWithOpts(WithConfigPath("./config/testdata/invalid_cfg.yml"))
 		require.Error(t, err)
 		require.Equal(t, want, p)
 	})
@@ -780,7 +783,7 @@ func TestNewWithFileConfig(t *testing.T) {
 			parser:    parser.New(ParserConfig{}),
 		}
 
-		p, err := NewWithFileConfig("./testdata/empty.yml")
+		p, err := NewWithOpts(WithConfigPath("./testdata/empty.yml"))
 		require.NoError(t, err)
 		require.EqualValues(t, want.formatter, p.formatter)
 		require.EqualValues(t, want.parser, p.parser)
@@ -820,7 +823,8 @@ func TestProcessor_PrintConfig(t *testing.T) {
 			},
 		}
 
-		p := NewWithConfig(cfg)
+		p, err := NewWithOpts(WithConfig(&cfg))
+		require.NoError(t, err)
 		p.PrintConfig()
 
 		// Restore stdout.
@@ -874,8 +878,11 @@ func TestClone(t *testing.T) {
 		},
 	}
 
-	original := NewWithConfig(cfg)
-	clone := original.Clone()
+	original, err := NewWithOpts(WithConfig(&cfg))
+	require.NoError(t, err)
+
+	clone, err := original.Clone()
+	require.NoError(t, err)
 
 	// Check if the original and clone have the same configuration.
 	require.Equal(t, original.cfg, clone.cfg)

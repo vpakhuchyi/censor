@@ -54,7 +54,9 @@ func Test_InstanceConfiguration(t *testing.T) {
 				UseJSONTagName: true,
 			},
 		}
-		p := NewWithConfig(c)
+
+		p, err := NewWithOpts(WithConfig(&c))
+		require.NoError(t, err)
 
 		type testStruct struct {
 			Name string `censor:"display"`
@@ -112,7 +114,8 @@ func Test_GlobalInstanceConfiguration(t *testing.T) {
 			Age  int    `json:"age" censor:"display"`
 		}
 
-		p := NewWithConfig(c)
+		p, err := NewWithOpts(WithConfig(&c))
+		require.NoError(t, err)
 		SetGlobalInstance(p)
 
 		exp := `censor.testStruct{Name: John, age: 30}`
@@ -128,11 +131,12 @@ func Test_GetGlobalInstance(t *testing.T) {
 func Test_SetGlobalInstance(t *testing.T) {
 	t.Cleanup(func() { SetGlobalInstance(New()) })
 
-	p := NewWithConfig(Config{
+	p, err := NewWithOpts(WithConfig(&Config{
 		Formatter: formatter.Config{
 			MaskValue: "[censored]",
 		},
-	})
+	}))
+	require.NoError(t, err)
 
 	SetGlobalInstance(p)
 
@@ -148,12 +152,13 @@ func Test_SetGlobalInstance(t *testing.T) {
 func TestExcludePatterns(t *testing.T) {
 	t.Cleanup(func() { SetGlobalInstance(New()) })
 
-	p := NewWithConfig(Config{
+	p, err := NewWithOpts(WithConfig(&Config{
 		Formatter: formatter.Config{
 			MaskValue:       "[CENSORED]",
 			ExcludePatterns: []string{`\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`},
 		},
-	})
+	}))
+	require.NoError(t, err)
 
 	SetGlobalInstance(p)
 
