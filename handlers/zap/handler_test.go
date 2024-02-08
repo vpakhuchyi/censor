@@ -1,6 +1,7 @@
 package zaphandler
 
 import (
+	"fmt"
 	"os"
 	"path"
 	"testing"
@@ -49,7 +50,10 @@ func TestNewHandler(t *testing.T) {
 			return NewHandler(core, WithMessagesFormat(), WithKeysFormat(), WithCensor(c))
 		})
 		outputPath := path.Join(t.TempDir(), logFileName)
+		fmt.Println("outputPath", outputPath)
 		outputFile, err := os.Create(outputPath)
+		fmt.Println("outputFile", outputFile.Name())
+
 		require.NoError(t, err)
 
 		l := newTestProductionZap(t, outputPath, core)
@@ -298,8 +302,8 @@ func TestNewHandler(t *testing.T) {
 			},
 			Encoding:         "json",
 			EncoderConfig:    zap.NewProductionEncoderConfig(),
-			OutputPaths:      []string{"outputPath"},
-			ErrorOutputPaths: []string{"outputPath"},
+			OutputPaths:      []string{outputPath},
+			ErrorOutputPaths: []string{outputPath},
 		}
 
 		l, err := cfg.Build(core)
