@@ -16,7 +16,7 @@ import (
 func TestNewHandler(t *testing.T) {
 	// Description of the data that is used in the tests.
 
-	c := censor.NewWithConfig(censor.Config{
+	c, err := censor.NewWithOpts(censor.WithConfig(&censor.Config{
 		Formatter: formatter.Config{
 			MaskValue:            censor.DefaultMaskValue,
 			DisplayPointerSymbol: false,
@@ -24,7 +24,8 @@ func TestNewHandler(t *testing.T) {
 			DisplayMapType:       false,
 			ExcludePatterns:      []string{`#sensitive#`},
 		},
-	})
+	}))
+	require.NoError(t, err)
 
 	const logFileName = "test_log"
 
