@@ -39,30 +39,39 @@ func New() *Processor {
 	return &p
 }
 
-// NewWithConfig returns a new instance of Processor with given configuration.
-func NewWithConfig(c Config) *Processor {
+// NewWithOpts returns a new instance of Processor, options can be passed to it.
+// If no options are passed, the default configuration will be used.
+func NewWithOpts(opts ...Option) (*Processor, error) {
+	var optCfg OptsConfig
+	for _, opt := range opts {
+		opt(&optCfg)
+	}
+
+	cfg := optCfg.config
+
+	if cfg == nil && optCfg.configPath != "" {
+		c, err := ConfigFromFile(optCfg.configPath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read the configuration: %w", err)
+		}
+
+		cfg = &c
+	}
+
+	if cfg == nil {
+		c := Default()
+		cfg = &c
+	}
+
 	p := Processor{
-		formatter: formatter.New(c.Formatter),
-		parser:    parser.New(c.Parser),
-		cfg:       c,
+		formatter: formatter.New(cfg.Formatter),
+		parser:    parser.New(cfg.Parser),
+		cfg:       *cfg,
 	}
 
-	if c.General.PrintConfigOnInit {
-		p.PrintConfig()
-	}
+	p.PrintConfig()
 
-	return &p
-}
-
-// NewWithFileConfig returns a new instance of Processor with configuration from a given file.
-// It returns an error if the file cannot be read or unmarshalled.
-func NewWithFileConfig(path string) (*Processor, error) {
-	cfg, err := ConfigFromFile(path)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read the configuration: %w", err)
-	}
-
-	return NewWithConfig(cfg), nil
+	return &p, nil
 }
 
 /*
@@ -103,8 +112,8 @@ func (p *Processor) Format(val any) string {
 }
 
 // Clone returns a new instance of Processor with the same configuration as the original one.
-func (p *Processor) Clone() *Processor {
-	return NewWithConfig(p.cfg)
+func (p *Processor) Clone() (*Processor, error) {
+	return NewWithOpts(WithConfig(&p.cfg))
 }
 
 // PrintConfig prints the configuration of the censor Processor.

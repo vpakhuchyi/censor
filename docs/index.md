@@ -121,7 +121,7 @@ func main() {
   }
 
   // Create a new instance of censor.Processor with the specified configuration and set it as a global processor.
-  censor.SetGlobalProcessor(censor.NewWithConfig(cfg))
+  censor.NewWithOpts(censor.WithConfig(&cfg))
 
   const msg = `Here are the details of your account: email=user.example.email@ggmail.com, IBAN=UA123456789123456789123456789`
 
@@ -207,7 +207,7 @@ func main() {
     },
   }
 
-  p := censor.NewWithConfig(cfg)
+  p, err  := censor.NewWithOpts(censor.WithConfig(&cfg))
 }
 
 ```
@@ -228,7 +228,7 @@ func main() {
   pathToConfigFile := "./cfg_example.yml"
 
   // Create a new instance of censor.Processor with the configuration file usage.
-  p, err := censor.NewWithFileConfig(pathToConfigFile)
+  p, err := censor.NewWithOpts(censor.WithConfigPath(pathToConfigFile))
   if err != nil {
     // Handle error.
   }
@@ -454,7 +454,7 @@ func main() {
     },
   }
 
-  p := censor.NewWithConfig(cfg)
+  p, err := censor.NewWithOpts(censor.WithConfig(&cfg))
 
   slog.Info("Request", "payload", p.Format(v))
   // Here is what we'll see in the log:
