@@ -1,5 +1,5 @@
 /*
-Package zaphandler provides a configurable logging handler for github.com/uber-go/zap library, allowing users
+Package zaphandler provides a configurable logging handler for go.uber.org/zap library, allowing users
 to apply censoring to log entries and fields, overriding the original values before passing them to the core.
 
 Due to the diversity of the zap library usage, please pay attention to the way you use it with the censor handler.
@@ -53,7 +53,7 @@ If not provided, a default censor processor is used.
 3. WithKeysFormat() - enables the censoring of log "key" values.
 
 After the handler is initialized, it can be used as a regular zap logger. Because the censor handler is a wrapper around
-github.com/uber-go/zap library logic, it may not be compatible with all the possible ways of the logger usage.
+go.uber.org/zap library logic, it may not be compatible with all the possible ways of the logger usage.
 
 That's why it's recommended to use it with the following constructions:
 
