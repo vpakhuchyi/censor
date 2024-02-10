@@ -20,11 +20,14 @@ go get -u github.com/vpakhuchyi/censor
 
 - [x] Struct formatting with a default values masking of all the fields (recursively).
 - [x] Strings values masking based on provided regexp patterns.
+- [x] Censor handlers for loggers:
+    - `slog`
+    - `go.uber.org/zap`
 - [x] Wide range of supported types:
     - `struct`, `map`, `slice`, `array`, `pointer`, `string`
     - `float64/float32`, `int/int8/int16/int32/int64/rune`
     - `uint/uint8/uint16/uint32/uint64/uintptr/byte`, `bool`, `interface`
-- [x] Support encoding.TextMarshaler interface for custom types. 
+- [x] Support `encoding.TextMarshaler` interface for custom types.
 - [x] Customizable configuration:
     - Using `.ymal` file
     - Passing `censor.Config` struct
@@ -84,7 +87,8 @@ By default, *censor* operates without any exclude patterns. However, you have th
 functionality by incorporating exclude patterns through the `ExcludePatterns` configuration option.
 
 When exclude patterns are introduced, encapsulated formatters compares all string values against the specified patterns,
-masking matched parts of such strings. This capability proves invaluable when, for instance, you want to conceal all email addresses
+masking matched parts of such strings. This capability proves invaluable when, for instance, you want to conceal all
+email addresses
 within a set of strings. Simply add an email address pattern, and `censor.Format()` will automatically mask all values
 conforming to that pattern. This ensures that even as new values are added in the future, they will be seamlessly
 handled.
@@ -173,15 +177,15 @@ All the configuration options are available in both ways.
 
 Table below shows the names of the configuration options:
 
-| Go name              | YML name               | Default value   | Description                                                                                                                                                  |
-|----------------------|------------------------|-----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| PrintConfigOnInit    | print-config-on-init   | true            | If true, the configuration will be printed when any of available constructors is used.                                                                       |
-| UseJSONTagName       | use-json-tag-name      | false           | If true, the JSON tag name will be used instead of the Go struct field name.                                                                                 |
-| MaskValue            | mask-value             | [CENSORED]      | The value that will be used to mask the sensitive information.                                                                                               |
-| DisplayStructName    | display-struct-name    | false           | If true, the struct name will be displayed in the output.                                                                                                    |
-| DisplayMapType       | display-map-type       | false           | If true, the map type will be displayed in the output.                                                                                                       |
-| DisplayPointerSymbol | display-pointer-symbol | false           | If true, '&' (the pointer symbol) will be displayed in the output.                                                                                           |
-| ExcludePatterns      | exclude-patterns       | []              | A list of regular expressions that will be compared against all the string values. <br/>If a value matches any of the patterns, that section will be masked. |
+| Go name              | YML name               | Default value | Description                                                                                                                                                  |
+|----------------------|------------------------|---------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| PrintConfigOnInit    | print-config-on-init   | true          | If true, the configuration will be printed when any of available constructors is used.                                                                       |
+| UseJSONTagName       | use-json-tag-name      | false         | If true, the JSON tag name will be used instead of the Go struct field name.                                                                                 |
+| MaskValue            | mask-value             | [CENSORED]    | The value that will be used to mask the sensitive information.                                                                                               |
+| DisplayStructName    | display-struct-name    | false         | If true, the struct name will be displayed in the output.                                                                                                    |
+| DisplayMapType       | display-map-type       | false         | If true, the map type will be displayed in the output.                                                                                                       |
+| DisplayPointerSymbol | display-pointer-symbol | false         | If true, '&' (the pointer symbol) will be displayed in the output.                                                                                           |
+| ExcludePatterns      | exclude-patterns       | []            | A list of regular expressions that will be compared against all the string values. <br/>If a value matches any of the patterns, that section will be masked. |
 
 ### Using the `censor.Config` struct
 
@@ -207,7 +211,7 @@ func main() {
     },
   }
 
-  p, err  := censor.NewWithOpts(censor.WithConfig(&cfg))
+  p, err := censor.NewWithOpts(censor.WithConfig(&cfg))
 }
 
 ```
@@ -240,10 +244,13 @@ func main() {
 
 ### Handler for `go.uber.org/zap`
 
-Package `github.com/vpakhuchyi/censor/handlers/zap` provides a configurable logging handler for `go.uber.org/zap` library, 
-allowing users to apply censoring to log entries, overriding the original values before passing them to the core.
+The `github.com/vpakhuchyi/censor/handlers/zap` package provides a configurable handler for the `go.uber.org/zap`
+library. It allows users to apply censoring to log entries, overriding the original values before passing them to the
+core
+logger.
 
 Example of Censor handler initialization:
+
 ```go
 package main
 
@@ -275,58 +282,67 @@ func main() {
   // Once the handler is initialized and the logger is created with the wrapped core,
   // you can use the logger as usual and the censor handler will process the log entries.
   l.Info("user", zap.Any("payload", u))
-  
+
   // Output: {"level":"info",...,"msg":"user","payload":"{Name: John Doe, Email: [CENSORED]}"}
 }
 
 ```
-Due to the diversity of the `go.uber.org/zap` library usage, please pay attention to the way you use it with the censor handler.
 
-Describing the logger usage we can operate with a few keywords: `msg`, `key` and `value`.
+Note that due to the diversity of the `go.uber.org/zap` library usage, it's important to pay attention to how you use
+it with the censor handler.
+
+#### Glossary
+
+When using the logger with the censor handler, the following keywords are important: `msg`, `key`, and `value`:
+
+- `msg`: refers to the log message itself.
+- `key`: represents key names used in structured logging.
+- `value`: corresponds to values associated with keys in structured logging.
+
+By default, the censor handler only processes the `value` to minimize overhead.
+The `msg` and `key` values rarely contain sensitive data. However, you can customize the handler's behavior using
+the available configuration options.
+
 For example, in a call to `l.Info("payload", zap.Any("addresses", []string{"address1", "address2"}))`:
+
 - "payload" is a `msg`
 - "addresses" is a `key`
 - []string{"address1", "address2"} is a `value`
 
-By default, Censor processes only `value` to minimize the overhead. The `msg` and `key` rarely contain sensitive data.
-However, there are predefined configuration options that can be passed to `NewHandler()` function to customize the
-censor handler behavior.
+#### Configuration options
 
-The following options are available:
-1. `WithCensor(censor *censor.Processor)` - sets the censor processor instance for the logger handler.
-   If not provided, a default censor processor is used.
-2. `WithMessagesFormat()` - enables the censoring of a log "msg" values if such are present.
-3. `WithKeysFormat()` - enables the censoring of log "key" values.
+The Censor handler provides the following configuration options that can be passed to the NewHandler() function to
+customize its behavior:
 
-After the handler is initialized, it can be used as a regular logger. Because the censor handler is a wrapper around
-`go.uber.org/zap` library logic, it may not be compatible with all the possible ways of the logger usage.
+- `WithCensor(censor *censor.Processor)`: sets the censor processor instance for the logger handler.
+  If not provided, a default censor processor is used.
+- `WithMessagesFormat()`: enables censoring of log message values `msg` if present.
+- `WithKeysFormat()`: enables censoring of log key values `key`.
 
-That's why it's recommended to use it with the following constructions:
+#### Logger usage patterns
 
-- `l.Info(msg string, fields ...zap.Field)`
+To ensure compatibility with the censor handler, it is recommended to use the logger with the following constructions:
 
-- `l.With(fields ...zap.Field).Info(msg string, fields ...zap.Field)`
+For non-sugared logger:
 
-  In both cases, Info could be replaced with Debug, Warn, Error, Panic, Fatal.
+- `logger.Info(msg string, fields ...zap.Field)`
+- `logger.With(fields ...zap.Field).Info(msg string, fields ...zap.Field)`
 
-With sugared logger, the following constructions are supported:
+For sugared logger:
 
-- `l.Info(args ...interface{})`
+- `logger.Info(args ...interface{})`
+- `logger.Infof(template string, args ...interface{})`
+- `logger.Infow(msg string, keysAndValues ...interface{})`
+- `logger.Infoln(args ...interface{})`
+- `logger.With(args ...interface{}).Info(args ...interface{})`
 
-- `l.Infof(template string, args ...interface{})`
+In all cases, the `Info` can be replaced with other log levels like `Debug`, `Warn`, `Error`, `Panic`, or `Fatal`.
 
-- `l.Infow(msg string, keysAndValues ...interface{})`
+Please note that methods ending in `f`, `ln`, and `log.Print-style` (`logger.Info`) in the sugared logger do not support
+all the features of the censor handler.
 
-- `l.Infoln(args ...interface{})`
-
-- `l.With(args ...interface{}).Info(args ...interface{})`
-
-  In all cases, Info could be replaced with Debug, Warn, Error, Panic, Fatal.
-
-Methods ending in `f`, `ln` and `log.Print-style (l.Info)` in a sugared logger can't use all the
-censor handler features. Due to the nature of the zap sugared logger, Censor accepts formatted strings and has no
-possibility to use its parsing. However, a features like regexp matching are still available.
-
+Due to the nature of the zap sugared logger, Censor receives formatted strings and does not have the capability to parse
+them. However, features like regexp matching are still available.
 
 ## Supported Types
 
@@ -629,17 +645,17 @@ That's why all the runes will be formatted to be displayed as int32 Unicode code
 package main
 
 import (
-  "log/slog"
+	"log/slog"
 
-  "github.com/vpakhuchyi/censor"
+	"github.com/vpakhuchyi/censor"
 )
 
 func main() {
-  var v rune = 'A'
+	var v rune = 'A'
 
-  slog.Info("Request", "payload", censor.Format(v))
-  // Here is what we'll see in the log:
-  //Output: `2038/10/25 12:00:01 INFO Request payload=65`
+	slog.Info("Request", "payload", censor.Format(v))
+	// Here is what we'll see in the log:
+	//Output: `2038/10/25 12:00:01 INFO Request payload=65`
 }
 
 ```
@@ -678,7 +694,6 @@ func main() {
   // Here is what we'll see in the log:
   //Output: `2024/01/10 21:20:35 INFO Request payload="London, UK"`
 }
-
 
 ```
 
@@ -719,8 +734,8 @@ func main() {
     Chan:          make(chan int),
     Func:          func() {},
     UnsafePointer: unsafe.Pointer(uintptr(1)),
-	Complex64:     complex(1.11231, 2.034),
-	Complex128:    complex(11123.123, 5.5468098889),
+    Complex64:     complex(1.11231, 2.034),
+    Complex128:    complex(11123.123, 5.5468098889),
   }
 
   slog.Info("Request", "payload", censor.Format(v))
