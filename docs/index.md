@@ -240,7 +240,7 @@ func main() {
 
 ```
 
-## Censor handlers for loggers
+## Censor handler for loggers
 
 ### Handler for `go.uber.org/zap`
 
@@ -291,7 +291,7 @@ func main() {
 Note that due to the diversity of the `go.uber.org/zap` library usage, it's important to pay attention to how you use
 it with the censor handler.
 
-#### Glossary
+#### Covered data
 
 When using the logger with the censor handler, the following keywords are important: `msg`, `key`, and `value`:
 
@@ -645,17 +645,17 @@ That's why all the runes will be formatted to be displayed as int32 Unicode code
 package main
 
 import (
-	"log/slog"
+  "log/slog"
 
-	"github.com/vpakhuchyi/censor"
+  "github.com/vpakhuchyi/censor"
 )
 
 func main() {
-	var v rune = 'A'
+  var v rune = 'A'
 
-	slog.Info("Request", "payload", censor.Format(v))
-	// Here is what we'll see in the log:
-	//Output: `2038/10/25 12:00:01 INFO Request payload=65`
+  slog.Info("Request", "payload", censor.Format(v))
+  // Here is what we'll see in the log:
+  //Output: `2038/10/25 12:00:01 INFO Request payload=65`
 }
 
 ```
