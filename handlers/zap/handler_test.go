@@ -7,24 +7,19 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/tidwall/sjson"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
 	"github.com/vpakhuchyi/censor"
-	"github.com/vpakhuchyi/censor/internal/formatter"
 )
 
 func TestNewHandler(t *testing.T) {
 	// Description of the data that is used in the tests.
 
 	c, err := censor.NewWithOpts(censor.WithConfig(&censor.Config{
-		Formatter: formatter.Config{
-			MaskValue:            censor.DefaultMaskValue,
-			DisplayPointerSymbol: false,
-			DisplayStructName:    false,
-			DisplayMapType:       false,
-			ExcludePatterns:      []string{`#sensitive#`},
-		},
+		MaskValue:       censor.DefaultMaskValue,
+		ExcludePatterns: []string{`#sensitive#`},
 	}))
 	require.NoError(t, err)
 
@@ -62,12 +57,13 @@ func TestNewHandler(t *testing.T) {
 		l.Info(msg, zap.Any(key, value))
 
 		// THEN.
-		got := readLogs(t, outputFile)
+		got := string(readLogs(t, outputFile))
+		got, err = sjson.Delete(got, "ts")
 
-		want := `"msg":"[CENSORED] msg","[CENSORED] key":"{Name: Petro Perekotypole, Text: some text with [CENSORED] data, Email: [CENSORED]}"`
+		want := `{"level":"info","caller":"zap/handler_test.go:57","msg":"\"[CENSORED] msg\"","\"[CENSORED] key\"":"{\"Name\":\"Petro Perekotypole\",\"Text\":\"some text with [CENSORED] data\",\"Email\":\"[CENSORED]\"}"}`
 
 		require.NoError(t, err)
-		require.Contains(t, string(got), want)
+		require.JSONEq(t, want, got)
 	})
 
 	t.Run("info with string args", func(t *testing.T) {
@@ -85,12 +81,13 @@ func TestNewHandler(t *testing.T) {
 		l.Info(msg, zap.String(value.Name, value.Email))
 
 		// THEN.
-		got := readLogs(t, outputFile)
+		got := string(readLogs(t, outputFile))
+		got, err = sjson.Delete(got, "ts")
 
-		want := `"msg":"[CENSORED] msg","Petro Perekotypole":"example@example.com"`
+		want := `{"level":"info","caller":"zap/handler_test.go:81","msg":"\"[CENSORED] msg\"","\"Petro Perekotypole\"":"\"example@example.com\""}`
 
 		require.NoError(t, err)
-		require.Contains(t, string(got), want)
+		require.Contains(t, got, want)
 	})
 
 	t.Run("info with msg only", func(t *testing.T) {
@@ -108,12 +105,13 @@ func TestNewHandler(t *testing.T) {
 		l.Info(msg)
 
 		// THEN.
-		got := readLogs(t, outputFile)
+		got := string(readLogs(t, outputFile))
+		got, err = sjson.Delete(got, "ts")
 
-		want := `"msg":"[CENSORED] msg"`
+		want := `{"level":"info","caller":"zap/handler_test.go:105","msg":"\"[CENSORED] msg\""}`
 
 		require.NoError(t, err)
-		require.Contains(t, string(got), want)
+		require.JSONEq(t, want, got)
 	})
 
 	t.Run("error", func(t *testing.T) {
@@ -131,12 +129,14 @@ func TestNewHandler(t *testing.T) {
 		l.Error(msg, zap.Any(key, value))
 
 		// THEN.
-		got := readLogs(t, outputFile)
+		got := string(readLogs(t, outputFile))
+		got, err = sjson.Delete(got, "ts")
+		got, err = sjson.Delete(got, "stacktrace")
 
-		want := `"msg":"[CENSORED] msg","[CENSORED] key":"{Name: Petro Perekotypole, Text: some text with [CENSORED] data, Email: [CENSORED]}"`
+		want := `{"level":"error","caller":"zap/handler_test.go:129","msg":"\"[CENSORED] msg\"","\"[CENSORED] key\"":"{\"Name\":\"Petro Perekotypole\",\"Text\":\"some text with [CENSORED] data\",\"Email\":\"[CENSORED]\"}"}`
 
 		require.NoError(t, err)
-		require.Contains(t, string(got), want)
+		require.JSONEq(t, want, got)
 	})
 
 	t.Run("debug", func(t *testing.T) {
@@ -155,12 +155,13 @@ func TestNewHandler(t *testing.T) {
 		l.Debug(msg, zap.Any(key, value))
 
 		// THEN.
-		got := readLogs(t, outputFile)
+		got := string(readLogs(t, outputFile))
+		got, err = sjson.Delete(got, "ts")
 
-		want := `#sensitive# msg	{"#sensitive# key": "{Name: Petro Perekotypole, Text: some text with [CENSORED] data, Email: [CENSORED]}"}`
+		want := `DEBUG	zap/handler_test.go:155	#sensitive# msg	{"#sensitive# key": "{\"Name\":\"Petro Perekotypole\",\"Text\":\"some text with [CENSORED] data\",\"Email\":\"[CENSORED]\"}"}`
 
 		require.NoError(t, err)
-		require.Contains(t, string(got), want)
+		require.Contains(t, got, want)
 	})
 
 	t.Run("warn", func(t *testing.T) {
@@ -178,12 +179,13 @@ func TestNewHandler(t *testing.T) {
 		l.Warn(msg, zap.Any(key, value))
 
 		// THEN.
-		got := readLogs(t, outputFile)
+		got := string(readLogs(t, outputFile))
+		got, err = sjson.Delete(got, "ts")
 
-		want := `"msg":"[CENSORED] msg","[CENSORED] key":"{Name: Petro Perekotypole, Text: some text with [CENSORED] data, Email: [CENSORED]}"`
+		want := `{"level":"warn","caller":"zap/handler_test.go:179","msg":"\"[CENSORED] msg\"","\"[CENSORED] key\"":"{\"Name\":\"Petro Perekotypole\",\"Text\":\"some text with [CENSORED] data\",\"Email\":\"[CENSORED]\"}"}`
 
 		require.NoError(t, err)
-		require.Contains(t, string(got), want)
+		require.JSONEq(t, want, got)
 	})
 
 	t.Run("panic", func(t *testing.T) {
@@ -201,12 +203,14 @@ func TestNewHandler(t *testing.T) {
 		require.Panics(t, func() { l.Panic(msg, zap.Any(key, value)) })
 
 		// THEN.
-		got := readLogs(t, outputFile)
+		got := string(readLogs(t, outputFile))
+		got, err = sjson.Delete(got, "ts")
+		got, err = sjson.Delete(got, "stacktrace")
 
-		want := `"msg":"[CENSORED] msg","[CENSORED] key":"{Name: Petro Perekotypole, Text: some text with [CENSORED] data, Email: [CENSORED]}"`
+		want := `{"level":"panic","caller":"zap/handler_test.go:203","msg":"\"[CENSORED] msg\"","\"[CENSORED] key\"":"{\"Name\":\"Petro Perekotypole\",\"Text\":\"some text with [CENSORED] data\",\"Email\":\"[CENSORED]\"}"}`
 
 		require.NoError(t, err)
-		require.Contains(t, string(got), want)
+		require.JSONEq(t, want, got)
 	})
 
 	t.Run("fatal", func(t *testing.T) {
@@ -230,12 +234,14 @@ func TestNewHandler(t *testing.T) {
 		require.Panics(t, func() { l.Fatal(msg, zap.Any(key, value)) })
 
 		// THEN.
-		got := readLogs(t, outputFile)
+		got := string(readLogs(t, outputFile))
+		got, err = sjson.Delete(got, "ts")
+		got, err = sjson.Delete(got, "stacktrace")
 
-		want := `"msg":"[CENSORED] msg","[CENSORED] key":"{Name: Petro Perekotypole, Text: some text with [CENSORED] data, Email: [CENSORED]}"`
+		want := `{"level":"fatal","caller":"zap/handler_test.go:234","msg":"\"[CENSORED] msg\"","\"[CENSORED] key\"":"{\"Name\":\"Petro Perekotypole\",\"Text\":\"some text with [CENSORED] data\",\"Email\":\"[CENSORED]\"}"}`
 
 		require.NoError(t, err)
-		require.Contains(t, string(got), want)
+		require.JSONEq(t, want, got)
 	})
 
 	t.Run("with info", func(t *testing.T) {
@@ -253,12 +259,13 @@ func TestNewHandler(t *testing.T) {
 		l.With(zap.Any(key, value)).Info(msg, zap.Any(key, value))
 
 		// THEN.
-		got := readLogs(t, outputFile)
+		got := string(readLogs(t, outputFile))
+		got, err = sjson.Delete(got, "ts")
 
-		want := `"msg":"[CENSORED] msg","[CENSORED] key":"{Name: Petro Perekotypole, Text: some text with [CENSORED] data, Email: [CENSORED]}","[CENSORED] key":"{Name: Petro Perekotypole, Text: some text with [CENSORED] data, Email: [CENSORED]}"`
+		want := `{"level":"info","caller":"zap/handler_test.go:259","msg":"\"[CENSORED] msg\"","\"[CENSORED] key\"":"{\"Name\":\"Petro Perekotypole\",\"Text\":\"some text with [CENSORED] data\",\"Email\":\"[CENSORED]\"}","\"[CENSORED] key\"":"{\"Name\":\"Petro Perekotypole\",\"Text\":\"some text with [CENSORED] data\",\"Email\":\"[CENSORED]\"}"}`
 
 		require.NoError(t, err)
-		require.Contains(t, string(got), want)
+		require.JSONEq(t, want, got)
 	})
 
 	t.Run("info with default censor", func(t *testing.T) {
@@ -276,12 +283,13 @@ func TestNewHandler(t *testing.T) {
 		l.Info(msg, zap.Any(key, value))
 
 		// THEN.
-		got := readLogs(t, outputFile)
+		got := string(readLogs(t, outputFile))
+		got, err = sjson.Delete(got, "ts")
 
-		want := `"msg":"#sensitive# msg","#sensitive# key":"{Name: Petro Perekotypole, Text: some text with #sensitive# data, Email: [CENSORED]}"`
+		want := `{"level":"info","caller":"zap/handler_test.go:283","msg":"#sensitive# msg","#sensitive# key":"{\"Name\":\"Petro Perekotypole\",\"Text\":\"some text with #sensitive# data\",\"Email\":\"[CENSORED]\"}"}`
 
 		require.NoError(t, err)
-		require.Contains(t, string(got), want)
+		require.JSONEq(t, want, got)
 	})
 
 	t.Run("debug with higher level settings", func(t *testing.T) {
@@ -338,14 +346,15 @@ func TestNewHandler(t *testing.T) {
 		sl.Info(msg, zap.Any(key, value))
 
 		// THEN.
-		got := readLogs(t, outputFile)
+		got := string(readLogs(t, outputFile))
+		got, err = sjson.Delete(got, "ts")
 
 		// Note: the output of the Sugared logger is different from the output of the Unsugared logger.
 		// Censor handler receives a zap.Field not a provided value itself. That's why the output is different.
-		want := `"msg":"[CENSORED] msg{[CENSORED] key 23 0  {Petro Perekotypole some text with [CENSORED] data example@example.com}}`
+		want := `{"level":"info","caller":"zap/handler_test.go:346","msg":"\"[CENSORED] msg{[CENSORED] key 23 0  {Petro Perekotypole some text with [CENSORED] data example@example.com}}\""}`
 
 		require.NoError(t, err)
-		require.Contains(t, string(got), want)
+		require.JSONEq(t, want, got)
 	})
 
 	t.Run("infof with args", func(t *testing.T) {
@@ -364,13 +373,14 @@ func TestNewHandler(t *testing.T) {
 		sl.Infof("key=%v, val=%v", key, value)
 
 		// THEN.
-		got := readLogs(t, outputFile)
+		got := string(readLogs(t, outputFile))
+		got, err = sjson.Delete(got, "ts")
 
-		want := `"msg":"key=[CENSORED] key, val={Petro Perekotypole some text with [CENSORED] data example@example.com}`
+		want := `{"level":"info","caller":"zap/handler_test.go:373","msg":"\"key=[CENSORED] key, val={Petro Perekotypole some text with [CENSORED] data example@example.com}\""}`
 
 		//  #sensetive# msg{#sensetive# key 23 0  {Petro Perekotypole some text with #sensetive# data example@example.com}}
 		require.NoError(t, err)
-		require.Contains(t, string(got), want)
+		require.JSONEq(t, want, got)
 	})
 
 	t.Run("infof with zap.Any()", func(t *testing.T) {
@@ -389,12 +399,13 @@ func TestNewHandler(t *testing.T) {
 		sl.Infof("field=%v", zap.Any(key, value))
 
 		// THEN.
-		got := readLogs(t, outputFile)
+		got := string(readLogs(t, outputFile))
+		got, err = sjson.Delete(got, "ts")
 
-		want := `"msg":"field={[CENSORED] key 23 0  {Petro Perekotypole some text with [CENSORED] data example@example.com}}`
+		want := `{"level":"info","caller":"zap/handler_test.go:399","msg":"\"field={[CENSORED] key 23 0  {Petro Perekotypole some text with [CENSORED] data example@example.com}}\""}`
 
 		require.NoError(t, err)
-		require.Contains(t, string(got), want)
+		require.JSONEq(t, want, got)
 	})
 
 	t.Run("infow with zap.Any()", func(t *testing.T) {
@@ -413,12 +424,13 @@ func TestNewHandler(t *testing.T) {
 		sl.Infow(msg, zap.Any(key, value))
 
 		// THEN.
-		got := readLogs(t, outputFile)
+		got := string(readLogs(t, outputFile))
+		got, err = sjson.Delete(got, "ts")
 
-		want := `"msg":"[CENSORED] msg","[CENSORED] key":"{Name: Petro Perekotypole, Text: some text with [CENSORED] data, Email: [CENSORED]}`
+		want := `{"level":"info","caller":"zap/handler_test.go:424","msg":"\"[CENSORED] msg\"","\"[CENSORED] key\"":"{\"Name\":\"Petro Perekotypole\",\"Text\":\"some text with [CENSORED] data\",\"Email\":\"[CENSORED]\"}"}`
 
 		require.NoError(t, err)
-		require.Contains(t, string(got), want)
+		require.JSONEq(t, want, got)
 	})
 
 	t.Run("infow with args", func(t *testing.T) {
@@ -437,12 +449,13 @@ func TestNewHandler(t *testing.T) {
 		sl.Infow(msg, key, value)
 
 		// THEN.
-		got := readLogs(t, outputFile)
+		got := string(readLogs(t, outputFile))
+		got, err = sjson.Delete(got, "ts")
 
-		want := `"msg":"[CENSORED] msg","[CENSORED] key":"{Name: Petro Perekotypole, Text: some text with [CENSORED] data, Email: [CENSORED]}`
+		want := `{"level":"info","caller":"zap/handler_test.go:449","msg":"\"[CENSORED] msg\"","\"[CENSORED] key\"":"{\"Name\":\"Petro Perekotypole\",\"Text\":\"some text with [CENSORED] data\",\"Email\":\"[CENSORED]\"}"}`
 
 		require.NoError(t, err)
-		require.Contains(t, string(got), want)
+		require.JSONEq(t, want, got)
 	})
 
 	t.Run("infoln", func(t *testing.T) {
@@ -461,14 +474,15 @@ func TestNewHandler(t *testing.T) {
 		sl.Infoln(msg, key, value)
 
 		// THEN.
-		got := readLogs(t, outputFile)
+		got := string(readLogs(t, outputFile))
+		got, err = sjson.Delete(got, "ts")
 
 		// Note: only Censor regexp pattern procesing is supported for Infoln method.
 		// That's happened because the Infoln method converts all arguments to a string on the early stage.
-		want := `"msg":"[CENSORED] msg [CENSORED] key {Petro Perekotypole some text with [CENSORED] data example@example.com}`
+		want := `{"level":"info","caller":"zap/handler_test.go:474","msg":"\"[CENSORED] msg [CENSORED] key {Petro Perekotypole some text with [CENSORED] data example@example.com}\""}`
 
 		require.NoError(t, err)
-		require.Contains(t, string(got), want)
+		require.JSONEq(t, want, got)
 	})
 }
 
