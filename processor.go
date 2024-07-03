@@ -3,10 +3,8 @@ package censor
 import (
 	"fmt"
 	"reflect"
-	"strings"
 
 	jsoniter "github.com/json-iterator/go"
-	"gopkg.in/yaml.v3"
 )
 
 const jsonFormatErrorPattern = `{"error":"%s"}`
@@ -23,19 +21,7 @@ var globalInstance = New()
 
 // New returns a new instance of Processor with default configuration.
 func New() *Processor {
-	c := Default()
-	formatter := jsoniter.Config{EscapeHTML: true}.Froze()
-
-	formatter.RegisterExtension(newExtension(&c))
-
-	p := Processor{
-		cfg:       c,
-		formatter: formatter,
-	}
-
-	p.PrintConfig()
-
-	return &p
+	return newProcessor(DefaultConfig())
 }
 
 // NewWithOpts returns a new instance of Processor, options can be passed to it.
@@ -58,69 +44,32 @@ func NewWithOpts(opts ...Option) (*Processor, error) {
 	}
 
 	if cfg == nil {
-		c := Default()
+		c := DefaultConfig()
 		cfg = &c
+	} else if cfg.PrintConfigOnInit {
+		// We want to print the configuration only if it differs from the default one
+		// and the corresponding flag is set to true.
+		fmt.Print(cfg.ToString())
 	}
 
-	formatter := jsoniter.Config{EscapeHTML: true}.Froze()
+	return newProcessor(*cfg), nil
+}
 
-	formatter.RegisterExtension(newExtension(cfg))
+func newProcessor(cfg Config) *Processor {
+	formatter := jsoniter.Config{EscapeHTML: true}.Froze()
+	formatter.RegisterExtension(newExtension(&cfg))
 
 	p := Processor{
+		cfg:       cfg,
 		formatter: formatter,
-		cfg:       *cfg,
 	}
 
-	p.PrintConfig()
-
-	return &p, nil
+	return &p
 }
 
 // PrintConfig prints the configuration of the censor Processor.
-//
-//nolint:gomnd
 func (p *Processor) PrintConfig() {
-	const lineLength = 69
-
-	var b strings.Builder
-
-	writeLine := func() {
-		b.WriteString(strings.Repeat("-", lineLength) + "\n")
-	}
-
-	// Handle the case when the censor instance isn't initialized.
-	if p == nil {
-		const text = "Censor instance isn't initialized"
-
-		writeLine()
-		b.WriteString(strings.Repeat(" ", (lineLength-len(text))/2) + text + "\n")
-		writeLine()
-
-		fmt.Print(b.String())
-
-		return
-	}
-
-	const text = "Censor is configured with the following settings:"
-
-	writeLine()
-	b.WriteString(strings.Repeat(" ", (lineLength-len(text))/2) + text + "\n")
-	writeLine()
-
-	// config.Config and its nested fields contain only supported YAML types, so it must be marshalled successfully.
-	// However, if the configuration is changed, it may contain unsupported types. To handle this case,
-	// we have tests that check whether the configuration can be marshalled.
-	// Because such kind of changes can happen only in the development process and considering that such an issue
-	// can't be fixed automatically or by the user, we don't want to fail the application in this case.
-	//
-	//nolint:errcheck
-	d, _ := yaml.Marshal(p.cfg)
-
-	b.Write(d)
-
-	writeLine()
-
-	fmt.Print(b.String())
+	fmt.Print(p.cfg.ToString())
 }
 
 // Format takes any value and returns a string representation of it masking struct fields by default.
@@ -139,10 +88,6 @@ func (p *Processor) Format(val any) string {
 
 	return string(r)
 }
-
-/*
-	Pkg-level functions that work with the global instance of Processor.
-*/
 
 // SetGlobalInstance sets a given Processor as a global instance.
 func SetGlobalInstance(p *Processor) {
