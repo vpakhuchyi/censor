@@ -3,6 +3,7 @@ package censor
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -26,8 +27,8 @@ type Config struct {
 	ExcludePatterns []string `yaml:"exclude-patterns"`
 }
 
-// Default returns a default configuration.
-func Default() Config {
+// DefaultConfig returns a default configuration.
+func DefaultConfig() Config {
 	return Config{
 		PrintConfigOnInit: true,
 		MaskValue:         DefaultMaskValue,
@@ -49,4 +50,50 @@ func ConfigFromFile(path string) (Config, error) {
 	}
 
 	return cfg, nil
+}
+
+// ToString returns a string that contains a description of the Config struct.
+// Example:
+// ---------------------------------------------------------------------
+//
+//	Censor is configured with the following settings:
+//
+// ---------------------------------------------------------------------
+// print-config-on-init: true
+// mask-value: '[CENSORED]'
+// exclude-patterns:
+//   - '[0-9]'
+//
+// ---------------------------------------------------------------------
+//
+//nolint:gomnd
+func (c Config) ToString() string {
+	const lineLength = 69
+
+	var b strings.Builder
+
+	writeLine := func() {
+		b.WriteString(strings.Repeat("-", lineLength) + "\n")
+	}
+
+	const text = "Censor is configured with the following settings:"
+
+	writeLine()
+	b.WriteString(strings.Repeat(" ", (lineLength-len(text))/2) + text + "\n")
+	writeLine()
+
+	// config.Config and its nested fields contain only supported YAML types, so it must be marshalled successfully.
+	// However, if the configuration is changed, it may contain unsupported types. To handle this case,
+	// we have tests that check whether the configuration can be marshalled.
+	// Because such kind of changes can happen only in the development process and considering that such an issue
+	// can't be fixed automatically or by the user, we don't want to fail the application in this case.
+	//
+	//nolint:errcheck
+	d, _ := yaml.Marshal(c)
+
+	b.Write(d)
+
+	writeLine()
+
+	return b.String()
 }

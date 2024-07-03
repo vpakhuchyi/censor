@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestProcessor2_Format(t *testing.T) {
+func TestProcessor_Format(t *testing.T) {
 	type Address struct {
 		Country string `censor:"display"`
 		City    string
@@ -35,8 +35,8 @@ func TestProcessor2_Format(t *testing.T) {
 
 	cfg := Config{
 		PrintConfigOnInit: true,
-		//MaskValue:         "Censored7",
-		ExcludePatterns: []string{"[0-9]"},
+		MaskValue:         "[CENSORED]",
+		ExcludePatterns:   []string{"[0-9]"},
 	}
 
 	p, err := NewWithOpts(WithConfig(&cfg))
@@ -45,13 +45,4 @@ func TestProcessor2_Format(t *testing.T) {
 	}
 
 	fmt.Println(p.Format(m))
-
-}
-
-func Bla(s string) error {
-	if s == "" {
-		return fmt.Errorf("empty string")
-	}
-
-	return nil
 }
