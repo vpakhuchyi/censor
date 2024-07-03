@@ -1,6 +1,7 @@
 package sloghandler
 
 import (
+	"encoding/json"
 	"io"
 	"log/slog"
 	"os"
@@ -43,7 +44,7 @@ func NewJSONHandler(opts ...Option) *slog.JSONHandler {
 		case slog.TimeKey, slog.LevelKey, slog.SourceKey:
 			return attr
 		default:
-			return slog.Any(attr.Key, cfg.censor.Format(attr.Value.Any()))
+			return slog.Any(attr.Key, json.RawMessage(cfg.censor.Format(attr.Value.Any())))
 		}
 	}
 

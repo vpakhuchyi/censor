@@ -3,11 +3,12 @@ package sloghandler
 import (
 	"bufio"
 	"bytes"
-	"encoding/json"
+	"fmt"
 	"log/slog"
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/tidwall/sjson"
 )
 
 type source struct {
@@ -51,18 +52,26 @@ func TestNewHandler(t *testing.T) {
 		out := bufio.NewWriter(&buf)
 		log := slog.New(NewJSONHandler([]Option{WithOut(out)}...))
 		want := `{
-    				"level": "INFO",
-    				"msg": "test",
-    				"payload": "{City: Kyiv, Country: Ukraine, Street: [CENSORED], Zip: [CENSORED]}"
-				 }`
+					"level":"INFO",
+    				"msg":"test",
+    				"payload":{
+        				"City":"Kyiv",
+        				"Country":"Ukraine",
+        				"Street":"[CENSORED]",
+						"Zip":"[CENSORED]"
+    				}
+				}`
 
 		// WHEN
 		log.Info("test", slog.Any("payload", payload))
 
 		// THEN
 		require.NoError(t, out.Flush())
-		got := buf.String()
-		require.JSONEq(t, want, prepareLogEntry(t, got))
+		got, err := sjson.Delete(buf.String(), "time")
+		require.NoError(t, err)
+
+		fmt.Println(got)
+		require.JSONEq(t, want, got)
 	})
 
 	t.Run("with add source option", func(t *testing.T) {
@@ -72,20 +81,31 @@ func TestNewHandler(t *testing.T) {
 		log := slog.New(NewJSONHandler([]Option{WithOut(out), WithAddSource()}...))
 		want := `{
 					"level": "INFO",
-					"msg": "test",
-					"payload": "{City: Kyiv, Country: Ukraine, Street: [CENSORED], Zip: [CENSORED]}",
-					"source": {
-						"function": "github.com/vpakhuchyi/censor/handlers/slog.TestNewHandler.func3"
-					}
-				 }`
+    				"source": {
+        				"function": "github.com/vpakhuchyi/censor/handlers/slog.TestNewHandler.func3"
+    				},
+    				"msg": "test",
+    				"payload": {
+        				"City": "Kyiv",
+        				"Country": "Ukraine",
+        				"Street": "[CENSORED]",
+        				"Zip": "[CENSORED]"
+    				}
+				}`
 
 		// WHEN
 		log.Info("test", slog.Any("payload", payload))
 
 		// THEN
 		require.NoError(t, out.Flush())
-		got := buf.String()
-		require.JSONEq(t, want, prepareLogEntry(t, got))
+		got, err := sjson.Delete(buf.String(), "time")
+		require.NoError(t, err)
+		got, err = sjson.Delete(got, "source.file")
+		require.NoError(t, err)
+		got, err = sjson.Delete(got, "source.line")
+		require.NoError(t, err)
+
+		require.JSONEq(t, want, got)
 	})
 
 	t.Run("with level error option", func(t *testing.T) {
@@ -118,32 +138,24 @@ func TestNewHandler(t *testing.T) {
 			})}...),
 		)
 		want := `{
-					"level": "TEST",
-					"msg": "test",
-					"payload": "{City: Kyiv, Country: Ukraine, Street: [CENSORED], Zip: [CENSORED]}"
-				 }`
+    				"level": "TEST",
+    				"msg": "test",
+    				"payload": {
+        				"City": "Kyiv",
+        				"Country": "Ukraine",
+        				"Street": "[CENSORED]",
+        				"Zip": "[CENSORED]"
+    				}
+				}`
 
 		// WHEN
 		log.Info("test", slog.Any("payload", payload))
 
 		// THEN
 		require.NoError(t, out.Flush())
-		got := buf.String()
-		require.JSONEq(t, want, prepareLogEntry(t, got))
+		got, err := sjson.Delete(buf.String(), "time")
+		require.NoError(t, err)
+
+		require.JSONEq(t, want, got)
 	})
-}
-
-func prepareLogEntry(t *testing.T, s string) string {
-	if s == "" {
-		return s
-	}
-
-	logE := logEntry{}
-	err := json.Unmarshal([]byte(s), &logE)
-	require.NoError(t, err)
-
-	log, err := json.Marshal(logE)
-	require.NoError(t, err)
-
-	return string(log)
 }
