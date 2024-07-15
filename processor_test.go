@@ -52,6 +52,32 @@ func TestProcessor_Format(t *testing.T) {
 		require.JSONEq(t, want, got)
 	})
 
+	t.Run("with no options", func(t *testing.T) {
+		// GIVEN a config instance.
+		p, err := NewWithOpts()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		// WHEN the Format method is called on the processor instance.
+		payload := S{
+			String1: "Hello",
+			String2: "exampe@gmail.com",
+			Map:     map[string]string{"key": "value"},
+			Slice:   []string{"one", "two"},
+			Nested: Nested{
+				String:  "Nothing",
+				Float64: 3.14,
+				Array:   [2]string{"one", "exampe@gmail.com"},
+			},
+		}
+		got := p.Format(payload)
+
+		// THEN the returned string contains the configuration details.
+		want := `{"String1":"Hello","String2":"[CENSORED]","Map":{"key":"value"},"Slice":"[CENSORED]","String":"Nothing","Float64":"[CENSORED]","Array":["one","exampe@gmail.com"]}`
+		require.JSONEq(t, want, got)
+	})
+
 	t.Run("with config file option", func(t *testing.T) {
 		// GIVEN a config instance.
 		p, err := NewWithOpts(WithConfigPath("testdata/cfg.yml"))
@@ -70,6 +96,37 @@ func TestProcessor_Format(t *testing.T) {
 
 		// THEN the returned string contains the configuration details.
 		want := `{"String1":"Hello", "String2":"[CENSORED]", "Map": {"key":"value"}, "Slice":"[CENSORED]", "Array": ["", ""], "Float64":"[CENSORED]",  "String":"" }`
+		require.JSONEq(t, want, got)
+	})
+
+	t.Run("with nil value", func(t *testing.T) {
+		// GIVEN a config instance.
+		p, err := NewWithOpts()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		// WHEN the Format method is called on the processor instance.
+		got := p.Format(nil)
+
+		// THEN the returned string contains the configuration details.
+		want := `null`
+		require.JSONEq(t, want, got)
+	})
+
+	t.Run("with nil var", func(t *testing.T) {
+		// GIVEN a config instance.
+		p, err := NewWithOpts()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		// WHEN the Format method is called on the processor instance.
+		var s *string
+		got := p.Format(s)
+
+		// THEN the returned string contains the configuration details.
+		want := `null`
 		require.JSONEq(t, want, got)
 	})
 }

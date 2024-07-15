@@ -78,7 +78,7 @@ func (p *Processor) PrintConfig() {
 // If a value implements [encoding.TextMarshaler], the result of MarshalText is written.
 func (p *Processor) Format(val any) string {
 	if val == nil || reflect.TypeOf(val) == nil {
-		return "nil"
+		return "null"
 	}
 
 	r, err := p.formatter.Marshal(val)
