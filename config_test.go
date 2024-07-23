@@ -9,7 +9,7 @@ import (
 )
 
 func TestDefault(t *testing.T) {
-	got := Default()
+	got := DefaultConfig()
 	exp := Config{
 		General: General{
 			PrintConfigOnInit: true,
@@ -107,7 +107,7 @@ func TestYAMLMarshal(t *testing.T) {
 		want, err := os.ReadFile("./testdata/default.yml")
 		require.NoError(t, err)
 
-		got, err := yaml.Marshal(Default())
+		got, err := yaml.Marshal(DefaultConfig())
 		require.NoError(t, err)
 		require.EqualValues(t, want, got)
 		require.YAMLEq(t, string(want), string(got))
