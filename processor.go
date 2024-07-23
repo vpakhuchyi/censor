@@ -4,9 +4,6 @@ import (
 	"encoding"
 	"fmt"
 	"reflect"
-	"strings"
-
-	"gopkg.in/yaml.v3"
 
 	"github.com/vpakhuchyi/censor/internal/formatter"
 	"github.com/vpakhuchyi/censor/internal/models"
@@ -26,17 +23,7 @@ var globalInstance = New()
 
 // New returns a new instance of Processor with default configuration.
 func New() *Processor {
-	c := Default()
-
-	p := Processor{
-		formatter: formatter.New(c.Formatter),
-		parser:    parser.New(c.Parser),
-		cfg:       c,
-	}
-
-	p.PrintConfig()
-
-	return &p
+	return newProcessor(DefaultConfig())
 }
 
 // NewWithOpts returns a new instance of Processor, options can be passed to it.
@@ -59,19 +46,23 @@ func NewWithOpts(opts ...Option) (*Processor, error) {
 	}
 
 	if cfg == nil {
-		c := Default()
+		c := DefaultConfig()
 		cfg = &c
+	} else if cfg.General.PrintConfigOnInit {
+		// We want to print the configuration only if it differs from the default one
+		// and the corresponding flag is set to true.
+		fmt.Print(cfg.ToString())
 	}
 
-	p := Processor{
+	return newProcessor(*cfg), nil
+}
+
+func newProcessor(cfg Config) *Processor {
+	return &Processor{
+		cfg:       cfg,
 		formatter: formatter.New(cfg.Formatter),
 		parser:    parser.New(cfg.Parser),
-		cfg:       *cfg,
 	}
-
-	p.PrintConfig()
-
-	return &p, nil
 }
 
 /*
@@ -116,57 +107,15 @@ func (p *Processor) Clone() (*Processor, error) {
 	return NewWithOpts(WithConfig(&p.cfg))
 }
 
+const censorIsNotInitializedMsg = "censor is not initialized"
+
 // PrintConfig prints the configuration of the censor Processor.
-//
-//nolint:gomnd
 func (p *Processor) PrintConfig() {
-	const lineLength = 69
-
-	var b strings.Builder
-
-	writeLine := func() {
-		b.WriteString(strings.Repeat("-", lineLength) + "\n")
-	}
-
-	// Handle the case when the censor instance isn't initialized.
 	if p == nil {
-		const text = "Censor instance isn't initialized"
-
-		writeLine()
-		b.WriteString(strings.Repeat(" ", (lineLength-len(text))/2) + text + "\n")
-		writeLine()
-
-		fmt.Print(b.String())
-
-		return
+		fmt.Print(censorIsNotInitializedMsg)
+	} else {
+		fmt.Print(p.cfg.ToString())
 	}
-
-	const text = "Censor is configured with the following settings:"
-
-	writeLine()
-	b.WriteString(strings.Repeat(" ", (lineLength-len(text))/2) + text + "\n")
-	writeLine()
-
-	cfg := Config{
-		General:   p.cfg.General,
-		Parser:    p.cfg.Parser,
-		Formatter: p.cfg.Formatter,
-	}
-
-	// config.Config and its nested fields contain only supported YAML types, so it must be marshalled successfully.
-	// However, if the configuration is changed, it may contain unsupported types. To handle this case,
-	// we have tests that check whether the configuration can be marshalled.
-	// Because such kind of changes can happen only in the development process and considering that such an issue
-	// can't be fixed automatically or by the user, we don't want to fail the application in this case.
-	//
-	//nolint:errcheck
-	d, _ := yaml.Marshal(cfg)
-
-	b.Write(d)
-
-	writeLine()
-
-	fmt.Print(b.String())
 }
 
 //nolint:exhaustive
