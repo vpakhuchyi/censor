@@ -31,7 +31,6 @@ go get -u github.com/vpakhuchyi/censor
 ### Documentation
 
 Find detailed documentation and practical examples for **Censor** at https://vpakhuchyi.github.io/censor.   
-Explore how to use and configure the library effectively, making the most of its features. 
 
 ### Usage
 
@@ -43,44 +42,107 @@ particularly in scenarios like logging where inadvertent exposure of sensitive d
 package main
 
 import (
-	"log/slog"
+  "fmt"
+  "log/slog"
 
-	"github.com/vpakhuchyi/censor"
+  "github.com/vpakhuchyi/censor"
 )
 
 type request struct {
-	UserID   string  `censor:"display"` // Display value.
-	Address  address `censor:"display"`
-	Email    string  // Mask value.
-	FullName string
+  UserID   string  `censor:"display"` // Display value.
+  Address  address `censor:"display"`
+  Email    string  // Mask value.
+  FullName string
 }
 
 type address struct {
-	City    string `censor:"display"`
-	Country string `censor:"display"`
-	Street  string
-	Zip     int
+  City    string `censor:"display"`
+  Country string `censor:"display"`
+  Street  string
+  Zip     int
 }
 
 // Here is a request struct that contains sensitive information: Email, FullName and Password.
 // We could log only UserID, but it's much easier to control what we're logging by using censor 
 // instead of checking each log line and making sure that we're not logging sensitive information.
 func main() {
-	r := request{
-		UserID:   "123",
-		Address:  address{City: "Kharkiv", Country: "UA", Street: "Nauky Avenue", Zip: 23335},
-		Email:    "viktor.example.email@ggmail.com",
-		FullName: "Viktor Pakhuchyi",
-	}
+  r := request{
+    UserID:   "123",
+    Address:  address{City: "Kharkiv", Country: "UA", Street: "Nauky Avenue", Zip: 23335},
+    Email:    "viktor.example.email@ggmail.com",
+    FullName: "Viktor Pakhuchyi",
+  }
 
-	// In this example we're using censor as a global package-level variable with default configuration.
-	slog.Info("Request", "payload", censor.Format(r))
+  // In this example we're using censor as a global package-level variable with default configuration.
+  fmt.Println(censor.Format(r))
 }
 
 // Here is what we'll see in the log:
-Output: `2038/10/25 12:00:01 INFO Request payload={UserID: 123, Address: {City: Kharkiv, Country: UA, Street: [CENSORED], Zip: [CENSORED]}, Email: [CENSORED], FullName: [CENSORED]}`
+Output: `{UserID: 123, Address: {City: Kharkiv, Country: UA, Street: [CENSORED], Zip: [CENSORED]}, Email: [CENSORED], FullName: [CENSORED]}`
 
 // All the fields values are masked by default (recursively) except 
 // those fields that has specified `censor:"display"` tag.
+```
 
+### Handler for "log/slog" 
+
+Censor instance can be used as a handler for the `log/slog` package.
+
+```go
+  // Define the configuration.  
+  cfg := censor.Config{
+    Encoder: censor.EncoderConfig{
+      DisplayMapType:       true,
+      MaskValue:      "[CENSORED]", 
+      // Other configuration options...
+    },
+  }
+  
+  // Initialize a Censor instance with the specified configuration.
+  c, err := censor.NewWithOpts(censor.WithConfig(&cfg))
+  if err != nil {
+    // Handle error.
+  }
+  
+  // Create and register a new slog handler with the initialized instance.
+  opts := []sloghandler.Option{sloghandler.WithCensor(c)}
+  log := slog.New(sloghandler.NewJSONHandler(opts...))
+
+  // Use logger as usually.
+  log.Info("user", slog.Any("payload", payload))
+```
+
+### Handler for "go.uber.org/zap" 
+
+Censor also can be used as a handler for the `go.uber.org/zap` package.
+
+```go
+  // Define the configuration.  
+  cfg := censor.Config{
+    Encoder: censor.EncoderConfig{
+      DisplayMapType:       true,
+      MaskValue:      "[CENSORED]",
+      // Other configuration options...
+    },
+  }
+
+  // Initialize a Censor instance with the specified configuration.
+  c, err := censor.NewWithOpts(censor.WithConfig(&cfg))
+  if err != nil {
+    // Handle error.
+  }
+  
+  // Wrap the zap core with the Censor handler.
+  o := zap.WrapCore(func(core zapcore.Core) zapcore.Core {
+    return zaphandler.NewHandler(core, zaphandler.WithCensor(c))
+  })
+
+  // Initialize a new zap logger instance.
+  l, err := zap.NewProduction(o)
+  if err != nil {
+    // Handle error.
+  }
+  
+  // Use logger as usually.
+  l.Info("user", zap.Any("payload", payload))
 ```
