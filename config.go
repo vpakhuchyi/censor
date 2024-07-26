@@ -7,18 +7,16 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/vpakhuchyi/censor/internal/formatter"
-	"github.com/vpakhuchyi/censor/internal/parser"
+	"github.com/vpakhuchyi/censor/internal/encoder"
 )
 
 // DefaultMaskValue is used to mask struct fields by default.
 const DefaultMaskValue = "[CENSORED]"
 
-// Config describes the available parser.Parser and formatter.Formatter configuration.
+// Config describes the available encoder.Encoder and formatter.Formatter configuration.
 type Config struct {
-	General   General         `yaml:"general"`
-	Parser    ParserConfig    `yaml:"parser"`
-	Formatter FormatterConfig `yaml:"formatter"`
+	General General       `yaml:"general"`
+	Encoder EncoderConfig `yaml:"encoder"`
 }
 
 // General describes general configuration settings.
@@ -29,27 +27,22 @@ type General struct {
 	PrintConfigOnInit bool `yaml:"print-config-on-init"`
 }
 
-// ParserConfig describes censor Parser configuration.
-type ParserConfig = parser.Config
-
-// FormatterConfig describes censor Formatter configuration.
-type FormatterConfig = formatter.Config
+// EncoderConfig describes censor Encoder configuration.
+type EncoderConfig = encoder.Config
 
 // DefaultConfig returns a default configuration.
 func DefaultConfig() Config {
 	return Config{
-		Parser: parser.Config{
-			UseJSONTagName: false,
-		},
-		Formatter: formatter.Config{
-			MaskValue:            DefaultMaskValue,
-			DisplayPointerSymbol: false,
-			DisplayStructName:    false,
-			DisplayMapType:       false,
-			ExcludePatterns:      nil,
-		},
 		General: General{
 			PrintConfigOnInit: true,
+		},
+		Encoder: EncoderConfig{
+			DisplayMapType:       false,
+			DisplayPointerSymbol: false,
+			DisplayStructName:    false,
+			ExcludePatterns:      nil,
+			MaskValue:            DefaultMaskValue,
+			UseJSONTagName:       false,
 		},
 	}
 }
@@ -84,7 +77,7 @@ func ConfigFromFile(path string) (Config, error) {
 //
 // ---------------------------------------------------------------------
 //
-//nolint:gomnd
+//nolint:mnd
 func (c Config) ToString() string {
 	const lineLength = 69
 

@@ -1,10 +1,9 @@
 general:
     print-config-on-init: true
-parser:
-    use-json-tag-name: false
-formatter:
-    mask-value: '[CENSORED]'
+encoder:
+    display-map-type: false
     display-pointer-symbol: false
     display-struct-name: false
-    display-map-type: false
     exclude-patterns: []
+    mask-value: '[CENSORED]'
+    use-json-tag-name: false

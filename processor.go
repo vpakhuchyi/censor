@@ -1,20 +1,17 @@
 package censor
 
 import (
-	"encoding"
 	"fmt"
 	"reflect"
 
-	"github.com/vpakhuchyi/censor/internal/formatter"
-	"github.com/vpakhuchyi/censor/internal/models"
-	"github.com/vpakhuchyi/censor/internal/parser"
+	"github.com/vpakhuchyi/censor/internal/encoder"
+	"github.com/vpakhuchyi/censor/internal/encoder/builderpool"
 )
 
 // Processor is used to censor any value and format it into a string representation.
 type Processor struct {
-	formatter *formatter.Formatter
-	parser    *parser.Parser
-	cfg       Config
+	encoder encoder.Encoder
+	cfg     Config
 }
 
 // Censor pkg contains a global instance of Processor.
@@ -59,9 +56,8 @@ func NewWithOpts(opts ...Option) (*Processor, error) {
 
 func newProcessor(cfg Config) *Processor {
 	return &Processor{
-		cfg:       cfg,
-		formatter: formatter.New(cfg.Formatter),
-		parser:    parser.New(cfg.Parser),
+		cfg:     cfg,
+		encoder: encoder.NewTextEncoder(cfg.Encoder),
 	}
 }
 
@@ -92,14 +88,7 @@ func (p *Processor) Format(val any) string {
 		return "nil"
 	}
 
-	// If a value implements [encoding.TextMarshaler] interface, then it should be marshaled to string.
-	if tm, ok := val.(encoding.TextMarshaler); ok {
-		val = parser.PrepareTextMarshalerValue(tm)
-	}
-
-	v := reflect.ValueOf(val)
-
-	return p.format(v.Kind(), p.parse(v))
+	return p.encode(val)
 }
 
 // Clone returns a new instance of Processor with the same configuration as the original one.
@@ -118,56 +107,13 @@ func (p *Processor) PrintConfig() {
 	}
 }
 
-//nolint:exhaustive
-func (p *Processor) parse(v reflect.Value) any {
-	switch k := v.Kind(); k {
-	case reflect.Struct:
-		return p.parser.Struct(v)
-	case reflect.Slice, reflect.Array:
-		return p.parser.Slice(v)
-	case reflect.Pointer:
-		return p.parser.Ptr(v)
-	case reflect.Map:
-		return p.parser.Map(v)
-	case reflect.Float32, reflect.Float64:
-		return p.parser.Float(v)
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
-		return p.parser.Integer(v)
-	case reflect.Bool:
-		return p.parser.Bool(v)
-	case reflect.String:
-		return p.parser.String(v)
-	default:
-		/*
-			Note: this case covers all unsupported types.
-			In such a case, we return an empty string.
-		*/
-		return models.Value{Value: fmt.Sprintf(parser.UnsupportedTypeTmpl, k), Kind: k}
-	}
-}
+func (p *Processor) encode(v any) string {
+	b := builderpool.Get()
 
-//nolint:exhaustive
-func (p *Processor) format(k reflect.Kind, v any) string {
-	switch k {
-	case reflect.Struct:
-		return p.formatter.Struct(v.(models.Struct))
-	case reflect.Slice, reflect.Array:
-		return p.formatter.Slice(v.(models.Slice))
-	case reflect.Pointer:
-		return p.formatter.Ptr(v.(models.Ptr))
-	case reflect.String:
-		return p.formatter.String(v.(models.Value))
-	case reflect.Float32, reflect.Float64:
-		return p.formatter.Float(v.(models.Value))
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return p.formatter.Integer(v.(models.Value))
-	case reflect.Bool:
-		return p.formatter.Bool(v.(models.Value))
-	case reflect.Map:
-		return p.formatter.Map(v.(models.Map))
-	default:
-		return fmt.Sprintf(`%v`, v.(models.Value).Value)
-	}
+	p.encoder.Encode(b, reflect.ValueOf(v))
+
+	res := b.String()
+	builderpool.Put(b)
+
+	return res
 }
