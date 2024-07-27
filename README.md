@@ -84,9 +84,14 @@ Output: `{UserID: 123, Address: {City: Kharkiv, Country: UA, Street: [CENSORED],
 // those fields that has specified `censor:"display"` tag.
 ```
 
-### Handler for "log/slog" 
+### Handler for "log/slog"
 
-Censor instance can be used as a handler for the `log/slog` package.
+Import the `sloghandler` package that provides a handler for the `log/slog` package.
+```go
+  import "github.com/vpakhuchyi/censor/sloghandler"
+```
+
+Initialize a new Censor instance and wrap the slog core with it:
 
 ```go
   // Define the configuration.  
@@ -114,7 +119,12 @@ Censor instance can be used as a handler for the `log/slog` package.
 
 ### Handler for "go.uber.org/zap" 
 
-Censor also can be used as a handler for the `go.uber.org/zap` package.
+Import the `zaphandler` package that provides a handler for the `go.uber.org/zap` package.
+```go
+  import "github.com/vpakhuchyi/censor/zaphandler"
+```
+
+Initialize a new Censor instance and wrap the zap core with it:
 
 ```go
   // Define the configuration.  
