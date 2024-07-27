@@ -100,9 +100,9 @@ func (te *TextEncoder) Struct(b *strings.Builder, rv reflect.Value) {
 
 		strField := t.Field(i)
 		if jsonName, ok := strField.Tag.Lookup("json"); ok && te.UseJSONTagName {
-			b.WriteString(jsonName + colon)
+			b.WriteString(jsonName + colonWithSpace)
 		} else {
-			b.WriteString(strField.Name + colon) // If tag is absent, then a struct filed name shall be used.
+			b.WriteString(strField.Name + colonWithSpace) // If tag is absent, then a struct filed name shall be used.
 		}
 
 		if strField.Tag.Get(te.CensorFieldTag) != "display" {
@@ -142,7 +142,7 @@ func (te *TextEncoder) Map(b *strings.Builder, rv reflect.Value) {
 		key, value := iter.Key(), iter.Value()
 
 		te.Encode(b, key)
-		b.WriteString(colon)
+		b.WriteString(colonWithSpace)
 		te.Encode(b, value)
 		addComma = true
 	}

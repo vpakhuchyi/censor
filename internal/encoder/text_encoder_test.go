@@ -112,17 +112,17 @@ func TestTextEncoder_Encode(t *testing.T) {
 
 	// THEN.
 	exp := `encoder.payload{` +
-		`String:string, StringMasked:[CENSORED], StringWithRegexp:[CENSORED], ` +
-		`IntTag:1, Byte:97, Int8:2, Int16:3, Int32:4, Int64:5, Uint:6, Uint8:7, Uint16:8, ` +
-		`Uint32:9, Uint64:10, Rune:121, Float32:1.1, Float64:2.2, Bool:true, ` +
-		`Interface:encoder.nested{String:string, Interface:interface}, ` +
-		`Struct:encoder.nested{String:string, Interface:interface}, ` +
-		`Slice:[encoder.nested{String:string, Interface:interface1}, encoder.nested{String:string, Interface:interface2}], ` +
-		`Array:[encoder.nested{String:string, Interface:interface1}, encoder.nested{String:string, Interface:interface2}], ` +
-		`Map:map[string]encoder.nested{1:encoder.nested{String:string, Interface:interface1}}, ` +
-		`Pointer:&encoder.nested{String:string, Interface:interface}, ` +
-		`Time:1861-02-19T00:00:00Z, ` +
-		`Func:unsupported type=func` +
+		`String: string, StringMasked: [CENSORED], StringWithRegexp: [CENSORED], ` +
+		`IntTag: 1, Byte: 97, Int8: 2, Int16: 3, Int32: 4, Int64: 5, Uint: 6, Uint8: 7, Uint16: 8, ` +
+		`Uint32: 9, Uint64: 10, Rune: 121, Float32: 1.1, Float64: 2.2, Bool: true, ` +
+		`Interface: encoder.nested{String: string, Interface: interface}, ` +
+		`Struct: encoder.nested{String: string, Interface: interface}, ` +
+		`Slice: [encoder.nested{String: string, Interface: interface1}, encoder.nested{String: string, Interface: interface2}], ` +
+		`Array: [encoder.nested{String: string, Interface: interface1}, encoder.nested{String: string, Interface: interface2}], ` +
+		`Map: map[string]encoder.nested{1: encoder.nested{String: string, Interface: interface1}}, ` +
+		`Pointer: &encoder.nested{String: string, Interface: interface}, ` +
+		`Time: 1861-02-19T00:00:00Z, ` +
+		`Func: unsupported type=func` +
 		`}`
 	require.Equal(t, exp, b.String())
 }
@@ -223,8 +223,8 @@ func TestTextEncoder_Map(t *testing.T) {
 
 			// THEN.
 			got := b.String()
-			require.True(t, `map[string]string{key1:value1, key2:value2}` == got ||
-				`map[string]string{key2:value2, key1:value1}` == got)
+			require.True(t, `map[string]string{key1: value1, key2: value2}` == got ||
+				`map[string]string{key2: value2, key1: value1}` == got)
 		})
 	})
 }

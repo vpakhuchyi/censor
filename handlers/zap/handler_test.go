@@ -64,7 +64,7 @@ func TestNewHandler(t *testing.T) {
 		// THEN.
 		got := readLogs(t, outputFile)
 
-		want := `"msg":"[CENSORED] msg","[CENSORED] key":"{Name:Petro Perekotypole, Text:some text with [CENSORED] data, Email:[CENSORED]}"`
+		want := `"msg":"[CENSORED] msg","[CENSORED] key":"{Name: Petro Perekotypole, Text: some text with [CENSORED] data, Email: [CENSORED]}"`
 
 		require.NoError(t, err)
 		require.Contains(t, string(got), want)
@@ -133,7 +133,7 @@ func TestNewHandler(t *testing.T) {
 		// THEN.
 		got := readLogs(t, outputFile)
 
-		want := `"msg":"[CENSORED] msg","[CENSORED] key":"{Name:Petro Perekotypole, Text:some text with [CENSORED] data, Email:[CENSORED]}"`
+		want := `"msg":"[CENSORED] msg","[CENSORED] key":"{Name: Petro Perekotypole, Text: some text with [CENSORED] data, Email: [CENSORED]}"`
 
 		require.NoError(t, err)
 		require.Contains(t, string(got), want)
@@ -157,7 +157,7 @@ func TestNewHandler(t *testing.T) {
 		// THEN.
 		got := readLogs(t, outputFile)
 
-		want := `#sensitive# msg	{"#sensitive# key": "{Name:Petro Perekotypole, Text:some text with [CENSORED] data, Email:[CENSORED]}"}`
+		want := `#sensitive# msg	{"#sensitive# key": "{Name: Petro Perekotypole, Text: some text with [CENSORED] data, Email: [CENSORED]}"}`
 
 		require.NoError(t, err)
 		require.Contains(t, string(got), want)
@@ -180,7 +180,7 @@ func TestNewHandler(t *testing.T) {
 		// THEN.
 		got := readLogs(t, outputFile)
 
-		want := `"msg":"[CENSORED] msg","[CENSORED] key":"{Name:Petro Perekotypole, Text:some text with [CENSORED] data, Email:[CENSORED]}"`
+		want := `"msg":"[CENSORED] msg","[CENSORED] key":"{Name: Petro Perekotypole, Text: some text with [CENSORED] data, Email: [CENSORED]}"`
 
 		require.NoError(t, err)
 		require.Contains(t, string(got), want)
@@ -203,7 +203,7 @@ func TestNewHandler(t *testing.T) {
 		// THEN.
 		got := readLogs(t, outputFile)
 
-		want := `"msg":"[CENSORED] msg","[CENSORED] key":"{Name:Petro Perekotypole, Text:some text with [CENSORED] data, Email:[CENSORED]}"`
+		want := `"msg":"[CENSORED] msg","[CENSORED] key":"{Name: Petro Perekotypole, Text: some text with [CENSORED] data, Email: [CENSORED]}"`
 
 		require.NoError(t, err)
 		require.Contains(t, string(got), want)
@@ -232,7 +232,7 @@ func TestNewHandler(t *testing.T) {
 		// THEN.
 		got := readLogs(t, outputFile)
 
-		want := `"msg":"[CENSORED] msg","[CENSORED] key":"{Name:Petro Perekotypole, Text:some text with [CENSORED] data, Email:[CENSORED]}"`
+		want := `"msg":"[CENSORED] msg","[CENSORED] key":"{Name: Petro Perekotypole, Text: some text with [CENSORED] data, Email: [CENSORED]}"`
 
 		require.NoError(t, err)
 		require.Contains(t, string(got), want)
@@ -255,7 +255,7 @@ func TestNewHandler(t *testing.T) {
 		// THEN.
 		got := readLogs(t, outputFile)
 
-		want := `"msg":"[CENSORED] msg","[CENSORED] key":"{Name:Petro Perekotypole, Text:some text with [CENSORED] data, Email:[CENSORED]}","[CENSORED] key":"{Name:Petro Perekotypole, Text:some text with [CENSORED] data, Email:[CENSORED]}"`
+		want := `"msg":"[CENSORED] msg","[CENSORED] key":"{Name: Petro Perekotypole, Text: some text with [CENSORED] data, Email: [CENSORED]}","[CENSORED] key":"{Name: Petro Perekotypole, Text: some text with [CENSORED] data, Email: [CENSORED]}"`
 
 		require.NoError(t, err)
 		require.Contains(t, string(got), want)
@@ -278,7 +278,7 @@ func TestNewHandler(t *testing.T) {
 		// THEN.
 		got := readLogs(t, outputFile)
 
-		want := `"msg":"#sensitive# msg","#sensitive# key":"{Name:Petro Perekotypole, Text:some text with #sensitive# data, Email:[CENSORED]}"`
+		want := `"msg":"#sensitive# msg","#sensitive# key":"{Name: Petro Perekotypole, Text: some text with #sensitive# data, Email: [CENSORED]}"`
 
 		require.NoError(t, err)
 		require.Contains(t, string(got), want)
@@ -415,7 +415,7 @@ func TestNewHandler(t *testing.T) {
 		// THEN.
 		got := readLogs(t, outputFile)
 
-		want := `"msg":"[CENSORED] msg","[CENSORED] key":"{Name:Petro Perekotypole, Text:some text with [CENSORED] data, Email:[CENSORED]}`
+		want := `"msg":"[CENSORED] msg","[CENSORED] key":"{Name: Petro Perekotypole, Text: some text with [CENSORED] data, Email: [CENSORED]}`
 
 		require.NoError(t, err)
 		require.Contains(t, string(got), want)
@@ -439,7 +439,7 @@ func TestNewHandler(t *testing.T) {
 		// THEN.
 		got := readLogs(t, outputFile)
 
-		want := `"msg":"[CENSORED] msg","[CENSORED] key":"{Name:Petro Perekotypole, Text:some text with [CENSORED] data, Email:[CENSORED]}`
+		want := `"msg":"[CENSORED] msg","[CENSORED] key":"{Name: Petro Perekotypole, Text: some text with [CENSORED] data, Email: [CENSORED]}`
 
 		require.NoError(t, err)
 		require.Contains(t, string(got), want)

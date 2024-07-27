@@ -2,6 +2,7 @@ package encoder
 
 const (
 	colon          = ":"
+	colonWithSpace = ": "
 	openBrace      = "{"
 	closeBrace     = "}"
 	commaWithSpace = ", "
