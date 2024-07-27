@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/vpakhuchyi/censor/internal/builderpool"
 	"github.com/vpakhuchyi/censor/internal/encoder"
-	"github.com/vpakhuchyi/censor/internal/encoder/builderpool"
 )
 
 // Processor is used to censor any value and format it into a string representation.
