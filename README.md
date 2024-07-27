@@ -87,6 +87,7 @@ Output: `{UserID: 123, Address: {City: Kharkiv, Country: UA, Street: [CENSORED],
 ### Handler for "log/slog"
 
 Import the `sloghandler` package that provides a handler for the `log/slog` package.
+
 ```go
   import "github.com/vpakhuchyi/censor/sloghandler"
 ```
@@ -120,6 +121,7 @@ Initialize a new Censor instance and wrap the slog core with it:
 ### Handler for "go.uber.org/zap" 
 
 Import the `zaphandler` package that provides a handler for the `go.uber.org/zap` package.
+
 ```go
   import "github.com/vpakhuchyi/censor/zaphandler"
 ```

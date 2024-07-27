@@ -53,7 +53,7 @@ func TestNewHandler(t *testing.T) {
 		want := `{
     				"level": "INFO",
     				"msg": "test",
-    				"payload": "{City: Kyiv, Country: Ukraine, Street: [CENSORED], Zip: [CENSORED]}"
+    				"payload": "{City:Kyiv, Country:Ukraine, Street:[CENSORED], Zip:[CENSORED]}"
 				 }`
 
 		// WHEN
@@ -73,7 +73,7 @@ func TestNewHandler(t *testing.T) {
 		want := `{
 					"level": "INFO",
 					"msg": "test",
-					"payload": "{City: Kyiv, Country: Ukraine, Street: [CENSORED], Zip: [CENSORED]}",
+					"payload": "{City:Kyiv, Country:Ukraine, Street:[CENSORED], Zip:[CENSORED]}",
 					"source": {
 						"function": "github.com/vpakhuchyi/censor/handlers/slog.TestNewHandler.func3"
 					}
@@ -120,7 +120,7 @@ func TestNewHandler(t *testing.T) {
 		want := `{
 					"level": "TEST",
 					"msg": "test",
-					"payload": "{City: Kyiv, Country: Ukraine, Street: [CENSORED], Zip: [CENSORED]}"
+					"payload": "{City:Kyiv, Country:Ukraine, Street:[CENSORED], Zip:[CENSORED]}"
 				 }`
 
 		// WHEN

@@ -8,28 +8,28 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func TestDefault(t *testing.T) {
+func TestConfig_Default(t *testing.T) {
+	// WHEN.
 	got := DefaultConfig()
 	exp := Config{
 		General: General{
 			PrintConfigOnInit: true,
 		},
-		Parser: ParserConfig{
-			UseJSONTagName: false,
-		},
-		Formatter: FormatterConfig{
-			MaskValue:            DefaultMaskValue,
+		Encoder: EncoderConfig{
+			DisplayMapType:       false,
 			DisplayPointerSymbol: false,
 			DisplayStructName:    false,
-			DisplayMapType:       false,
 			ExcludePatterns:      nil,
+			MaskValue:            DefaultMaskValue,
+			UseJSONTagName:       false,
 		},
 	}
 
+	// THEN.
 	require.EqualValues(t, exp, got)
 }
 
-func TestFromFile(t *testing.T) {
+func TestConfig_FromFile(t *testing.T) {
 	type args struct {
 		path string
 	}
@@ -46,15 +46,13 @@ func TestFromFile(t *testing.T) {
 				General: General{
 					PrintConfigOnInit: true,
 				},
-				Parser: ParserConfig{
-					UseJSONTagName: true,
-				},
-				Formatter: FormatterConfig{
-					MaskValue:            "[CENSORED]",
+				Encoder: EncoderConfig{
+					DisplayMapType:       true,
 					DisplayPointerSymbol: true,
 					DisplayStructName:    true,
-					DisplayMapType:       true,
 					ExcludePatterns:      []string{`\d`, `^\w$`},
+					MaskValue:            "[CENSORED]",
+					UseJSONTagName:       true,
 				},
 			},
 			wantErr: false,
@@ -102,40 +100,84 @@ func TestFromFile(t *testing.T) {
 	}
 }
 
-func TestYAMLMarshal(t *testing.T) {
+func TestConfig_YAMLMarshal(t *testing.T) {
 	t.Run("default", func(t *testing.T) {
+		// GIVEN.
 		want, err := os.ReadFile("./testdata/default.yml")
 		require.NoError(t, err)
 
+		// WHEN.
 		got, err := yaml.Marshal(DefaultConfig())
+
+		// THEN.
 		require.NoError(t, err)
 		require.EqualValues(t, want, got)
 		require.YAMLEq(t, string(want), string(got))
 	})
 
 	t.Run("custom", func(t *testing.T) {
-		want, err := os.ReadFile("./testdata/cfg.yml")
-		require.NoError(t, err)
-
+		// GIVEN.
 		cfg := Config{
 			General: General{
 				PrintConfigOnInit: true,
 			},
-			Parser: ParserConfig{
-				UseJSONTagName: true,
-			},
-			Formatter: FormatterConfig{
-				MaskValue:            "[CENSORED]",
+			Encoder: EncoderConfig{
+				DisplayMapType:       true,
 				DisplayPointerSymbol: true,
 				DisplayStructName:    true,
-				DisplayMapType:       true,
 				ExcludePatterns:      []string{`\d`, `^\w$`},
+				MaskValue:            "[CENSORED]",
+				UseJSONTagName:       true,
 			},
 		}
 
+		want, err := os.ReadFile("./testdata/cfg.yml")
+		require.NoError(t, err)
+
+		// WHEN.
 		got, err := yaml.Marshal(cfg)
+
+		// THEN.
 		require.NoError(t, err)
 		require.EqualValues(t, want, got)
 		require.YAMLEq(t, string(want), string(got))
 	})
+}
+
+func TestConfig_ToString(t *testing.T) {
+	// GIVEN.
+	cfg := Config{
+		General: General{
+			PrintConfigOnInit: true,
+		},
+		Encoder: EncoderConfig{
+			DisplayMapType:       true,
+			DisplayPointerSymbol: true,
+			DisplayStructName:    true,
+			ExcludePatterns:      []string{`\d`, `^\w$`},
+			MaskValue:            "[CENSORED]",
+			UseJSONTagName:       true,
+		},
+	}
+
+	// WHEN.
+	got := cfg.ToString()
+
+	// THEN.
+	exp := "---------------------------------------------------------------------\n" +
+		"          Censor is configured with the following settings:\n" +
+		"---------------------------------------------------------------------\n" +
+		"general:\n" +
+		"    print-config-on-init: true\n" +
+		"encoder:\n" +
+		"    display-map-type: true\n" +
+		"    display-pointer-symbol: true\n" +
+		"    display-struct-name: true\n" +
+		"    exclude-patterns:\n" +
+		"        - \\d\n" +
+		"        - ^\\w$\n" +
+		"    mask-value: '[CENSORED]'\n" +
+		"    use-json-tag-name: true\n" +
+		"---------------------------------------------------------------------\n"
+	require.EqualValues(t, exp, got)
 }
