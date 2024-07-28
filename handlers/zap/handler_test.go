@@ -223,7 +223,7 @@ func TestNewHandler(t *testing.T) {
 		// By default, a call to Fatal will exit the program with no possibility to validate the output.
 		// To avoid this, we can use the WithFatalHook option to write the log message and then panic instead.
 		// We don't need to test the Fatal method itself, so os.Exit(1) can be replaces with a panic.
-		// Our goal is just to be sure that in case of such a call a Censor handler works correctly.
+		// Our goal is just to be sure that in case of such a call a censor handler works correctly.
 		l = l.WithOptions(zap.WithFatalHook(zapcore.WriteThenPanic))
 
 		// WHEN.
@@ -463,7 +463,7 @@ func TestNewHandler(t *testing.T) {
 		// THEN.
 		got := readLogs(t, outputFile)
 
-		// Note: only Censor regexp pattern procesing is supported for Infoln method.
+		// Note: only censor regexp pattern procesing is supported for Infoln method.
 		// That's happened because the Infoln method converts all arguments to a string on the early stage.
 		want := `"msg":"[CENSORED] msg [CENSORED] key {Petro Perekotypole some text with [CENSORED] data example@example.com}`
 

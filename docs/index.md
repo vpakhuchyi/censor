@@ -34,7 +34,7 @@ go get -u github.com/vpakhuchyi/censor
 
 ## Usage
 
-*Censor* can be seamlessly integrated into your code to enhance security, particularly in scenarios like logging
+**Censor** can be seamlessly integrated into your code to enhance security, particularly in scenarios like logging
 where inadvertent exposure of sensitive data is a concern.
 
 ### Structs formatting
@@ -63,8 +63,8 @@ type address struct {
 }
 
 // Here is a request struct that contains sensitive information: Email, FullName and Password.
-// We could log only UserID, but it's much easier to control what we're logging by using censor 
-// instead of checking each log line and making sure that we're not logging sensitive information.
+// We could log only UserID, but it's much easier to control what we're displaying by using Censor 
+// instead of checking each line and making sure that we're not showing any sensitive information.
 func main() {
   r := request{
     UserID:   "123",
@@ -73,17 +73,16 @@ func main() {
     FullName: "Viktor Pakhuchyi",
   }
 
-  // In this example we're using censor as a global package-level variable with default configuration.
-  slog.Info("Request", "payload", censor.Format(r))
-  // Here is what we'll see in the log:
-  // Output: `2038/10/25 12:00:01 INFO Request payload={UserID: 123, Address: {City: Kharkiv, Country: UA, Street: [CENSORED], Zip: [CENSORED]}, Email: [CENSORED], FullName: [CENSORED]}`
+  // In this example we're using Censor as a global package-level variable with default configuration.
+  fmt.Println(censor.Format(r))
+  // Output: {UserID: 123, Address: {City: Kharkiv, Country: UA, Street: [CENSORED], Zip: [CENSORED]}, Email: [CENSORED], FullName: [CENSORED]}
 }
 
 ```
 
 ### Strings formatting based on provided regexp patterns
 
-By default, *censor* operates without any exclude patterns. However, you have the flexibility to enhance its
+By default, *Censor* operates without any exclude patterns. However, you have the flexibility to enhance its
 functionality by incorporating exclude patterns through the `ExcludePatterns` configuration option.
 
 When exclude patterns are introduced, encapsulated formatters compares all string values against the specified patterns,
@@ -131,9 +130,8 @@ func main() {
 
   v := email{Text: msg}
 
-  slog.Info("Request", "payload", censor.Format(v))
-  // Here is what we'll see in the log:
-  // Output: `2038/10/25 12:00:01 INFO Request payload={Text: Here are the details of your account: email=[CENSORED], IBAN=[CENSORED]}`
+  fmt.Println(censor.Format(v))
+  // Output: {Text: Here are the details of your account: email=[CENSORED], IBAN=[CENSORED]}
 }
 
 ```
@@ -160,9 +158,8 @@ func main() {
 
   v := address{City: "Kharkiv", Country: "UA", Street: "Nauky Avenue"}
 
-  slog.Info("Request", "payload", p.Format(v))
-  // Here is what we'll see in the log:
-  // Output: `2038/10/25 12:00:01 INFO Request payload={City: Kharkiv, Country: UA, Street: [CENSORED]}`
+  fmt.Println(p.Format(v))
+  // Output: {City: Kharkiv, Country: UA, Street: [CENSORED]}
 }
 
 ```
@@ -172,7 +169,7 @@ integration that best suits your application's requirements.
 
 ## Configuration
 
-Censor supports two ways of configuration: using the `censor.Config` struct and providing a `.yml` configuration file.
+There are two ways of configuration: using the `censor.Config` struct and providing a `.yml` configuration file.
 All the configuration options are available in both ways.
 
 Table below shows the names of the configuration options:
@@ -194,20 +191,17 @@ It's possible to define a configuration using `censor.Config` struct:
 ```go
 package main
 
-import (
-  "github.com/vpakhuchyi/censor"
-)
+import "github.com/vpakhuchyi/censor"
 
 func main() {
   cfg := censor.Config{
-    Parser: censor.ParserConfig{
-      UseJSONTagName: false,
-    },
-    Formatter: censor.FormatterConfig{
-      MaskValue:         "[####]",
-      DisplayStructName: false,
-      DisplayMapType:    false,
-      ExcludePatterns:   []string{`\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`},
+    Encoder: censor.EncoderConfig{
+      DisplayMapType:         false,
+      DisplayPointerSymbol:   false,
+      DisplayStructName:      false,
+      ExcludePatterns:        []string{`\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`},
+      MaskValue:              "[####]",
+      UseJSONTagName:         false,
     },
   }
 
@@ -224,9 +218,7 @@ file as an example:
 ```go
 package main
 
-import (
-  "github.com/vpakhuchyi/censor"
-)
+import "github.com/vpakhuchyi/censor"
 
 func main() {
   pathToConfigFile := "./cfg_example.yml"
@@ -280,7 +272,7 @@ func main() {
   u := User{Name: "John Doe", Email: "example@gmail.com"}
 
   // Once the handler is initialized and the logger is created with the wrapped core,
-  // you can use the logger as usual and the censor handler will process the log entries.
+  // you can use the logger as usual and the Censor handler will process the log entries.
   l.Info("user", zap.Any("payload", u))
 
   // Output: {"level":"info",...,"msg":"user","payload":"{Name: John Doe, Email: [CENSORED]}"}
@@ -289,17 +281,17 @@ func main() {
 ```
 
 Note that due to the diversity of the `go.uber.org/zap` library usage, it's important to pay attention to how you use
-it with the censor handler.
+it with the Censor handler.
 
 #### Covered data
 
-When using the logger with the censor handler, the following keywords are important: `msg`, `key`, and `value`:
+When using the logger with the Censor handler, the following keywords are important: `msg`, `key`, and `value`:
 
 - `msg`: refers to the log message itself.
 - `key`: represents key names used in structured logging.
 - `value`: corresponds to values associated with keys in structured logging.
 
-By default, the censor handler only processes the `value` to minimize overhead.
+By default, the Censor handler only processes the `value` to minimize overhead.
 The `msg` and `key` values rarely contain sensitive data. However, you can customize the handler's behavior using
 the available configuration options.
 
@@ -314,14 +306,14 @@ For example, in a call to `l.Info("payload", zap.Any("addresses", []string{"addr
 The Censor handler provides the following configuration options that can be passed to the NewHandler() function to
 customize its behavior:
 
-- `WithCensor(censor *censor.Processor)`: sets the censor processor instance for the logger handler.
-  If not provided, a default censor processor is used.
+- `WithCensor(censor *censor.Processor)`: sets the processor instance for the logger handler.
+  If not provided, a default processor is used.
 - `WithMessagesFormat()`: enables censoring of log message values `msg` if present.
 - `WithKeysFormat()`: enables censoring of log key values `key`.
 
 #### Logger usage patterns
 
-To ensure compatibility with the censor handler, it is recommended to use the logger with the following constructions:
+To ensure compatibility with the Censor handler, it is recommended to use the logger with the following constructions:
 
 For non-sugared logger:
 
@@ -339,14 +331,14 @@ For sugared logger:
 In all cases, the `Info` can be replaced with other log levels like `Debug`, `Warn`, `Error`, `Panic`, or `Fatal`.
 
 Please note that methods ending in `f`, `ln`, and `log.Print-style` (`logger.Info`) in the sugared logger do not support
-all the features of the censor handler.
+all the features of the Censor handler.
 
 Due to the nature of the zap sugared logger, Censor receives formatted strings and does not have the capability to parse
 them. However, features like regexp matching are still available.
 
 ## Supported Types
 
-Here are examples of the types that are supported by *censor*. All of these types are handled recursively whenever that
+Here are examples of the types that are supported by Censor. All of these types are handled recursively whenever that
 is possible.
 
 ### Struct
@@ -410,11 +402,10 @@ type user struct {
 
 func main() {
   cfg := censor.Config{
-    Formatter: censor.FormatterConfig{
-      MaskValue: censor.DefaultMaskValue,
+    Encoder: censor.EncoderConfig{
       // This is a regular expression that matches email addresses.
       ExcludePatterns: []string{`(?P<email>[\w.%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,4})`},
-    },
+      MaskValue: censor.DefaultMaskValue,},
   }
 
   p := censor.NewWithConfig(cfg)
@@ -424,9 +415,8 @@ func main() {
     user{ID: "456mlkn", Balance: 999999, FullName: "Bruce Wayne"}:     []string{"wayne.day.email@ggmail.com", "wayne.night.email@ggmail.com"},
   }
 
-  slog.Info("Request", "payload", p.Format(v))
-  // Here is what we'll see in the log:
-  //Output: `2038/10/25 12:00:01 INFO Request payload=map[{ID: 456mlkn, Balance: 999999, FullName: [CENSORED]}: [[CENSORED], [CENSORED]], {ID: aaf42135, Balance: 1101, FullName: [CENSORED]}: [[CENSORED], [CENSORED]]]`
+  fmt.Println(p.Format(v))
+  //Output: map[{ID: 456mlkn, Balance: 999999, FullName: [CENSORED]}: [[CENSORED], [CENSORED]], {ID: aaf42135, Balance: 1101, FullName: [CENSORED]}: [[CENSORED], [CENSORED]]]
 }
 
 ```
@@ -445,7 +435,7 @@ import (
 
 func main() {
   cfg := censor.Config{
-    Formatter: censor.FormatterConfig{
+    Encoder: censor.EncoderConfig{
       MaskValue:      censor.DefaultMaskValue,
       DisplayMapType: true,
     },
@@ -458,9 +448,8 @@ func main() {
     "two": 2,
   }
 
-  slog.Info("Request", "payload", p.Format(v))
-  // Here is what we'll see in the log:
-  //Output: `2038/10/25 12:00:01 INFO Request payload=map[string]int[one: 1, two: 2]`
+  fmt.Println(p.Format(v))
+  //Output: map[string]int[one: 1, two: 2]
 }
 
 ```
@@ -482,9 +471,8 @@ import (
 func main() {
   v := [2][]int{[]int{1, 2, 3}, []int{4, 5, 6}}
 
-  slog.Info("Request", "payload", censor.Format(v))
-  // Here is what we'll see in the log:
-  //Output: `2038/10/25 12:00:01 INFO Request payload=[[1, 2, 3], [4, 5, 6]]`
+  fmt.Println(p.Format(v))
+  //Output: [[1, 2, 3], [4, 5, 6]]
 }
 
 ```
@@ -507,12 +495,11 @@ func main() {
   s := []int{1, 2, 3}
   v := &s
 
-  slog.Info("Request", "payload", censor.Format(v))
-  // Here is what we'll see in the log:
-  //Output: `2038/10/25 12:00:01 INFO Request payload=[1, 2, 3]`
+  fmt.Println(p.Format(v))
+  //Output: [1, 2, 3]
 
   cfg := censor.Config{
-    Formatter: censor.FormatterConfig{
+    Encoder: censor.EncoderConfig{
       MaskValue: censor.DefaultMaskValue,
       // If you want to display the pointer symbol before the pointed value in the output,
       // you can use the `DisplayPointerSymbol` configuration option. 
@@ -523,9 +510,8 @@ func main() {
 
   p := censor.NewWithConfig(cfg)
 
-  slog.Info("Request", "payload", p.Format(v))
-  // Here is what we'll see in the log:
-  //Output: `2038/10/25 12:00:01 INFO Request payload=&[1, 2, 3]`
+  fmt.Println(p.Format(v))
+  //Output: &[1, 2, 3]
 }
 
 ```
@@ -549,14 +535,13 @@ const emailPattern = `(?P<email>[\w.%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2, 4})`
 func main() {
   v := "example1.email@ggmail.com"
 
-  slog.Info("Request", "payload", censor.Format(v))
-  // Here is what we'll see in the log:
-  //Output: `2038/10/25 12:00:01 INFO Request payload = example1.email@ggmail.com`
+  fmt.Println(p.Format(v))
+  //Output: example1.email@ggmail.com
 
   // If you want to mask specific values, you can use the `ExcludePatterns` configuration option
   // to add exclude patterns. All string values sections that match the specified patterns will be masked.
   cfg := censor.Config{
-    Formatter: censor.FormatterConfig{
+    Encoder: censor.EncoderConfig{
       MaskValue:       censor.DefaultMaskValue,
       ExcludePatterns: []string{emailPattern},
     },
@@ -564,9 +549,8 @@ func main() {
 
   p, err := censor.NewWithOpts(censor.WithConfig(&cfg))
 
-  slog.Info("Request", "payload", p.Format(v))
-  // Here is what we'll see in the log:
-  //Output: `2038/10/25 12:00:01 INFO Request payload = "[CENSORED]"`
+  fmt.Println(p.Format(v))
+  //Output: "[CENSORED]"
 }
 
 ```
@@ -595,15 +579,13 @@ import (
 func main() {
   var v float32 = 99.123456789123456789
 
-  slog.Info("Request", "payload", censor.Format(v))
-  // Here is what we'll see in the log:
-  //Output: `2038/10/25 12:00:01 INFO Request payload=99.12346`
+  fmt.Println(p.Format(v))
+  //Output: 99.12346
 
   var v2 float64 = 9.123456789123456789
 
-  slog.Info("Request", "payload", censor.Format(v2))
-  // Here is what we'll see in the log:
-  //Output: `2038/10/25 12:00:01 INFO Request payload=99.12345678912345`
+  fmt.Println(p.Format(v2))
+  //Output: 99.12345678912345
 }
 
 ```
@@ -629,9 +611,8 @@ func main() {
   // Variable v is an interface that contains a slice of interfaces with different types values.
   var v interface{} = []interface{}{1, 'v', "kanoe", true}
 
-  slog.Info("Request", "payload", censor.Format(v))
-  // Here is what we'll see in the log:
-  //Output: `2038/10/25 12:00:01 INFO Request payload=[1, 118, kanoe, true]`
+  fmt.Println(p.Format(v))
+  //Output: [1, 118, kanoe, true]
 }
 
 ```
@@ -653,9 +634,8 @@ import (
 func main() {
   var v rune = 'A'
 
-  slog.Info("Request", "payload", censor.Format(v))
-  // Here is what we'll see in the log:
-  //Output: `2038/10/25 12:00:01 INFO Request payload=65`
+  fmt.Println(p.Format(v))
+  //Output: 65
 }
 
 ```
@@ -690,9 +670,8 @@ func main() {
     Country: "UK",
   }
 
-  slog.Info("Request", "payload", censor.Format(a))
-  // Here is what we'll see in the log:
-  //Output: `2024/01/10 21:20:35 INFO Request payload="London, UK"`
+  fmt.Println(p.Format(v))
+  //Output: "London, UK"
 }
 
 ```
@@ -738,9 +717,8 @@ func main() {
     Complex128:    complex(11123.123, 5.5468098889),
   }
 
-  slog.Info("Request", "payload", censor.Format(v))
-  // Here is what we'll see in the log:
-  //Output: `2038/10/25 12:00:01 INFO Request payload={Chan: [Unsupported type: chan], Func: [Unsupported type: func], UnsafePointer: [Unsupported type: unsafe.Pointer], Complex64: [Unsupported type: complex64], Complex128: [Unsupported type: complex128]}`
+  fmt.Println(p.Format(v))
+  //Output: {Chan: [Unsupported type: chan], Func: [Unsupported type: func], UnsafePointer: [Unsupported type: unsafe.Pointer], Complex64: [Unsupported type: complex64], Complex128: [Unsupported type: complex128]}
 }
 
 ```

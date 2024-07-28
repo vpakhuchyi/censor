@@ -9,8 +9,8 @@ import (
 // its configuration.
 type Option func(h *handler)
 
-// WithCensor sets the censor processor instance for the Zap Handler. If not provided,
-// a default censor processor is used.
+// WithCensor sets the Censor processor instance for the Zap Handler. If not provided,
+// a default Censor processor is used.
 func WithCensor(censor *censor.Processor) Option {
 	return func(h *handler) {
 		h.censor = censor

@@ -4,7 +4,7 @@ to apply censoring to log entries and fields, overriding the original values bef
 
 Due to the diversity of the zap library usage, please pay attention to the way you use it with the censor handler.
 
-Example of Censor handler initialization:
+Example of censor handler initialization:
 
 	import (
 		censorlog "github.com/vpakhuchyi/censor/handlers/zap"
@@ -42,7 +42,7 @@ For example, in a call to l.Info("payload", zap.Any("addresses", []string{"addre
   - "addresses" is a "key"
   - []string{"address1", "address2"} is a "value"
 
-By default, Censor processes only "value" to minimize the overhead. The "msg" and "key" rarely contain sensitive data.
+By default, censor processes only "value" to minimize the overhead. The "msg" and "key" rarely contain sensitive data.
 However, there are predefined configuration options that can be passed to NewHandler() function to customize the
 censor handler behavior.
 
@@ -78,7 +78,7 @@ With sugared logger, the following constructions are supported:
     In all cases, Info could be replaced with Debug, Warn, Error, Panic, Fatal.
 
 Methods ending in "f", "ln" and log.Print-style (l.Info) in a sugared logger can't use all the
-censor handler features. Due to the nature of the zap sugared logger, Censor accepts formatted strings and has no
+censor handler features. Due to the nature of the zap sugared logger, censor accepts formatted strings and has no
 possibility to use its parsing. However, a features like regexp matching are still available.
 */
 package zaphandler

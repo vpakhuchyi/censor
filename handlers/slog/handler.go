@@ -15,8 +15,8 @@ type config struct {
 	slog.HandlerOptions
 }
 
-// NewJSONHandler returns a new Slog JSONHandler along with a censor processor. Options can be provided to configure
-// the censor processor and the Slog Handler. If no options are provided, a default configuration is used.
+// NewJSONHandler returns a new log/slog JSONHandler along with a Censor processor. Options can be provided to configure
+// the Censor processor and the log/slog Handler. If no options are provided, a default configuration is used.
 // See the Option documentation for more details.
 func NewJSONHandler(opts ...Option) *slog.JSONHandler {
 	var cfg config
@@ -39,7 +39,7 @@ func NewJSONHandler(opts ...Option) *slog.JSONHandler {
 		}
 
 		switch attr.Key {
-		// These attributes are required by Slog. We don't want to censor them.
+		// These attributes are required by log/slog. We don't want to censor them.
 		case slog.TimeKey, slog.LevelKey, slog.SourceKey:
 			return attr
 		default:

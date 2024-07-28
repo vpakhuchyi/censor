@@ -20,7 +20,7 @@
  - String values masking: Allows users to define regexp patterns for masking specific string parts,
    providing fine-grained control over sensitive information.
 
- - Wide type support: Censor accommodates a variety of types, including:
+ - Wide type support: censor accommodates a variety of types, including:
 	- struct, map, slice, array, pointer, interface
 	- string, bool
 	- float64/float32
@@ -48,13 +48,13 @@
 	)
 
 	func main() {
-		// Create a Censor logger handler.
+		// Create a censor logger handler.
 		censorHandler := censor.NewJSONHandler()
 
-		// Create a new slog instance with the Censor handler.
+		// Create a new slog instance with the censor handler.
 		logger := slog.New(censorHandler)
 
-		// Linking the Censor handler with the slog logger allows forgetting about the Censor usage in the code.
+		// Linking the censor handler with the slog logger allows forgetting about the censor usage in the code.
 		// Just use your logger as usual. Censor will take care of the rest.
 
 		type User struct {
