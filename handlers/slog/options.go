@@ -13,8 +13,8 @@ import (
 // its configuration.
 type Option func(cfg *config)
 
-// WithCensor sets the censor processor instance for the Slog Handler. If not provided,
-// a default censor processor is used.
+// WithCensor sets the Censor processor instance for the Slog Handler. If not provided,
+// a default Censor processor is used.
 func WithCensor(censor *censor.Processor) Option {
 	return func(h *config) {
 		h.censor = censor

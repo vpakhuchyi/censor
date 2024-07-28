@@ -63,7 +63,7 @@ type address struct {
 }
 
 // Here is a request struct that contains sensitive information: Email, FullName and Password.
-// We could log only UserID, but it's much easier to control what we're logging by using censor 
+// We could log only UserID, but it's much easier to control what we're logging by using **censor** 
 // instead of checking each log line and making sure that we're not logging sensitive information.
 func main() {
   r := request{
@@ -92,7 +92,7 @@ Import the `sloghandler` package that provides a handler for the `log/slog` pack
   import "github.com/vpakhuchyi/censor/sloghandler"
 ```
 
-Initialize a new Censor instance and wrap the slog core with it:
+Initialize a new censor instance and wrap the slog core with it:
 
 ```go
   // Define the configuration.  
@@ -104,7 +104,7 @@ Initialize a new Censor instance and wrap the slog core with it:
     },
   }
   
-  // Initialize a Censor instance with the specified configuration.
+  // Initialize a censor instance with the specified configuration.
   c, err := censor.NewWithOpts(censor.WithConfig(&cfg))
   if err != nil {
     // Handle error.
@@ -126,7 +126,7 @@ Import the `zaphandler` package that provides a handler for the `go.uber.org/zap
   import "github.com/vpakhuchyi/censor/zaphandler"
 ```
 
-Initialize a new Censor instance and wrap the zap core with it:
+Initialize a new censor instance and wrap the zap core with it:
 
 ```go
   // Define the configuration.  
@@ -138,7 +138,7 @@ Initialize a new Censor instance and wrap the zap core with it:
     },
   }
 
-  // Initialize a Censor instance with the specified configuration.
+  // Initialize a censor instance with the specified configuration.
   c, err := censor.NewWithOpts(censor.WithConfig(&cfg))
   if err != nil {
     // Handle error.

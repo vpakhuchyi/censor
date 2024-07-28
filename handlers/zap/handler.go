@@ -15,7 +15,7 @@ type handler struct {
 }
 
 // NewHandler returns a new zap logs handler (core) along with a censor processor.
-// Options can be provided to configure the censor processor. If no options are provided,
+// Options can be provided to configure the Censor processor. If no options are provided,
 // a default configuration is used. See the Option documentation for more details.
 // By default, the censoring of log fields only is enabled.
 func NewHandler(core zapcore.Core, opts ...Option) zapcore.Core {

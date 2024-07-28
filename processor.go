@@ -8,7 +8,7 @@ import (
 	"github.com/vpakhuchyi/censor/internal/encoder"
 )
 
-// Processor is used to censor any value and format it into a string representation.
+// Processor is responsible for data encoding according to the specified configuration.
 type Processor struct {
 	encoder encoder.Encoder
 	cfg     Config
@@ -98,7 +98,7 @@ func (p *Processor) Clone() (*Processor, error) {
 
 const censorIsNotInitializedMsg = "censor is not initialized"
 
-// PrintConfig prints the configuration of the censor Processor.
+// PrintConfig prints the configuration of the Processor.
 func (p *Processor) PrintConfig() {
 	if p == nil {
 		fmt.Print(censorIsNotInitializedMsg)
