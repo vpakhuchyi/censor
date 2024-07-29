@@ -3,7 +3,6 @@ package encoder
 import (
 	"encoding"
 	"reflect"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -47,7 +46,7 @@ func NewTextEncoder(c Config) *TextEncoder {
 		DisplayStructName:    c.DisplayStructName,
 	}
 	if len(p.ExcludePatterns) != 0 {
-		p.compileExcludePatterns()
+		compileExcludePatterns(&p.baseEncoder)
 	}
 
 	return &p
@@ -57,7 +56,7 @@ func NewTextEncoder(c Config) *TextEncoder {
 // All supported complex types will be parsed recursively.
 // Note: all unexported fields will be ignored.
 //
-//nolint:gocyclo,funlen,gocognit
+//nolint:gocognit
 func (te *TextEncoder) Struct(b *strings.Builder, rv reflect.Value) {
 	if rv.Kind() != reflect.Struct {
 		panic("provided value is not a struct")
@@ -65,28 +64,8 @@ func (te *TextEncoder) Struct(b *strings.Builder, rv reflect.Value) {
 
 	t := rv.Type()
 
-	if te.DisplayPointerSymbol {
-		var pkg string
-		pkgPath := t.PkgPath()
-		// This custom logic is used instead of strings.Split to avoid unnecessary allocations.
-		for i := len(pkgPath) - 1; i >= 0; i-- {
-			// We iterate over the package path in reverse order until we find the last slash,
-			// which separates the package name from the package path.
-			if pkgPath[i] == '/' {
-				pkg = pkgPath[i+1:]
-
-				break
-			}
-			// If there is no slash in the package path, then the package name is equal to the package path.
-			// Example: "main" package.
-			if i == 0 {
-				pkg = pkgPath[i:]
-
-				break
-			}
-		}
-
-		b.WriteString(pkg + dot + t.Name())
+	if te.DisplayStructName {
+		b.WriteString(parseStructName(t) + dot + t.Name())
 	}
 
 	b.WriteString(openBrace)
@@ -99,22 +78,21 @@ func (te *TextEncoder) Struct(b *strings.Builder, rv reflect.Value) {
 		}
 
 		strField := t.Field(i)
-		if jsonName, ok := strField.Tag.Lookup("json"); ok && te.UseJSONTagName {
-			b.WriteString(jsonName + colonWithSpace)
-		} else {
-			b.WriteString(strField.Name + colonWithSpace) // If tag is absent, then a struct filed name shall be used.
-		}
-
-		if strField.Tag.Get(te.CensorFieldTag) != "display" {
-			b.WriteString(te.MaskValue)
-			if i < numFields-1 {
-				b.WriteString(commaWithSpace)
+		if te.UseJSONTagName {
+			if jsonName, ok := strField.Tag.Lookup("json"); ok {
+				b.WriteString(jsonName + colonWithSpace)
+			} else {
+				b.WriteString(strField.Name + colonWithSpace) // If tag is absent, then a struct filed name shall be used.
 			}
-
-			continue
+		} else {
+			b.WriteString(strField.Name + colonWithSpace)
 		}
 
-		te.Encode(b, f)
+		if strField.Tag.Get(te.CensorFieldTag) == "display" {
+			te.Encode(b, f)
+		} else {
+			b.WriteString(te.MaskValue)
+		}
 
 		if i < numFields-1 {
 			b.WriteString(commaWithSpace)
@@ -255,16 +233,5 @@ func (te *TextEncoder) Encode(b *strings.Builder, f reflect.Value) {
 		b.WriteString(strconv.FormatInt(int64(f.Uint()), 10))
 	default:
 		b.WriteString(UnsupportedTypeTmpl + k.String())
-	}
-}
-
-// compileExcludePatterns compiles regexp patterns from ExcludePatterns.
-// Note: this method may panic if regexp pattern is invalid.
-func (te *TextEncoder) compileExcludePatterns() {
-	if te.ExcludePatterns != nil {
-		te.ExcludePatternsCompiled = make([]*regexp.Regexp, len(te.ExcludePatterns))
-		for i, pattern := range te.ExcludePatterns {
-			te.ExcludePatternsCompiled[i] = regexp.MustCompile(pattern)
-		}
 	}
 }
