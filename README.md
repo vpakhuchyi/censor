@@ -158,3 +158,34 @@ Initialize a new censor instance and wrap the zap core with it:
   // Use logger as usually.
   l.Info("user", zap.Any("payload", payload))
 ```
+
+### Handler for "github.com/rs/zerolog" 
+
+Initialize a new censor instance and wrap the zerolog with it:
+
+```go
+  import zerologhandler "github.com/vpakhuchyi/censor/handlers/zerolog"
+```
+```go
+// Define the configuration.  
+  cfg := censor.Config{
+    Encoder: censor.EncoderConfig{
+      DisplayMapType:       true,
+      MaskValue:      "[CENSORED]",
+      // Other configuration options...
+    },
+  }
+
+  // Initialize a censor instance with the specified configuration.
+  c, err := censor.NewWithOpts(censor.WithConfig(&cfg))
+  if err != nil {
+    // Handle error.
+  }
+
+  handler := zerologhandler.New(zerologhandler.WithCensor(c))
+  
+  zerolog.InterfaceMarshalFunc = handler.NewInterfaceMarshal
+  l := zerolog.New(handler.writer(os.Stderr))
+  
+  l.Info().Any("user", u).Send()
+```
