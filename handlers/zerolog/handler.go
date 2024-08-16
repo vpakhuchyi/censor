@@ -29,7 +29,7 @@ func New(opts ...Option) Handler {
 }
 
 // NewInterfaceMarshal is alternative implementation of zerolog.InterfaceMarshalFunc.
-// should be used for correct work with objects.
+// Should be used for correct work with objects.
 // example: `zerolog.InterfaceMarshalFunc = handler.NewInterfaceMarshal`.
 func (h Handler) NewInterfaceMarshal(v interface{}) ([]byte, error) {
 	return []byte(h.censor.Format(v)), nil
@@ -37,7 +37,7 @@ func (h Handler) NewInterfaceMarshal(v interface{}) ([]byte, error) {
 
 // Writer is alternative decorator for zerolog output.
 // This implementation replaces all sensitive information in already generated msg.
-// example: `l := zerolog.New(handler.Writer(&b))`
+// example: `l := zerolog.New(handler.Writer(&b))`.
 func (h Handler) Writer(out io.Writer) io.Writer {
 	return writer{out: out, handler: h}
 }
