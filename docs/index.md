@@ -283,6 +283,36 @@ func main() {
 Note that due to the diversity of the `go.uber.org/zap` library usage, it's important to pay attention to how you use
 it with the Censor handler.
 
+
+### Handler for "github.com/rs/zerolog"
+
+The package provides an integration handler for the popular logging library zerolog. You can use this handler to automatically apply censoring to your logs.
+
+
+```go
+// Define the configuration.  
+  cfg := censor.Config{
+    Encoder: censor.EncoderConfig{
+      DisplayMapType:       true,
+      MaskValue:      "[CENSORED]",
+      // Other configuration options...
+    },
+  }
+
+  // Initialize a censor instance with the specified configuration.
+  c, err := censor.NewWithOpts(censor.WithConfig(&cfg))
+  if err != nil {
+    // Handle error.
+  }
+
+  handler := zerologhandler.New(zerologhandler.WithCensor(c))
+  
+  zerolog.InterfaceMarshalFunc = handler.NewInterfaceMarshal
+  l := zerolog.New(handler.writer(os.Stderr))
+  
+  l.Info().Any("user", u).Send()
+```
+
 #### Covered data
 
 When using the logger with the Censor handler, the following keywords are important: `msg`, `key`, and `value`:
