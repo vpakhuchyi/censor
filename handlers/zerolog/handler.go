@@ -6,7 +6,7 @@ import (
 	"github.com/vpakhuchyi/censor"
 )
 
-// Handler contain all configuration
+// Handler contain all configuration.
 type Handler struct {
 	censor *censor.Processor
 }
