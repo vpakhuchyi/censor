@@ -9,14 +9,6 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-const (
-	// DefaultCensorFieldTag is a default tag name for censor fields.
-	DefaultCensorFieldTag = "censor"
-
-	// UnsupportedTypeTmpl is a template for a value that is returned when a given type is not supported.
-	UnsupportedTypeTmpl = "unsupported type="
-)
-
 // TextEncoder is a struct that contains options for parsing.
 type TextEncoder struct {
 	baseEncoder
@@ -46,183 +38,34 @@ func NewTextEncoder(c Config) *TextEncoder {
 		DisplayStructName:    c.DisplayStructName,
 	}
 	if len(p.ExcludePatterns) != 0 {
-		compileExcludePatterns(&p.baseEncoder)
+		p.ExcludePatternsCompiled = compileRegexpPatterns(p.ExcludePatterns)
 	}
 
 	return &p
 }
 
-// Struct parses a given value and returns a Struct.
-// All supported complex types will be parsed recursively.
-// Note: all unexported fields will be ignored.
-//
-//nolint:gocognit
-func (te *TextEncoder) Struct(b *strings.Builder, rv reflect.Value) {
-	if rv.Kind() != reflect.Struct {
-		panic("provided value is not a struct")
-	}
-
-	t := rv.Type()
-
-	if te.DisplayStructName {
-		b.WriteString(parseStructName(t) + dot + t.Name())
-	}
-
-	b.WriteString(openBrace)
-
-	numFields := rv.NumField()
-	for i := 0; i < numFields; i++ {
-		f := rv.Field(i)
-		if !f.CanInterface() {
-			continue
-		}
-
-		strField := t.Field(i)
-		if te.UseJSONTagName {
-			if jsonName, ok := strField.Tag.Lookup("json"); ok {
-				b.WriteString(jsonName + colonWithSpace)
-			} else {
-				b.WriteString(strField.Name + colonWithSpace) // If tag is absent, then a struct filed name shall be used.
-			}
-		} else {
-			b.WriteString(strField.Name + colonWithSpace)
-		}
-
-		if strField.Tag.Get(te.CensorFieldTag) == "display" {
-			te.Encode(b, f)
-		} else {
-			b.WriteString(te.MaskValue)
-		}
-
-		if i < numFields-1 {
-			b.WriteString(commaWithSpace)
-		}
-	}
-	b.WriteString(closeBrace)
-}
-
-// Map parses a given value and returns a Map.
-// If value is a struct/pointer/slice/array/map/interface, it will be parsed recursively.
-// Note: this method panics if the provided value is not a complex.
-func (te *TextEncoder) Map(b *strings.Builder, rv reflect.Value) {
-	if rv.Kind() != reflect.Map {
-		panic("provided value is not a map")
-	}
-
-	b.WriteString(rv.Type().String() + openBrace)
-
-	var addComma bool
-	for iter := rv.MapRange(); iter.Next(); {
-		if addComma {
-			b.WriteString(commaWithSpace)
-		}
-
-		key, value := iter.Key(), iter.Value()
-
-		te.Encode(b, key)
-		b.WriteString(colonWithSpace)
-		te.Encode(b, value)
-		addComma = true
-	}
-
-	b.WriteString(closeBrace)
-}
-
-// Slice parses a given value and returns a Slice.
-// This function is also can be used to parse an array.
-// All supported complex types will be parsed recursively.
-// Note: this method panics if the provided value is not a complex.
-func (te *TextEncoder) Slice(b *strings.Builder, rv reflect.Value) {
-	if rv.Kind() != reflect.Slice && rv.Kind() != reflect.Array {
-		panic("provided value is not a slice/array")
-	}
-
-	b.WriteString(openBracket)
-
-	for i := 0; i < rv.Len(); i++ {
-		te.Encode(b, rv.Index(i))
-
-		if i < rv.Len()-1 {
-			b.WriteString(commaWithSpace)
-		}
-	}
-	b.WriteString(closeBracket)
-}
-
-// Interface parses an interface and returns an Interface.
-// In case of a pointer to unsupported type of value, a string built from UnsupportedTypeTmpl
-// is used instead of the real value. That string contains a type of the value.
-func (te *TextEncoder) Interface(b *strings.Builder, rv reflect.Value) {
-	if rv.Kind() != reflect.Interface {
-		panic("provided value is not an interface")
-	}
-
-	if rv.IsNil() {
-		b.WriteString(nilSymbol)
-
-		return
-	}
-	te.Encode(b, rv.Elem())
-}
-
-// Ptr parses a given value and returns a Ptr.
-// If the value is nil, it returns a Ptr with a nil Value.
-// In case of a pointer to unsupported type of value, a string built from UnsupportedTypeTmpl
-// is used instead of the real value. That string contains a type of the value.
-func (te *TextEncoder) Ptr(b *strings.Builder, rv reflect.Value) {
-	if rv.Kind() != reflect.Ptr {
-		panic("provided value is not a pointer")
-	}
-
-	if rv.IsNil() {
-		b.WriteString(nilSymbol)
-
-		return
-	}
-
-	if te.DisplayPointerSymbol {
-		b.WriteString(ptrSymbol)
-	}
-	te.Encode(b, rv.Elem())
-}
-
-// String formats a value as a string.
-func (te *TextEncoder) String(b *strings.Builder, s string) {
-	if len(te.ExcludePatterns) != 0 {
-		for _, pattern := range te.ExcludePatternsCompiled {
-			if pattern.MatchString(s) {
-				b.WriteString(pattern.ReplaceAllString(s, te.MaskValue))
-
-				return
-			}
-		}
-	}
-
-	b.WriteString(s)
-}
-
 //nolint:exhaustive,gocyclo
-func (te *TextEncoder) Encode(b *strings.Builder, f reflect.Value) {
+func (e *TextEncoder) Encode(b *strings.Builder, f reflect.Value) {
 	switch k := f.Kind(); k {
 	case reflect.Struct:
 		// If a field implements encoding.TextMarshaler interface, then it should be marshaled to string.
 		if v, ok := f.Interface().(encoding.TextMarshaler); ok {
 			b.WriteString(PrepareTextMarshalerValue(v))
 		} else {
-			te.Struct(b, f)
+			e.Struct(b, f)
 		}
 	case reflect.Slice, reflect.Array:
-		te.Slice(b, f)
+		e.Slice(b, f)
 	case reflect.Ptr:
-		te.Ptr(b, f)
+		e.Ptr(b, f)
 	case reflect.Map:
-		te.Map(b, f)
+		e.Map(b, f)
 	case reflect.Interface:
-		te.Interface(b, f)
+		e.Interface(b, f)
 	case reflect.Bool:
 		b.WriteString(strconv.FormatBool(f.Bool()))
 	case reflect.String:
-		te.String(b, f.String())
+		e.String(b, f.String())
 	case reflect.Float32:
 		b.WriteString(decimal.NewFromFloat32(float32(f.Float())).String())
 	case reflect.Float64:
@@ -234,4 +77,172 @@ func (te *TextEncoder) Encode(b *strings.Builder, f reflect.Value) {
 	default:
 		b.WriteString(UnsupportedTypeTmpl + k.String())
 	}
+}
+
+// Struct encodes a struct value to TEXT format.
+//
+//nolint:gocyclo,funlen,gocognit
+func (e *TextEncoder) Struct(b *strings.Builder, rv reflect.Value) {
+	if rv.Kind() != reflect.Struct {
+		panic("provided value is not a struct")
+	}
+
+	t := rv.Type()
+
+	if e.DisplayPointerSymbol {
+		var pkg string
+		pkgPath := t.PkgPath()
+		// This custom logic is used instead of strings.Split to avoid unnecessary allocations.
+		for i := len(pkgPath) - 1; i >= 0; i-- {
+			// We iterate over the package path in reverse order until we find the last slash,
+			// which separates the package name from the package path.
+			if pkgPath[i] == '/' {
+				pkg = pkgPath[i+1:]
+
+				break
+			}
+			// If there is no slash in the package path, then the package name is equal to the package path.
+			// Example: "main" package.
+			if i == 0 {
+				pkg = pkgPath[i:]
+
+				break
+			}
+		}
+
+		b.WriteString(pkg + "." + t.Name())
+	}
+
+	b.WriteString("{")
+
+	numFields := rv.NumField()
+	for i := 0; i < numFields; i++ {
+		f := rv.Field(i)
+		if !f.CanInterface() {
+			continue
+		}
+
+		strField := t.Field(i)
+		if jsonName, ok := strField.Tag.Lookup("json"); ok && e.UseJSONTagName {
+			b.WriteString(jsonName + ": ")
+		} else {
+			b.WriteString(strField.Name + ": ") // If tag is absent, then a struct filed name shall be used.
+		}
+
+		if strField.Tag.Get(e.CensorFieldTag) != "display" {
+			b.WriteString(e.MaskValue)
+			if i < numFields-1 {
+				b.WriteString(", ")
+			}
+
+			continue
+		}
+
+		e.Encode(b, f)
+
+		if i < numFields-1 {
+			b.WriteString(", ")
+		}
+	}
+	b.WriteString("}")
+}
+
+// Map encodes a map value to TEXT format.
+// Note: this method panics if the provided value is not a map.
+func (e *TextEncoder) Map(b *strings.Builder, rv reflect.Value) {
+	if rv.Kind() != reflect.Map {
+		panic("provided value is not a map")
+	}
+
+	b.WriteString(rv.Type().String() + "{")
+
+	var addComma bool
+	for iter := rv.MapRange(); iter.Next(); {
+		if addComma {
+			b.WriteString(", ")
+		}
+
+		key, value := iter.Key(), iter.Value()
+
+		e.Encode(b, key)
+		b.WriteString(": ")
+		e.Encode(b, value)
+		addComma = true
+	}
+
+	b.WriteString("}")
+}
+
+// Slice encodes a slice value to TEXT format.
+// This function is also can be used to parse an array.
+// Note: this method panics if the provided value is not a slice or array.
+func (e *TextEncoder) Slice(b *strings.Builder, rv reflect.Value) {
+	if rv.Kind() != reflect.Slice && rv.Kind() != reflect.Array {
+		panic("provided value is not a slice/array")
+	}
+
+	b.WriteString("[")
+
+	for i := 0; i < rv.Len(); i++ {
+		e.Encode(b, rv.Index(i))
+
+		if i < rv.Len()-1 {
+			b.WriteString(", ")
+		}
+	}
+	b.WriteString("]")
+}
+
+// Interface encodes an interface value to TEXT format.
+// In case of a pointer to unsupported type of value, a string built from UnsupportedTypeTmpl
+// is used instead of the real value. That string contains a type of the value.
+// Note: this method panics if the provided value is not an interface.
+func (e *TextEncoder) Interface(b *strings.Builder, rv reflect.Value) {
+	if rv.Kind() != reflect.Interface {
+		panic("provided value is not an interface")
+	}
+
+	if rv.IsNil() {
+		b.WriteString("nil")
+
+		return
+	}
+	e.Encode(b, rv.Elem())
+}
+
+// Ptr encodes a pointer value to TEXT format.
+// In case of a pointer to unsupported type of value, a string built from UnsupportedTypeTmpl
+// is used instead of the real value. That string contains a type of the value.
+// Note: this method panics if the provided value is not a pointer.
+func (e *TextEncoder) Ptr(b *strings.Builder, rv reflect.Value) {
+	if rv.Kind() != reflect.Ptr {
+		panic("provided value is not a pointer")
+	}
+
+	if rv.IsNil() {
+		b.WriteString("nil")
+
+		return
+	}
+
+	if e.DisplayPointerSymbol {
+		b.WriteString("&")
+	}
+	e.Encode(b, rv.Elem())
+}
+
+// String formats a value as a string.
+// If the string matches one of the ExcludePatterns, it will be masked with the MaskValue.
+func (e *TextEncoder) String(b *strings.Builder, s string) {
+	if len(e.ExcludePatterns) != 0 {
+		for _, pattern := range e.ExcludePatternsCompiled {
+			if pattern.MatchString(s) {
+				b.WriteString(pattern.ReplaceAllString(s, e.MaskValue))
+
+				return
+			}
+		}
+	}
+
+	b.WriteString(s)
 }

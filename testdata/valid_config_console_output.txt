@@ -2,11 +2,13 @@
           Censor is configured with the following settings:
 ---------------------------------------------------------------------
 general:
+    output-format: text
     print-config-on-init: true
 encoder:
     display-map-type: true
     display-pointer-symbol: true
     display-struct-name: true
+    enable-json-escaping: false
     exclude-patterns:
         - \d
         - .+@.+

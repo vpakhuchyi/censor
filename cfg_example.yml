@@ -1,4 +1,7 @@
 # It's an example of the configuration file for the Censor.
+general:
+  # Specifies the output format: text or json.
+  output-format: text
 encoder:
   # If true, the encoder will write the map type.
   display-map-type: false
@@ -6,6 +9,8 @@ encoder:
   display-pointer-symbol: false
   # If true, the encoder will write the struct name (including the last part of the package name).
   display-struct-name: false
+  # If true and the output format is set to json, the encoder will write the escaped JSON output.
+  enable-json-escaping: true
   # Provided regexp patterns will be used to exclude all the matched strings from the output.
   exclude-patterns: []
   # Given string will be used as a mask for sensitive data.

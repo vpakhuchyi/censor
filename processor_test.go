@@ -125,12 +125,14 @@ func TestProcessor_PrintConfig(t *testing.T) {
 
 		cfg := Config{
 			General: General{
+				OutputFormat:      OutputFormatText,
 				PrintConfigOnInit: true,
 			},
 			Encoder: EncoderConfig{
 				DisplayMapType:       true,
 				DisplayPointerSymbol: true,
 				DisplayStructName:    true,
+				EnableJSONEscaping:   false,
 				ExcludePatterns:      []string{`\d`, `.+@.+`},
 				MaskValue:            DefaultMaskValue,
 				UseJSONTagName:       true,

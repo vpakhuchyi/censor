@@ -1,14 +1,11 @@
 package encoder
 
 const (
-	colon          = ":"
-	colonWithSpace = ": "
-	openBrace      = "{"
-	closeBrace     = "}"
-	commaWithSpace = ", "
-	dot            = "."
-	openBracket    = "["
-	closeBracket   = "]"
-	ptrSymbol      = "&"
-	nilSymbol      = "nil"
+	// DefaultCensorFieldTag is a default tag name for censor fields.
+	DefaultCensorFieldTag = "censor"
+
+	// UnsupportedTypeTmpl is a template for a value that is returned when a given type is not supported.
+	UnsupportedTypeTmpl = "unsupported type="
+
+	display = "display"
 )

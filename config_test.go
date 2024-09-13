@@ -13,12 +13,14 @@ func TestConfig_Default(t *testing.T) {
 	got := DefaultConfig()
 	exp := Config{
 		General: General{
+			OutputFormat:      OutputFormatText,
 			PrintConfigOnInit: true,
 		},
 		Encoder: EncoderConfig{
 			DisplayMapType:       false,
 			DisplayPointerSymbol: false,
 			DisplayStructName:    false,
+			EnableJSONEscaping:   true,
 			ExcludePatterns:      nil,
 			MaskValue:            DefaultMaskValue,
 			UseJSONTagName:       false,
@@ -44,6 +46,7 @@ func TestConfig_FromFile(t *testing.T) {
 			},
 			want: Config{
 				General: General{
+					OutputFormat:      OutputFormatText,
 					PrintConfigOnInit: true,
 				},
 				Encoder: EncoderConfig{
@@ -119,6 +122,7 @@ func TestConfig_YAMLMarshal(t *testing.T) {
 		// GIVEN.
 		cfg := Config{
 			General: General{
+				OutputFormat:      OutputFormatText,
 				PrintConfigOnInit: true,
 			},
 			Encoder: EncoderConfig{
@@ -148,12 +152,14 @@ func TestConfig_ToString(t *testing.T) {
 	// GIVEN.
 	cfg := Config{
 		General: General{
+			OutputFormat:      OutputFormatText,
 			PrintConfigOnInit: true,
 		},
 		Encoder: EncoderConfig{
 			DisplayMapType:       true,
 			DisplayPointerSymbol: true,
 			DisplayStructName:    true,
+			EnableJSONEscaping:   false,
 			ExcludePatterns:      []string{`\d`, `^\w$`},
 			MaskValue:            "[CENSORED]",
 			UseJSONTagName:       true,
@@ -168,11 +174,13 @@ func TestConfig_ToString(t *testing.T) {
 		"          Censor is configured with the following settings:\n" +
 		"---------------------------------------------------------------------\n" +
 		"general:\n" +
+		"    output-format: text\n" +
 		"    print-config-on-init: true\n" +
 		"encoder:\n" +
 		"    display-map-type: true\n" +
 		"    display-pointer-symbol: true\n" +
 		"    display-struct-name: true\n" +
+		"    enable-json-escaping: false\n" +
 		"    exclude-patterns:\n" +
 		"        - \\d\n" +
 		"        - ^\\w$\n" +

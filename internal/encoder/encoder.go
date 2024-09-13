@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// Encoder is an interface that describes the behavior of the encoder.
 type Encoder interface {
 	Struct(b *strings.Builder, rv reflect.Value)
 	Ptr(b *strings.Builder, rv reflect.Value)
@@ -44,6 +45,10 @@ type Config struct {
 	// A struct name includes the last part of the package path.
 	// The default value is false.
 	DisplayStructName bool `yaml:"display-struct-name"`
+	// EnableJSONEscaping specifies if strings escaping must be performed
+	// before marshalling to JSON.
+	// The default value is true.
+	EnableJSONEscaping bool `yaml:"enable-json-escaping"`
 	// ExcludePatterns contains regexp patterns that are used for the selection
 	// of strings that must be masked.
 	ExcludePatterns []string `yaml:"exclude-patterns"`
