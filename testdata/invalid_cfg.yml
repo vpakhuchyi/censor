@@ -1,4 +1,5 @@
 general:
+    output-format: text
     print-config-on-init: true
 encoder:
      display-map-type: false

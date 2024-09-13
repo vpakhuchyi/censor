@@ -15,6 +15,7 @@ easily readable output. Ideal for safeguarding confidential data or enhancing da
 ### Features
 
 - [x] Struct formatting with a default values masking of all the fields (recursively).
+- [x] Supports output in Text and JSON formats.
 - [x] Strings values masking based on provided regexp patterns.
 - [x] Wide range of supported types:
     - `struct`, `map`, `slice`, `array`, `pointer`, `string`

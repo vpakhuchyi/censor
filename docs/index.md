@@ -20,8 +20,9 @@ go get -u github.com/vpakhuchyi/censor
 
 - [x] Struct formatting with a default values masking of all the fields (recursively).
 - [x] Strings values masking based on provided regexp patterns.
+- [x] Supports output in Text and JSON formats.
 - [x] Censor handlers for loggers:
-    - `slog`
+    - `log/slog`
     - `go.uber.org/zap`
 - [x] Wide range of supported types:
     - `struct`, `map`, `slice`, `array`, `pointer`, `string`
@@ -176,13 +177,16 @@ Table below shows the names of the configuration options:
 
 | Go name              | YML name               | Default value | Description                                                                                                                                                  |
 |----------------------|------------------------|---------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| OutputFormat         | output-format          | text          | The output format that will be used for the formatted values (text or json).                                                                                 | 
 | PrintConfigOnInit    | print-config-on-init   | true          | If true, the configuration will be printed when any of available constructors is used.                                                                       |
 | UseJSONTagName       | use-json-tag-name      | false         | If true, the JSON tag name will be used instead of the Go struct field name.                                                                                 |
 | MaskValue            | mask-value             | [CENSORED]    | The value that will be used to mask the sensitive information.                                                                                               |
 | DisplayStructName    | display-struct-name    | false         | If true, the struct name will be displayed in the output.                                                                                                    |
 | DisplayMapType       | display-map-type       | false         | If true, the map type will be displayed in the output.                                                                                                       |
 | DisplayPointerSymbol | display-pointer-symbol | false         | If true, '&' (the pointer symbol) will be displayed in the output.                                                                                           |
+| EnableJSONEscaping   | enable-json-escaping   | true          | If true, the JSON escaping will be enabled.                                                                                                                  | 
 | ExcludePatterns      | exclude-patterns       | []            | A list of regular expressions that will be compared against all the string values. <br/>If a value matches any of the patterns, that section will be masked. |
+
 
 ### Using the `censor.Config` struct
 

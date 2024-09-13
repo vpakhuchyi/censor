@@ -1,9 +1,11 @@
 general:
+    output-format: text
     print-config-on-init: true
 encoder:
     display-map-type: false
     display-pointer-symbol: false
     display-struct-name: false
+    enable-json-escaping: true
     exclude-patterns: []
     mask-value: '[CENSORED]'
     use-json-tag-name: false

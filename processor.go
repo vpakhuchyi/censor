@@ -55,10 +55,17 @@ func NewWithOpts(opts ...Option) (*Processor, error) {
 }
 
 func newProcessor(cfg Config) *Processor {
-	return &Processor{
-		cfg:     cfg,
-		encoder: encoder.NewTextEncoder(cfg.Encoder),
+	p := &Processor{
+		cfg: cfg,
 	}
+
+	if cfg.General.OutputFormat == "json" {
+		p.encoder = encoder.NewJSONEncoder(cfg.Encoder)
+	} else {
+		p.encoder = encoder.NewTextEncoder(cfg.Encoder)
+	}
+
+	return p
 }
 
 /*

@@ -10,8 +10,15 @@ import (
 	"github.com/vpakhuchyi/censor/internal/encoder"
 )
 
-// DefaultMaskValue is used to mask struct fields by default.
-const DefaultMaskValue = "[CENSORED]"
+const (
+	// DefaultMaskValue is used to mask struct fields by default.
+	DefaultMaskValue = "[CENSORED]"
+
+	// OutputFormatJSON is used to set the output format to JSON.
+	OutputFormatJSON = "json"
+	// OutputFormatText is used to set the output format to text.
+	OutputFormatText = "text"
+)
 
 // Config describes the available encoder.Encoder and formatter.Formatter configuration.
 type Config struct {
@@ -21,6 +28,9 @@ type Config struct {
 
 // General describes general configuration settings.
 type General struct {
+	// OutputFormat sets the output format: "text" or "json".
+	// The default value is "text".
+	OutputFormat string `yaml:"output-format"`
 	// PrintConfigOnInit sets whether to print the configuration on initialization stage.
 	// If true, on Processor initialization, the configuration will be printed to stdout.
 	// The default value is true.
@@ -34,12 +44,14 @@ type EncoderConfig = encoder.Config
 func DefaultConfig() Config {
 	return Config{
 		General: General{
+			OutputFormat:      OutputFormatText,
 			PrintConfigOnInit: true,
 		},
 		Encoder: EncoderConfig{
 			DisplayMapType:       false,
 			DisplayPointerSymbol: false,
 			DisplayStructName:    false,
+			EnableJSONEscaping:   true,
 			ExcludePatterns:      nil,
 			MaskValue:            DefaultMaskValue,
 			UseJSONTagName:       false,
