@@ -19,7 +19,7 @@ func TestJSONEncoder_NewJSONEncoder(t *testing.T) {
 			CensorFieldTag: DefaultCensorFieldTag,
 			MaskValue:      "\"[CENSORED]\"",
 		},
-		StructFieldsCache: make(map[string][]Field),
+		structFieldsCache: newFieldsCache(defaultMaxCacheSize),
 	}
 	require.EqualValues(t, exp, got)
 }
