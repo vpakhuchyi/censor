@@ -12,22 +12,6 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-// JSONEncoder is used to encode data to JSON format.
-type JSONEncoder struct {
-	baseEncoder
-
-	EnableEscaping bool
-	// StructFieldsCache is used to cache struct fields, so we don't need to use reflection every time.
-	// Note: fields of anonymous structs are not cached due to the absence of a name.
-	StructFieldsCache map[string][]Field
-}
-
-// Field is a struct that contains information about a struct field.
-type Field struct {
-	Name     string
-	IsMasked bool
-}
-
 // NewJSONEncoder returns a new instance of JSONEncoder with given configuration.
 func NewJSONEncoder(c Config) *JSONEncoder {
 	e := &JSONEncoder{
@@ -36,8 +20,8 @@ func NewJSONEncoder(c Config) *JSONEncoder {
 			ExcludePatterns: c.ExcludePatterns,
 			MaskValue:       strconv.Quote(c.MaskValue),
 		},
-		EnableEscaping:    c.EnableJSONEscaping,
-		StructFieldsCache: make(map[string][]Field),
+		enableEscaping:    c.EnableJSONEscaping,
+		structFieldsCache: newFieldsCache(defaultMaxCacheSize),
 	}
 
 	if len(e.ExcludePatterns) != 0 {
@@ -45,6 +29,22 @@ func NewJSONEncoder(c Config) *JSONEncoder {
 	}
 
 	return e
+}
+
+// JSONEncoder is used to encode data to JSON format.
+type JSONEncoder struct {
+	baseEncoder
+
+	enableEscaping bool
+	// structFieldsCache is used to cache struct fields, so we don't need to use reflection every time.
+	// Note: fields of anonymous structs are not cached due to the absence of a name.
+	structFieldsCache *fieldsCache
+}
+
+// Field is a struct that contains information about a struct field.
+type Field struct {
+	Name     string
+	IsMasked bool
 }
 
 //nolint:exhaustive,gocyclo
@@ -95,10 +95,10 @@ func (e *JSONEncoder) Struct(b *strings.Builder, v reflect.Value) {
 		fields = e.getStructFields(v)
 	} else {
 		var found bool
-		fields, found = e.StructFieldsCache[key]
+		fields, found = e.structFieldsCache.Get(key)
 		if !found {
 			fields = e.getStructFields(v)
-			e.StructFieldsCache[key] = fields
+			e.structFieldsCache.Set(key, fields)
 		}
 	}
 
@@ -132,7 +132,7 @@ func (e *JSONEncoder) getStructFields(v reflect.Value) []Field {
 		}
 
 		name = `"`
-		if e.EnableEscaping {
+		if e.enableEscaping {
 			name += escapeString(field.Name)
 		} else {
 			name += field.Name
@@ -249,7 +249,7 @@ func (e *JSONEncoder) String(b *strings.Builder, s string) {
 	}
 
 	b.WriteString(`"`)
-	if e.EnableEscaping {
+	if e.enableEscaping {
 		b.WriteString(escapeString(s))
 	} else {
 		b.WriteString(s)
