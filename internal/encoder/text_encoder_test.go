@@ -14,8 +14,9 @@ func TestTextEncoder_NewTextEncoder(t *testing.T) {
 	got := NewTextEncoder(Config{UseJSONTagName: true})
 	exp := &TextEncoder{
 		baseEncoder: baseEncoder{
-			CensorFieldTag: DefaultCensorFieldTag,
-			UseJSONTagName: true,
+			CensorFieldTag:    DefaultCensorFieldTag,
+			UseJSONTagName:    true,
+			structFieldsCache: newFieldsCache(defaultMaxCacheSize),
 		},
 	}
 	require.EqualValues(t, exp, got)
@@ -102,7 +103,7 @@ func TestTextEncoder_Encode(t *testing.T) {
 			`\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`,
 		},
 		MaskValue:      "[CENSORED]",
-		UseJSONTagName: true,
+		UseJSONTagName: false,
 	})
 	var b strings.Builder
 	defer b.Reset()
@@ -113,7 +114,7 @@ func TestTextEncoder_Encode(t *testing.T) {
 	// THEN.
 	exp := `encoder.payload{` +
 		`String: string, StringMasked: [CENSORED], StringWithRegexp: [CENSORED], ` +
-		`IntTag: 1, Byte: 97, Int8: 2, Int16: 3, Int32: 4, Int64: 5, Uint: 6, Uint8: 7, Uint16: 8, ` +
+		`Int: 1, Byte: 97, Int8: 2, Int16: 3, Int32: 4, Int64: 5, Uint: 6, Uint8: 7, Uint16: 8, ` +
 		`Uint32: 9, Uint64: 10, Rune: 121, Float32: 1.1, Float64: 2.2, Bool: true, ` +
 		`Interface: encoder.nested{String: string, Interface: interface}, ` +
 		`Struct: encoder.nested{String: string, Interface: interface}, ` +
