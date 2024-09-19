@@ -16,10 +16,10 @@ func TestJSONEncoder_NewJSONEncoder(t *testing.T) {
 	})
 	exp := &JSONEncoder{
 		baseEncoder: baseEncoder{
-			CensorFieldTag: DefaultCensorFieldTag,
-			MaskValue:      "\"[CENSORED]\"",
+			CensorFieldTag:    DefaultCensorFieldTag,
+			MaskValue:         "\"[CENSORED]\"",
+			structFieldsCache: newFieldsCache(defaultMaxCacheSize),
 		},
-		structFieldsCache: newFieldsCache(defaultMaxCacheSize),
 	}
 	require.EqualValues(t, exp, got)
 }

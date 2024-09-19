@@ -28,10 +28,11 @@ type TextEncoder struct {
 func NewTextEncoder(c Config) *TextEncoder {
 	p := TextEncoder{
 		baseEncoder: baseEncoder{
-			CensorFieldTag:  DefaultCensorFieldTag,
-			ExcludePatterns: c.ExcludePatterns,
-			MaskValue:       c.MaskValue,
-			UseJSONTagName:  c.UseJSONTagName,
+			CensorFieldTag:    DefaultCensorFieldTag,
+			ExcludePatterns:   c.ExcludePatterns,
+			MaskValue:         c.MaskValue,
+			UseJSONTagName:    c.UseJSONTagName,
+			structFieldsCache: newFieldsCache(defaultMaxCacheSize),
 		},
 		DisplayMapType:       c.DisplayMapType,
 		DisplayPointerSymbol: c.DisplayPointerSymbol,
@@ -82,69 +83,94 @@ func (e *TextEncoder) Encode(b *strings.Builder, f reflect.Value) {
 // Struct encodes a struct value to TEXT format.
 //
 //nolint:gocyclo,funlen,gocognit
-func (e *TextEncoder) Struct(b *strings.Builder, rv reflect.Value) {
-	if rv.Kind() != reflect.Struct {
+func (e *TextEncoder) Struct(b *strings.Builder, v reflect.Value) {
+	if v.Kind() != reflect.Struct {
 		panic("provided value is not a struct")
 	}
 
-	t := rv.Type()
+	t := v.Type()
 
-	if e.DisplayPointerSymbol {
+	structPath := v.Type().PkgPath()
+	structName := t.Name()
+
+	var fields []Field
+	key := structPath + structName
+	if key == "" {
+		fields = e.getStructFields(v, t)
+	} else {
+		var found bool
+		fields, found = e.structFieldsCache.Get(key)
+		if !found {
+			fields = e.getStructFields(v, t)
+			e.structFieldsCache.Set(key, fields)
+		}
+	}
+
+	if e.DisplayStructName {
 		var pkg string
-		pkgPath := t.PkgPath()
 		// This custom logic is used instead of strings.Split to avoid unnecessary allocations.
-		for i := len(pkgPath) - 1; i >= 0; i-- {
+		for i := len(structPath) - 1; i >= 0; i-- {
 			// We iterate over the package path in reverse order until we find the last slash,
 			// which separates the package name from the package path.
-			if pkgPath[i] == '/' {
-				pkg = pkgPath[i+1:]
+			if structPath[i] == '/' {
+				pkg = structPath[i+1:]
 
 				break
 			}
 			// If there is no slash in the package path, then the package name is equal to the package path.
 			// Example: "main" package.
 			if i == 0 {
-				pkg = pkgPath[i:]
+				pkg = structPath[i:]
 
 				break
 			}
 		}
 
-		b.WriteString(pkg + "." + t.Name())
+		b.WriteString(pkg + "." + structName)
 	}
 
 	b.WriteString("{")
 
-	numFields := rv.NumField()
-	for i := 0; i < numFields; i++ {
-		f := rv.Field(i)
-		if !f.CanInterface() {
-			continue
-		}
+	for i := 0; i < len(fields); i++ {
+		b.WriteString(fields[i].Name)
 
-		strField := t.Field(i)
-		if jsonName, ok := strField.Tag.Lookup("json"); ok && e.UseJSONTagName {
-			b.WriteString(jsonName + ": ")
-		} else {
-			b.WriteString(strField.Name + ": ") // If tag is absent, then a struct filed name shall be used.
-		}
-
-		if strField.Tag.Get(e.CensorFieldTag) != "display" {
+		if fields[i].IsMasked {
 			b.WriteString(e.MaskValue)
-			if i < numFields-1 {
-				b.WriteString(", ")
-			}
-
-			continue
+		} else {
+			e.Encode(b, v.Field(i))
 		}
 
-		e.Encode(b, f)
-
-		if i < numFields-1 {
-			b.WriteString(", ")
+		if i < len(fields)-1 {
+			b.WriteString(`, `)
 		}
 	}
+
 	b.WriteString("}")
+}
+
+func (e *TextEncoder) getStructFields(v reflect.Value, t reflect.Type) []Field {
+	var fields []Field
+	var name string
+	for i := 0; i < v.NumField(); i++ {
+		field := t.Field(i)
+
+		if !v.Field(i).CanInterface() {
+			continue
+		}
+
+		if e.UseJSONTagName {
+			name = field.Tag.Get("json")
+		} else {
+			name = field.Name
+		}
+
+		fields = append(fields, Field{
+			Name:     name + `: `,
+			IsMasked: field.Tag.Get(e.CensorFieldTag) != display,
+		})
+	}
+
+	return fields
 }
 
 // Map encodes a map value to TEXT format.

@@ -16,12 +16,12 @@ import (
 func NewJSONEncoder(c Config) *JSONEncoder {
 	e := &JSONEncoder{
 		baseEncoder: baseEncoder{
-			CensorFieldTag:  DefaultCensorFieldTag,
-			ExcludePatterns: c.ExcludePatterns,
-			MaskValue:       strconv.Quote(c.MaskValue),
+			CensorFieldTag:    DefaultCensorFieldTag,
+			ExcludePatterns:   c.ExcludePatterns,
+			MaskValue:         strconv.Quote(c.MaskValue),
+			structFieldsCache: newFieldsCache(defaultMaxCacheSize),
 		},
-		enableEscaping:    c.EnableJSONEscaping,
-		structFieldsCache: newFieldsCache(defaultMaxCacheSize),
+		enableEscaping: c.EnableJSONEscaping,
 	}
 
 	if len(e.ExcludePatterns) != 0 {
@@ -36,9 +36,6 @@ type JSONEncoder struct {
 	baseEncoder
 
 	enableEscaping bool
-	// structFieldsCache is used to cache struct fields, so we don't need to use reflection every time.
-	// Note: fields of anonymous structs are not cached due to the absence of a name.
-	structFieldsCache *fieldsCache
 }
 
 // Field is a struct that contains information about a struct field.

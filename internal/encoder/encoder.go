@@ -31,6 +31,10 @@ type baseEncoder struct {
 	// UseJSONTagName sets whether to use the `json` tag to get the name of the struct field.
 	// If no `json` tag is present, the name of the struct field is used.
 	UseJSONTagName bool
+
+	// structFieldsCache is used to cache struct fields, so we don't need to use reflection every time.
+	// Note: fields of anonymous structs are not cached due to the absence of a name.
+	structFieldsCache *fieldsCache
 }
 
 // Config describes censor Encoder configuration.
