@@ -3,18 +3,19 @@ package encoder
 import (
 	"reflect"
 	"regexp"
-	"strings"
+
+	"github.com/vpakhuchyi/censor/internal/builder"
 )
 
 // Encoder is an interface that describes the behavior of the encoder.
 type Encoder interface {
-	Struct(b *strings.Builder, rv reflect.Value)
-	Ptr(b *strings.Builder, rv reflect.Value)
-	Slice(b *strings.Builder, rv reflect.Value)
-	Map(b *strings.Builder, rv reflect.Value)
-	Interface(b *strings.Builder, rv reflect.Value)
-	String(b *strings.Builder, s string)
-	Encode(b *strings.Builder, f reflect.Value)
+	Struct(b *builder.Builder, rv reflect.Value)
+	Ptr(b *builder.Builder, rv reflect.Value)
+	Slice(b *builder.Builder, rv reflect.Value)
+	Map(b *builder.Builder, rv reflect.Value)
+	Interface(b *builder.Builder, rv reflect.Value)
+	String(b *builder.Builder, s string)
+	Encode(b *builder.Builder, f reflect.Value)
 }
 
 type baseEncoder struct {
