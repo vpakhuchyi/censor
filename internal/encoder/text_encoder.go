@@ -4,9 +4,10 @@ import (
 	"encoding"
 	"reflect"
 	"strconv"
-	"strings"
 
 	"github.com/shopspring/decimal"
+
+	"github.com/vpakhuchyi/censor/internal/builder"
 )
 
 // TextEncoder is a struct that contains options for parsing.
@@ -46,7 +47,7 @@ func NewTextEncoder(c Config) *TextEncoder {
 }
 
 //nolint:exhaustive,gocyclo
-func (e *TextEncoder) Encode(b *strings.Builder, f reflect.Value) {
+func (e *TextEncoder) Encode(b *builder.Builder, f reflect.Value) {
 	switch k := f.Kind(); k {
 	case reflect.Struct:
 		// If a field implements encoding.TextMarshaler interface, then it should be marshaled to string.
@@ -83,7 +84,7 @@ func (e *TextEncoder) Encode(b *strings.Builder, f reflect.Value) {
 // Struct encodes a struct value to TEXT format.
 //
 //nolint:gocyclo,funlen,gocognit
-func (e *TextEncoder) Struct(b *strings.Builder, v reflect.Value) {
+func (e *TextEncoder) Struct(b *builder.Builder, v reflect.Value) {
 	if v.Kind() != reflect.Struct {
 		panic("provided value is not a struct")
 	}
@@ -149,7 +150,7 @@ func (e *TextEncoder) Struct(b *strings.Builder, v reflect.Value) {
 }
 
 func (e *TextEncoder) getStructFields(v reflect.Value, t reflect.Type) []Field {
-	var fields []Field
+	fields := make([]Field, v.NumField())
 	var name string
 	for i := 0; i < v.NumField(); i++ {
 		field := t.Field(i)
@@ -164,10 +165,10 @@ func (e *TextEncoder) getStructFields(v reflect.Value, t reflect.Type) []Field {
 			name = field.Name
 		}
 
-		fields = append(fields, Field{
-			Name:     name + `: `,
+		fields[i] = Field{
+			Name:     name,
 			IsMasked: field.Tag.Get(e.CensorFieldTag) != display,
-		})
+		}
 	}
 
 	return fields
@@ -175,7 +176,7 @@ func (e *TextEncoder) getStructFields(v reflect.Value, t reflect.Type) []Field {
 
 // Map encodes a map value to TEXT format.
 // Note: this method panics if the provided value is not a map.
-func (e *TextEncoder) Map(b *strings.Builder, rv reflect.Value) {
+func (e *TextEncoder) Map(b *builder.Builder, rv reflect.Value) {
 	if rv.Kind() != reflect.Map {
 		panic("provided value is not a map")
 	}
@@ -202,7 +203,7 @@ func (e *TextEncoder) Map(b *strings.Builder, rv reflect.Value) {
 // Slice encodes a slice value to TEXT format.
 // This function is also can be used to parse an array.
 // Note: this method panics if the provided value is not a slice or array.
-func (e *TextEncoder) Slice(b *strings.Builder, rv reflect.Value) {
+func (e *TextEncoder) Slice(b *builder.Builder, rv reflect.Value) {
 	if rv.Kind() != reflect.Slice && rv.Kind() != reflect.Array {
 		panic("provided value is not a slice/array")
 	}
@@ -223,7 +224,7 @@ func (e *TextEncoder) Slice(b *strings.Builder, rv reflect.Value) {
 // In case of a pointer to unsupported type of value, a string built from UnsupportedTypeTmpl
 // is used instead of the real value. That string contains a type of the value.
 // Note: this method panics if the provided value is not an interface.
-func (e *TextEncoder) Interface(b *strings.Builder, rv reflect.Value) {
+func (e *TextEncoder) Interface(b *builder.Builder, rv reflect.Value) {
 	if rv.Kind() != reflect.Interface {
 		panic("provided value is not an interface")
 	}
@@ -240,7 +241,7 @@ func (e *TextEncoder) Interface(b *strings.Builder, rv reflect.Value) {
 // In case of a pointer to unsupported type of value, a string built from UnsupportedTypeTmpl
 // is used instead of the real value. That string contains a type of the value.
 // Note: this method panics if the provided value is not a pointer.
-func (e *TextEncoder) Ptr(b *strings.Builder, rv reflect.Value) {
+func (e *TextEncoder) Ptr(b *builder.Builder, rv reflect.Value) {
 	if rv.Kind() != reflect.Ptr {
 		panic("provided value is not a pointer")
 	}
@@ -259,7 +260,7 @@ func (e *TextEncoder) Ptr(b *strings.Builder, rv reflect.Value) {
 
 // String formats a value as a string.
 // If the string matches one of the ExcludePatterns, it will be masked with the MaskValue.
-func (e *TextEncoder) String(b *strings.Builder, s string) {
+func (e *TextEncoder) String(b *builder.Builder, s string) {
 	if len(e.ExcludePatterns) != 0 {
 		for _, pattern := range e.ExcludePatternsCompiled {
 			if pattern.MatchString(s) {
