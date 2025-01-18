@@ -10,6 +10,8 @@ import (
 	"unicode/utf8"
 
 	"github.com/shopspring/decimal"
+
+	"github.com/vpakhuchyi/censor/internal/builderpool"
 )
 
 // NewJSONEncoder returns a new instance of JSONEncoder with given configuration.
@@ -48,12 +50,17 @@ type Field struct {
 func (e *JSONEncoder) Encode(b *strings.Builder, f reflect.Value) {
 	switch k := f.Kind(); k {
 	case reflect.Struct:
-		// If a field implements json.Marshaler interface, then it should be marshaled to string.
-		if v, ok := f.Interface().(json.Marshaler); ok {
-			b.WriteString(PrepareJSONMarshalerValue(v))
-		} else {
-			e.Struct(b, f)
+		if f.CanInterface() {
+			// If a field implements json.Marshaler interface, then it should be marshaled to string.
+			v, ok := f.Interface().(json.Marshaler)
+			if ok {
+				b.WriteString(PrepareJSONMarshalerValue(v))
+
+				return
+			}
 		}
+
+		e.Struct(b, f)
 	case reflect.Slice, reflect.Array:
 		e.Slice(b, f)
 	case reflect.Ptr:
@@ -73,7 +80,7 @@ func (e *JSONEncoder) Encode(b *strings.Builder, f reflect.Value) {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		b.WriteString(strconv.FormatInt(f.Int(), 10))
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
-		b.WriteString(strconv.FormatInt(int64(f.Uint()), 10))
+		b.WriteString(strconv.FormatUint(f.Uint(), 10))
 	default:
 		b.WriteString(`"` + UnsupportedTypeTmpl + k.String() + `"`)
 	}
@@ -119,27 +126,29 @@ func (e *JSONEncoder) Struct(b *strings.Builder, v reflect.Value) {
 }
 
 func (e *JSONEncoder) getStructFields(v reflect.Value) []Field {
-	var fields []Field
-	var name string
+	fields := make([]Field, v.NumField())
+
+	b := builderpool.Get()
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Type().Field(i)
 
 		if !v.Field(i).CanInterface() {
 			continue
 		}
+		b.WriteString(`"`)
 
-		name = `"`
 		if e.enableEscaping {
-			name += escapeString(field.Name)
+			b.WriteString(escapeString(field.Name))
 		} else {
-			name += field.Name
+			b.WriteString(field.Name)
 		}
-		name += `": `
+		b.WriteString(`": `)
 
-		fields = append(fields, Field{
-			Name:     name,
+		fields[i] = Field{
+			Name:     b.String(),
 			IsMasked: field.Tag.Get(e.CensorFieldTag) != display,
-		})
+		}
+		b.Reset()
 	}
 
 	return fields
@@ -245,13 +254,15 @@ func (e *JSONEncoder) String(b *strings.Builder, s string) {
 		}
 	}
 
-	b.WriteString(`"`)
 	if e.enableEscaping {
+		b.WriteString(`"`)
 		b.WriteString(escapeString(s))
+		b.WriteString(`"`)
 	} else {
+		b.WriteString(`"`)
 		b.WriteString(s)
+		b.WriteString(`"`)
 	}
-	b.WriteString(`"`)
 }
 
 //nolint:exhaustive
@@ -266,7 +277,7 @@ func (e *JSONEncoder) encodeMapKey(b *strings.Builder, f reflect.Value) {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		b.WriteString(strconv.FormatInt(f.Int(), 10))
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
-		b.WriteString(strconv.FormatInt(int64(f.Uint()), 10))
+		b.WriteString(strconv.FormatUint(f.Uint(), 10))
 	default:
 		if v, ok := f.Interface().(encoding.TextMarshaler); ok {
 			b.WriteString(PrepareTextMarshalerValue(v))
@@ -276,10 +287,9 @@ func (e *JSONEncoder) encodeMapKey(b *strings.Builder, f reflect.Value) {
 	}
 }
 
-//nolint:gocyclo,mnd
+//nolint:gocyclo,mnd,gocognit
 func escapeString(s string) string {
 	var buf bytes.Buffer
-
 	for _, r := range s {
 		switch r {
 		case '"':
@@ -297,24 +307,34 @@ func escapeString(s string) string {
 		case '\t':
 			buf.WriteString(`\t`)
 		default:
-			if r < 0x20 {
-				buf.WriteString(`\u` + strconv.FormatInt(int64(r), 16))
+			if (r >= 0x00 && r <= 0x1F) || r == 0x7F {
+				buf.WriteString(escapeControlChar(r))
 
 				continue
 			}
-			if r > 0x7f {
-				if utf8.ValidRune(r) {
-					buf.WriteString(`\u` + strconv.FormatInt(int64(r), 16))
 
-					continue
+			if r > 0x7F {
+				if utf8.ValidRune(r) && r != utf8.RuneError {
+					buf.WriteString(escapeControlChar(r))
+				} else {
+					buf.WriteString(`\uFFFD`)
 				}
-				buf.WriteString("\uFFFD")
 
 				continue
 			}
+
 			buf.WriteRune(r)
 		}
 	}
 
 	return buf.String()
+}
+
+func escapeControlChar(r rune) string {
+	hexStr := strconv.FormatInt(int64(r), 16)
+	for len(hexStr) < 4 {
+		hexStr = "0" + hexStr
+	}
+
+	return `\u` + hexStr
 }
