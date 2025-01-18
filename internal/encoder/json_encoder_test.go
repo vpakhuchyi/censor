@@ -366,36 +366,15 @@ func Test_escapeString(t *testing.T) {
 		input string
 		exp   string
 	}{
-		"double-quote": {
-			input: `"`,
-			exp:   `\"`,
-		},
-		"backslash": {
-			input: `\`,
-			exp:   `\\`,
-		},
-		"backspace": {
-			input: "foo\bbar",
-			exp:   "foo\\bbar",
-		},
-		"form-feed": {
-			input: "foo\fbar",
-			exp:   "foo\\fbar",
-		},
-		"newline": {
-			input: "foo\nbar",
-			exp:   "foo\\nbar",
-		},
-		"carriage-return": {
-			input: "foo\rbar",
-			exp:   "foo\\rbar",
-		},
-		"tab": {
-			input: "foo\tbar",
-			exp:   "foo\\tbar",
-		},
+		"double-quote":         {input: `"`, exp: `\"`},
+		"backslash":            {input: `\`, exp: `\\`},
+		"backspace":            {input: "foo\bbar", exp: "foo\\bbar"},
+		"form-feed":            {input: "foo\fbar", exp: "foo\\fbar"},
+		"newline":              {input: "foo\nbar", exp: "foo\\nbar"},
+		"carriage-return":      {input: "foo\rbar", exp: "foo\\rbar"},
+		"tab":                  {input: "foo\tbar", exp: "foo\\tbar"},
 		"control-char-0x01":    {input: string([]byte{0x01}), exp: `\u0001`},
-		"del-0x7F":             {input: string([]byte{0x7F}), exp: `\u007f`},
+		"control-char-0x7F":    {input: string([]byte{0x7F}), exp: `\u007f`},
 		"non-ascii-valid":      {input: "ñ", exp: `\u00f1`},
 		"invalid-utf8":         {input: string([]byte{0xC3, 0x28}), exp: `\uFFFD(`},
 		"u2028-line-separator": {input: "\u2028", exp: `\u2028`},
