@@ -14,7 +14,12 @@ var builderPool = sync.Pool{
 
 // Get fetches a builder from the pool.
 func Get() *strings.Builder {
-	return builderPool.Get().(*strings.Builder)
+	v, ok := builderPool.Get().(*strings.Builder)
+	if !ok {
+		v = &strings.Builder{}
+	}
+
+	return v
 }
 
 // Put resets the builder and puts it back into the pool.

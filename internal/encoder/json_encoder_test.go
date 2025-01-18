@@ -204,7 +204,7 @@ func TestJSONEncoder_Struct(t *testing.T) {
 			e.Struct(&b, reflect.ValueOf(s))
 
 			// THEN.
-			exp := "{}"
+			exp := "{{\"\",null}}"
 			require.Equal(t, exp, b.String())
 		})
 	})
@@ -366,13 +366,18 @@ func Test_escapeString(t *testing.T) {
 		input string
 		exp   string
 	}{
-		"1": {input: `\`, exp: `\\`},
-		"2": {input: `"`, exp: `\"`},
-		"3": {input: `\n`, exp: `\\n`},
-		"4": {input: `\r`, exp: `\\r`},
-		"5": {input: `\t`, exp: `\\t`},
-		"6": {input: `\f`, exp: `\\f`},
-		"7": {input: `\b`, exp: `\\b`},
+		"double-quote":         {input: `"`, exp: `\"`},
+		"backslash":            {input: `\`, exp: `\\`},
+		"backspace":            {input: "foo\bbar", exp: "foo\\bbar"},
+		"form-feed":            {input: "foo\fbar", exp: "foo\\fbar"},
+		"newline":              {input: "foo\nbar", exp: "foo\\nbar"},
+		"carriage-return":      {input: "foo\rbar", exp: "foo\\rbar"},
+		"tab":                  {input: "foo\tbar", exp: "foo\\tbar"},
+		"control-char-0x01":    {input: string([]byte{0x01}), exp: `\u0001`},
+		"control-char-0x7F":    {input: string([]byte{0x7F}), exp: `\u007f`},
+		"non-ascii-valid":      {input: "ñ", exp: `\u00f1`},
+		"invalid-utf8":         {input: string([]byte{0xC3, 0x28}), exp: `\uFFFD(`},
+		"u2028-line-separator": {input: "\u2028", exp: `\u2028`},
 	}
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {

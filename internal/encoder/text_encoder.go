@@ -74,7 +74,7 @@ func (e *TextEncoder) Encode(b *strings.Builder, f reflect.Value) {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		b.WriteString(strconv.FormatInt(f.Int(), 10))
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
-		b.WriteString(strconv.FormatInt(int64(f.Uint()), 10))
+		b.WriteString(strconv.FormatUint(f.Uint(), 10))
 	default:
 		b.WriteString(UnsupportedTypeTmpl + k.String())
 	}
@@ -82,7 +82,7 @@ func (e *TextEncoder) Encode(b *strings.Builder, f reflect.Value) {
 
 // Struct encodes a struct value to TEXT format.
 //
-//nolint:gocyclo,funlen,gocognit
+//nolint:gocyclo,gocognit
 func (e *TextEncoder) Struct(b *strings.Builder, v reflect.Value) {
 	if v.Kind() != reflect.Struct {
 		panic("provided value is not a struct")
