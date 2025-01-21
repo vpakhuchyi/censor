@@ -19,3 +19,9 @@
 
 # Go workspace file
 go.work
+
+coverage.html
+
+.vscode/
+.idea/
+.DS_Store

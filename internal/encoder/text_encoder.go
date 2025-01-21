@@ -260,13 +260,19 @@ func (e *TextEncoder) Ptr(b *strings.Builder, rv reflect.Value) {
 // String formats a value as a string.
 // If the string matches one of the ExcludePatterns, it will be masked with the MaskValue.
 func (e *TextEncoder) String(b *strings.Builder, s string) {
-	if len(e.ExcludePatterns) != 0 {
-		for _, pattern := range e.ExcludePatternsCompiled {
-			if pattern.MatchString(s) {
-				b.WriteString(pattern.ReplaceAllString(s, e.MaskValue))
-
-				return
+	if len(e.ExcludePatterns) != 0 && e.ExcludePatternsCompiled != nil {
+		matches := e.ExcludePatternsCompiled.FindAllStringIndex(s, -1)
+		if len(matches) > 0 {
+			lastIndex := 0
+			for _, match := range matches {
+				start, end := match[0], match[1]
+				b.WriteString(s[lastIndex:start] + e.MaskValue)
+				lastIndex = end
 			}
+
+			b.WriteString(s[lastIndex:])
+
+			return
 		}
 	}
 
