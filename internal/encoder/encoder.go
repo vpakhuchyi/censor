@@ -23,8 +23,8 @@ type baseEncoder struct {
 	CensorFieldTag string
 	// ExcludePatterns contains regexp patterns that are used to identify strings that must be masked.
 	ExcludePatterns []string
-	// ExcludePatternsCompiled contains already compiled regexp patterns from ExcludePatterns.
-	ExcludePatternsCompiled []*regexp.Regexp
+	// ExcludePatternsCompiled contains already compiled regexp patterns from ExcludePatterns joined using "|".
+	ExcludePatternsCompiled *regexp.Regexp
 	// MaskValue is used to mask struct fields with sensitive data.
 	// The default value is stored in config.DefaultMaskValue constant.
 	MaskValue string
