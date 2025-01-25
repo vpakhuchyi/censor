@@ -1,6 +1,8 @@
 package zaphandler
 
 import (
+	"encoding/json"
+
 	"go.uber.org/zap/zapcore"
 
 	"github.com/vpakhuchyi/censor"
@@ -9,9 +11,6 @@ import (
 type handler struct {
 	zapcore.Core
 	censor *censor.Processor
-
-	formatMessages bool
-	formatKeys     bool
 }
 
 // NewHandler returns a new zap logs handler (core) along with a censor processor.
@@ -35,10 +34,6 @@ func NewHandler(core zapcore.Core, opts ...Option) zapcore.Core {
 // Write applies censoring to the log entry and fields, overriding the original values.
 // Future processing of the log entry and fields will use the given zap core.
 func (h handler) Write(e zapcore.Entry, fields []zapcore.Field) error {
-	if h.formatMessages {
-		e.Message = h.censor.Format(e.Message)
-	}
-
 	for i := 0; i < len(fields); i++ {
 		h.censorField(&fields[i])
 	}
@@ -64,22 +59,15 @@ func (h handler) With(fields []zapcore.Field) zapcore.Core {
 	return handler{
 		Core: h.Core.With(fields),
 		// Censor instance is shared between the handler instances to avoid additional allocations.
-		censor:         h.censor,
-		formatMessages: h.formatMessages,
-		formatKeys:     h.formatKeys,
+		censor: h.censor,
 	}
 }
-
 func (h handler) censorField(f *zapcore.Field) {
-	if h.formatKeys && f.Key != "" {
-		f.Key = h.censor.Format(f.Key)
-	}
-
 	if f.String != "" {
-		f.String = h.censor.Format(f.String)
+		f.String = h.censor.String(f.String)
 	}
 
 	if f.Interface != nil {
-		f.Interface = h.censor.Format(f.Interface)
+		f.Interface = json.RawMessage(h.censor.Any(f.Interface))
 	}
 }

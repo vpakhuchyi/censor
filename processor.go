@@ -98,6 +98,25 @@ func (p *Processor) Format(val any) string {
 	return p.encode(val)
 }
 
+func (p *Processor) Any(val any) string {
+	if val == nil || reflect.TypeOf(val) == nil {
+		return "nil"
+	}
+
+	return p.encode(val)
+}
+
+func (p *Processor) String(s string) string {
+	b := builderpool.Get()
+
+	p.encoder.String(b, s)
+	res := b.String()
+
+	builderpool.Put(b)
+
+	return res
+}
+
 // Clone returns a new instance of Processor with the same configuration as the original one.
 func (p *Processor) Clone() (*Processor, error) {
 	return NewWithOpts(WithConfig(&p.cfg))

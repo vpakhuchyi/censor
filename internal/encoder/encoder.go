@@ -4,6 +4,8 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
+
+	"github.com/vpakhuchyi/censor/internal/cache"
 )
 
 // Encoder is an interface that describes the behavior of the encoder.
@@ -31,10 +33,13 @@ type baseEncoder struct {
 	// UseJSONTagName sets whether to use the `json` tag to get the name of the struct field.
 	// If no `json` tag is present, the name of the struct field is used.
 	UseJSONTagName bool
-
 	// structFieldsCache is used to cache struct fields, so we don't need to use reflection every time.
 	// Note: fields of anonymous structs are not cached due to the absence of a name.
-	structFieldsCache *fieldsCache
+	structFieldsCache *cache.SliceCache[Field]
+	// escapedStringsCache is used to cache escaped strings, to improve performance.
+	escapedStringsCache *cache.Cache[string]
+	// regexpCache is used to cache compiled regexp patterns, to improve performance.
+	regexpCache *cache.Cache[string]
 }
 
 // Config describes censor Encoder configuration.
@@ -49,10 +54,6 @@ type Config struct {
 	// A struct name includes the last part of the package path.
 	// The default value is false.
 	DisplayStructName bool `yaml:"display-struct-name"`
-	// EnableJSONEscaping specifies if strings escaping must be performed
-	// before marshalling to JSON.
-	// The default value is true.
-	EnableJSONEscaping bool `yaml:"enable-json-escaping"`
 	// ExcludePatterns contains regexp patterns that are used for the selection
 	// of strings that must be masked.
 	ExcludePatterns []string `yaml:"exclude-patterns"`

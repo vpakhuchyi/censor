@@ -1,7 +1,6 @@
 package encoder
 
 import (
-	"bytes"
 	"encoding"
 	"encoding/json"
 	"reflect"
@@ -12,18 +11,20 @@ import (
 	"github.com/shopspring/decimal"
 
 	"github.com/vpakhuchyi/censor/internal/builderpool"
+	"github.com/vpakhuchyi/censor/internal/cache"
 )
 
 // NewJSONEncoder returns a new instance of JSONEncoder with given configuration.
 func NewJSONEncoder(c Config) *JSONEncoder {
 	e := &JSONEncoder{
 		baseEncoder: baseEncoder{
-			CensorFieldTag:    DefaultCensorFieldTag,
-			ExcludePatterns:   c.ExcludePatterns,
-			MaskValue:         strconv.Quote(c.MaskValue),
-			structFieldsCache: newFieldsCache(defaultMaxCacheSize),
+			CensorFieldTag:      DefaultCensorFieldTag,
+			ExcludePatterns:     c.ExcludePatterns,
+			MaskValue:           c.MaskValue,
+			structFieldsCache:   cache.NewSlice[Field](cache.DefaultMaxCacheSize),
+			escapedStringsCache: cache.New[string](cache.DefaultMaxCacheSize),
+			regexpCache:         cache.New[string](cache.DefaultMaxCacheSize),
 		},
-		enableEscaping: c.EnableJSONEscaping,
 	}
 
 	if len(e.ExcludePatterns) != 0 {
@@ -72,7 +73,7 @@ func (e *JSONEncoder) Encode(b *strings.Builder, f reflect.Value) {
 	case reflect.Bool:
 		b.WriteString(strconv.FormatBool(f.Bool()))
 	case reflect.String:
-		e.String(b, f.String())
+		e.StringEscaped(b, f.String())
 	case reflect.Float32:
 		b.WriteString(decimal.NewFromFloat32(float32(f.Float())).String())
 	case reflect.Float64:
@@ -112,7 +113,7 @@ func (e *JSONEncoder) Struct(b *strings.Builder, v reflect.Value) {
 		b.WriteString(fields[i].Name)
 
 		if fields[i].IsMasked {
-			b.WriteString(e.MaskValue)
+			b.WriteString(`"` + e.MaskValue + `"`)
 		} else {
 			e.Encode(b, v.Field(i))
 		}
@@ -135,14 +136,7 @@ func (e *JSONEncoder) getStructFields(v reflect.Value) []Field {
 		if !v.Field(i).CanInterface() {
 			continue
 		}
-		b.WriteString(`"`)
-
-		if e.enableEscaping {
-			b.WriteString(escapeString(field.Name))
-		} else {
-			b.WriteString(field.Name)
-		}
-		b.WriteString(`": `)
+		b.WriteString(`"` + field.Name + `": `)
 
 		fields[i] = Field{
 			Name:     b.String(),
@@ -244,38 +238,48 @@ func (e *JSONEncoder) Ptr(b *strings.Builder, v reflect.Value) {
 // String encodes a string value to JSON format.
 // If the string matches one of the ExcludePatterns, it will be masked with the MaskValue.
 func (e *JSONEncoder) String(b *strings.Builder, s string) {
+	b.WriteString(e.string(s))
+}
+
+func (e *JSONEncoder) string(s string) string {
+	res := s
 	if len(e.ExcludePatterns) != 0 && e.ExcludePatternsCompiled != nil {
+		cached, ok := e.regexpCache.Get(s)
+		if ok {
+			return cached
+		}
+
 		matches := e.ExcludePatternsCompiled.FindAllStringIndex(s, -1)
 		if len(matches) > 0 {
+			bb := builderpool.Get()
 			lastIndex := 0
-			for _, match := range matches {
-				start, end := match[0], match[1]
-				b.WriteString(s[lastIndex:start] + e.MaskValue)
+			for _, m := range matches {
+				start, end := m[0], m[1]
+				bb.WriteString(s[lastIndex:start] + e.MaskValue)
 				lastIndex = end
 			}
 
-			b.WriteString(s[lastIndex:])
-
-			return
+			bb.WriteString(s[lastIndex:])
+			res = bb.String()
 		}
 	}
 
-	if e.enableEscaping {
-		b.WriteString(`"`)
-		b.WriteString(escapeString(s))
-		b.WriteString(`"`)
-	} else {
-		b.WriteString(`"`)
-		b.WriteString(s)
-		b.WriteString(`"`)
-	}
+	e.regexpCache.Set(s, res)
+
+	return res
+}
+
+// StringEscaped encodes a string value to JSON format.
+// If the string matches one of the ExcludePatterns, it will be masked with the MaskValue.
+func (e *JSONEncoder) StringEscaped(b *strings.Builder, s string) {
+	b.WriteString(e.string(`"`+e.escapeString(s)) + `"`)
 }
 
 //nolint:exhaustive
 func (e *JSONEncoder) encodeMapKey(b *strings.Builder, f reflect.Value) {
 	switch k := f.Kind(); k {
 	case reflect.String:
-		e.String(b, f.String())
+		e.StringEscaped(b, f.String())
 	case reflect.Float32:
 		b.WriteString(decimal.NewFromFloat32(float32(f.Float())).String())
 	case reflect.Float64:
@@ -294,24 +298,33 @@ func (e *JSONEncoder) encodeMapKey(b *strings.Builder, f reflect.Value) {
 }
 
 //nolint:gocyclo,mnd,gocognit
-func escapeString(s string) string {
-	var buf bytes.Buffer
+func (e *JSONEncoder) escapeString(s string) string {
+	cached, ok := e.escapedStringsCache.Get(s)
+	if ok {
+		return cached
+	}
+
+	buf := builderpool.Get()
 	for _, r := range s {
 		switch r {
-		case '"':
-			buf.WriteString(`\"`)
-		case '\\':
-			buf.WriteString(`\\`)
+		case '\\', '"':
+			buf.WriteByte('\\')
+			buf.WriteRune(r)
 		case '\b':
-			buf.WriteString(`\b`)
+			buf.WriteByte('\\')
+			buf.WriteByte('b')
 		case '\f':
-			buf.WriteString(`\f`)
+			buf.WriteByte('\\')
+			buf.WriteByte('f')
 		case '\n':
-			buf.WriteString(`\n`)
+			buf.WriteByte('\\')
+			buf.WriteByte('n')
 		case '\r':
-			buf.WriteString(`\r`)
+			buf.WriteByte('\\')
+			buf.WriteByte('r')
 		case '\t':
-			buf.WriteString(`\t`)
+			buf.WriteByte('\\')
+			buf.WriteByte('t')
 		default:
 			if (r >= 0x00 && r <= 0x1F) || r == 0x7F {
 				buf.WriteString(escapeControlChar(r))
@@ -323,7 +336,7 @@ func escapeString(s string) string {
 				if utf8.ValidRune(r) && r != utf8.RuneError {
 					buf.WriteString(escapeControlChar(r))
 				} else {
-					buf.WriteString(`\uFFFD`)
+					buf.WriteRune('\uFFFD')
 				}
 
 				continue
@@ -333,7 +346,12 @@ func escapeString(s string) string {
 		}
 	}
 
-	return buf.String()
+	res := buf.String()
+	builderpool.Put(buf)
+
+	e.escapedStringsCache.Set(s, res)
+
+	return res
 }
 
 func escapeControlChar(r rune) string {

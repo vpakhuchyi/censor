@@ -1,32 +1,31 @@
-package encoder
+package cache
 
-import (
-	"container/list"
-)
+import "container/list"
 
-const defaultMaxCacheSize = 500
+// DefaultMaxCacheSize is the default maximum cache size.
+const DefaultMaxCacheSize = 500
 
-// newFieldsCache creates a new cache for struct fields.
-func newFieldsCache(size int) *fieldsCache {
-	return &fieldsCache{
+// New creates a new cache for type T.
+func New[T comparable](size int) *Cache[T] {
+	return &Cache[T]{
 		size:  size,
 		keys:  list.New(),
-		cache: make(map[string][]Field),
+		cache: make(map[string]T),
 	}
 }
 
-// fieldsCache is a cache for struct fields.
-type fieldsCache struct {
+// Cache is a cache for type T.
+type Cache[T comparable] struct {
 	size  int
 	keys  *list.List
-	cache map[string][]Field
+	cache map[string]T
 }
 
 // Set adds a new key-value pair to the cache.
 // If the cache size exceeds the defaultMaxCacheSize, the oldest key-value pair is removed.
 // If the key already exists in the cache, the function will return immediately.
 // If the key does not exist in the cache, the key-value pair is added.
-func (c fieldsCache) Set(key string, value []Field) {
+func (c Cache[T]) Set(key string, value T) {
 	if _, found := c.cache[key]; found {
 		return
 	}
@@ -43,7 +42,7 @@ func (c fieldsCache) Set(key string, value []Field) {
 
 // Get returns the value for the given key.
 // If the key does not exist in the cache, the second return value is false.
-func (c fieldsCache) Get(key string) ([]Field, bool) {
+func (c Cache[T]) Get(key string) (T, bool) {
 	value, found := c.cache[key]
 
 	return value, found

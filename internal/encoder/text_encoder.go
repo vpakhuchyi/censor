@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	"github.com/shopspring/decimal"
+
+	"github.com/vpakhuchyi/censor/internal/cache"
 )
 
 // TextEncoder is a struct that contains options for parsing.
@@ -32,7 +34,7 @@ func NewTextEncoder(c Config) *TextEncoder {
 			ExcludePatterns:   c.ExcludePatterns,
 			MaskValue:         c.MaskValue,
 			UseJSONTagName:    c.UseJSONTagName,
-			structFieldsCache: newFieldsCache(defaultMaxCacheSize),
+			structFieldsCache: cache.NewSlice[Field](cache.DefaultMaxCacheSize),
 		},
 		DisplayMapType:       c.DisplayMapType,
 		DisplayPointerSymbol: c.DisplayPointerSymbol,
