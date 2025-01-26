@@ -132,7 +132,6 @@ func TestProcessor_PrintConfig(t *testing.T) {
 				DisplayMapType:       true,
 				DisplayPointerSymbol: true,
 				DisplayStructName:    true,
-				EnableJSONEscaping:   false,
 				ExcludePatterns:      []string{`\d`, `.+@.+`},
 				MaskValue:            DefaultMaskValue,
 				UseJSONTagName:       true,

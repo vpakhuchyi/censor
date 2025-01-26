@@ -8,7 +8,6 @@ encoder:
     display-map-type: true
     display-pointer-symbol: true
     display-struct-name: true
-    enable-json-escaping: false
     exclude-patterns:
         - \d
         - .+@.+

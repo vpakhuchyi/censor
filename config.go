@@ -51,7 +51,6 @@ func DefaultConfig() Config {
 			DisplayMapType:       false,
 			DisplayPointerSymbol: false,
 			DisplayStructName:    false,
-			EnableJSONEscaping:   true,
 			ExcludePatterns:      nil,
 			MaskValue:            DefaultMaskValue,
 			UseJSONTagName:       false,

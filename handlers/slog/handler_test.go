@@ -18,7 +18,7 @@ type source struct {
 type logEntry struct {
 	Level   string  `json:"level"`
 	Msg     string  `json:"msg"`
-	Payload string  `json:"payload"`
+	Payload any     `json:"payload"`
 	Source  *source `json:"source,omitempty"`
 }
 
@@ -37,14 +37,6 @@ func TestNewHandler(t *testing.T) {
 		Zip:     12345,
 	}
 
-	t.Run("without output option", func(t *testing.T) {
-		// GIVEN
-		handler := NewJSONHandler()
-		log := slog.New(handler)
-		// WHEN
-		log.Info("test", slog.Any("payload", payload))
-	})
-
 	t.Run("with default handler options", func(t *testing.T) {
 		// GIVEN
 		var buf bytes.Buffer
@@ -53,7 +45,7 @@ func TestNewHandler(t *testing.T) {
 		want := `{
     				"level": "INFO",
     				"msg": "test",
-    				"payload": "{City: Kyiv, Country: Ukraine, Street: [CENSORED], Zip: [CENSORED]}"
+    				"payload": {"City": "Kyiv", "Country": "Ukraine", "Street": "[CENSORED]", "Zip": "[CENSORED]"}
 				 }`
 
 		// WHEN
@@ -73,9 +65,9 @@ func TestNewHandler(t *testing.T) {
 		want := `{
 					"level": "INFO",
 					"msg": "test",
-					"payload": "{City: Kyiv, Country: Ukraine, Street: [CENSORED], Zip: [CENSORED]}",
+    				"payload": {"City": "Kyiv", "Country": "Ukraine", "Street": "[CENSORED]", "Zip": "[CENSORED]"},
 					"source": {
-						"function": "github.com/vpakhuchyi/censor/handlers/slog.TestNewHandler.func3"
+						"function": "github.com/vpakhuchyi/censor/handlers/slog.TestNewHandler.func2"
 					}
 				 }`
 
@@ -120,7 +112,7 @@ func TestNewHandler(t *testing.T) {
 		want := `{
 					"level": "TEST",
 					"msg": "test",
-					"payload": "{City: Kyiv, Country: Ukraine, Street: [CENSORED], Zip: [CENSORED]}"
+    				"payload": {"City": "Kyiv", "Country": "Ukraine", "Street": "[CENSORED]", "Zip": "[CENSORED]"}
 				 }`
 
 		// WHEN

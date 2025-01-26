@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/vpakhuchyi/censor/internal/cache"
 )
 
 func TestJSONEncoder_NewJSONEncoder(t *testing.T) {
@@ -16,9 +18,11 @@ func TestJSONEncoder_NewJSONEncoder(t *testing.T) {
 	})
 	exp := &JSONEncoder{
 		baseEncoder: baseEncoder{
-			CensorFieldTag:    DefaultCensorFieldTag,
-			MaskValue:         "\"[CENSORED]\"",
-			structFieldsCache: newFieldsCache(defaultMaxCacheSize),
+			CensorFieldTag:      DefaultCensorFieldTag,
+			MaskValue:           "[CENSORED]",
+			structFieldsCache:   cache.NewSlice[Field](cache.DefaultMaxCacheSize),
+			escapedStringsCache: cache.New[string](cache.DefaultMaxCacheSize),
+			regexpCache:         cache.New[string](cache.DefaultMaxCacheSize),
 		},
 	}
 	require.EqualValues(t, exp, got)
@@ -68,7 +72,7 @@ func TestJSONEncoder_Encode(t *testing.T) {
 
 	// GIVEN.
 	p := payload{
-		String:           "string\\",
+		String:           `st"ring`,
 		StringMasked:     "string",
 		StringWithRegexp: "bla-bla-example@example.com",
 		Int:              1,
@@ -113,12 +117,10 @@ func TestJSONEncoder_Encode(t *testing.T) {
 		Func:    func() {},
 	}
 
-	t.Run("escaping is disabled", func(t *testing.T) {
+	t.Run("escaping", func(t *testing.T) {
 		e := NewJSONEncoder(Config{
-			ExcludePatterns: []string{
-				`\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`,
-			},
-			MaskValue: "[CENSORED]",
+			ExcludePatterns: []string{`\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`},
+			MaskValue:       "[CENSORED]",
 		})
 		var b strings.Builder
 		defer b.Reset()
@@ -127,35 +129,7 @@ func TestJSONEncoder_Encode(t *testing.T) {
 		e.Encode(&b, reflect.ValueOf(p))
 
 		// THEN.
-		exp := `{"String": "string\","StringMasked": "[CENSORED]","StringWithRegexp": "[CENSORED]",` +
-			`"Int": 1,"Byte": 97,"Int8": 2,"Int16": 3,"Int32": 4,"Int64": 5,"Uint": 6,"Uint8": 7,` +
-			`"Uint16": 8,"Uint32": 9,"Uint64": 10,"Rune": 121,"Float32": 1.1,"Float64": 2.2,"Bool": true,` +
-			`"Interface": {"String": "string","Interface": "interface"},` +
-			`"Struct": {"String": "string","Interface": "interface"},"AnonymousStruct": {"String": "string"},` +
-			`"GenericString": {"GenericField": "string"},"GenericInt": {"GenericField": 123},` +
-			`"Slice": [{"String": "string","Interface": "interface1"}, {"String": "string","Interface": "interface2"}],` +
-			`"Array": [{"String": "string","Interface": "interface1"}, {"String": "string","Interface": "interface2"}],` +
-			`"Map": {"1":{"String": "string","Interface": "interface1"}},` +
-			`"Pointer": {"String": "string","Interface": "interface"},"Time": "1861-02-19T00:00:00Z","Func": "unsupported type=func"}`
-		require.Equal(t, exp, b.String())
-	})
-
-	t.Run("escaping is enabled", func(t *testing.T) {
-		e := NewJSONEncoder(Config{
-			EnableJSONEscaping: true,
-			ExcludePatterns: []string{
-				`\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`,
-			},
-			MaskValue: "[CENSORED]",
-		})
-		var b strings.Builder
-		defer b.Reset()
-
-		// WHEN.
-		e.Encode(&b, reflect.ValueOf(p))
-
-		// THEN.
-		exp := `{"String": "string\\","StringMasked": "[CENSORED]","StringWithRegexp": "[CENSORED]",` +
+		exp := `{"String": "st\"ring","StringMasked": "[CENSORED]","StringWithRegexp": "[CENSORED]",` +
 			`"Int": 1,"Byte": 97,"Int8": 2,"Int16": 3,"Int32": 4,"Int64": 5,"Uint": 6,"Uint8": 7,` +
 			`"Uint16": 8,"Uint32": 9,"Uint64": 10,"Rune": 121,"Float32": 1.1,"Float64": 2.2,"Bool": true,` +
 			`"Interface": {"String": "string","Interface": "interface"},` +
@@ -362,6 +336,8 @@ func TestJSONEncoder_Ptr(t *testing.T) {
 }
 
 func Test_escapeString(t *testing.T) {
+	e := NewJSONEncoder(Config{})
+
 	tests := map[string]struct {
 		input string
 		exp   string
@@ -375,14 +351,46 @@ func Test_escapeString(t *testing.T) {
 		"tab":                  {input: "foo\tbar", exp: "foo\\tbar"},
 		"control-char-0x01":    {input: string([]byte{0x01}), exp: `\u0001`},
 		"control-char-0x7F":    {input: string([]byte{0x7F}), exp: `\u007f`},
+		"invalid_utf8-char":    {input: string([]byte{0xC0}), exp: string([]byte{0xEF, 0xBF, 0xBD})},
 		"non-ascii-valid":      {input: "ñ", exp: `\u00f1`},
-		"invalid-utf8":         {input: string([]byte{0xC3, 0x28}), exp: `\uFFFD(`},
 		"u2028-line-separator": {input: "\u2028", exp: `\u2028`},
 	}
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			got := escapeString(tt.input)
+			got := e.escapeString(tt.input)
 			require.Equal(t, tt.exp, got)
 		})
 	}
+}
+
+func Test_escapeString_cache(t *testing.T) {
+	t.Run("set cache", func(t *testing.T) {
+		// GIVEN.
+		e := NewJSONEncoder(Config{})
+
+		// WHEN.
+		value := "foo\bbar"
+		escaped := e.escapeString(value)
+
+		// THEN.
+		cacheValue, ok := e.escapedStringsCache.Get(value)
+		require.Equal(t, escaped, cacheValue)
+		require.True(t, ok)
+	})
+
+	t.Run("get from cache", func(t *testing.T) {
+		// GIVEN.
+		e := NewJSONEncoder(Config{})
+		// To verify that value is taken from the cache, we set it there unescaped.
+		// If we get back the same value, it means that it was taken from the cache.
+		// If the returned value is escaped, it means that the cache was not used.
+		s, escaped := "foo\bbar", "foo\bbbar"
+		e.escapedStringsCache.Set(s, escaped)
+
+		// WHEN.
+		got := e.escapeString(s)
+
+		// THEN.
+		require.Equal(t, escaped, got)
+	})
 }

@@ -20,7 +20,6 @@ func TestConfig_Default(t *testing.T) {
 			DisplayMapType:       false,
 			DisplayPointerSymbol: false,
 			DisplayStructName:    false,
-			EnableJSONEscaping:   true,
 			ExcludePatterns:      nil,
 			MaskValue:            DefaultMaskValue,
 			UseJSONTagName:       false,
@@ -159,7 +158,6 @@ func TestConfig_ToString(t *testing.T) {
 			DisplayMapType:       true,
 			DisplayPointerSymbol: true,
 			DisplayStructName:    true,
-			EnableJSONEscaping:   false,
 			ExcludePatterns:      []string{`\d`, `^\w$`},
 			MaskValue:            "[CENSORED]",
 			UseJSONTagName:       true,
@@ -180,7 +178,6 @@ func TestConfig_ToString(t *testing.T) {
 		"    display-map-type: true\n" +
 		"    display-pointer-symbol: true\n" +
 		"    display-struct-name: true\n" +
-		"    enable-json-escaping: false\n" +
 		"    exclude-patterns:\n" +
 		"        - \\d\n" +
 		"        - ^\\w$\n" +

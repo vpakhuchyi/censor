@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/vpakhuchyi/censor/internal/cache"
 )
 
 func TestTextEncoder_NewTextEncoder(t *testing.T) {
@@ -16,7 +18,8 @@ func TestTextEncoder_NewTextEncoder(t *testing.T) {
 		baseEncoder: baseEncoder{
 			CensorFieldTag:    DefaultCensorFieldTag,
 			UseJSONTagName:    true,
-			structFieldsCache: newFieldsCache(defaultMaxCacheSize),
+			structFieldsCache: cache.NewSlice[Field](cache.DefaultMaxCacheSize),
+			regexpCache:       cache.New[string](cache.DefaultMaxCacheSize),
 		},
 	}
 	require.EqualValues(t, exp, got)
