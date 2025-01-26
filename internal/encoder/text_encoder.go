@@ -35,6 +35,7 @@ func NewTextEncoder(c Config) *TextEncoder {
 			MaskValue:         c.MaskValue,
 			UseJSONTagName:    c.UseJSONTagName,
 			structFieldsCache: cache.NewSlice[Field](cache.DefaultMaxCacheSize),
+			regexpCache:       cache.New[string](cache.DefaultMaxCacheSize),
 		},
 		DisplayMapType:       c.DisplayMapType,
 		DisplayPointerSymbol: c.DisplayPointerSymbol,
@@ -262,21 +263,5 @@ func (e *TextEncoder) Ptr(b *strings.Builder, rv reflect.Value) {
 // String formats a value as a string.
 // If the string matches one of the ExcludePatterns, it will be masked with the MaskValue.
 func (e *TextEncoder) String(b *strings.Builder, s string) {
-	if len(e.ExcludePatterns) != 0 && e.ExcludePatternsCompiled != nil {
-		matches := e.ExcludePatternsCompiled.FindAllStringIndex(s, -1)
-		if len(matches) > 0 {
-			lastIndex := 0
-			for _, match := range matches {
-				start, end := match[0], match[1]
-				b.WriteString(s[lastIndex:start] + e.MaskValue)
-				lastIndex = end
-			}
-
-			b.WriteString(s[lastIndex:])
-
-			return
-		}
-	}
-
-	b.WriteString(s)
+	b.WriteString(e.baseEncoder.String(s))
 }
