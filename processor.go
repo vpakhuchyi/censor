@@ -98,6 +98,10 @@ func (p *Processor) Format(val any) string {
 	return p.encode(val)
 }
 
+// Any takes any value and returns a string representation of it masking struct fields by default.
+// To override this behaviour, use the `censor:"display"` tag.
+// Formatting is done recursively for all nested structs/slices/arrays/pointers/maps/interfaces.
+// If a value implements [encoding.TextMarshaler], the result of MarshalText is written.
 func (p *Processor) Any(val any) string {
 	if val == nil || reflect.TypeOf(val) == nil {
 		return "nil"
@@ -106,6 +110,8 @@ func (p *Processor) Any(val any) string {
 	return p.encode(val)
 }
 
+// String takes a string and validates it against the regular expressions specified in the configuration.
+// If the match is found, it is replaced with the mask value.
 func (p *Processor) String(s string) string {
 	b := builderpool.Get()
 

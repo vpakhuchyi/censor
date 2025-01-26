@@ -2,7 +2,6 @@ package sloghandler
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"log/slog"
 	"os"
@@ -32,7 +31,7 @@ func NewJSONHandler(opts ...Option) *slog.JSONHandler {
 		censorCfg.General.PrintConfigOnInit = false
 
 		// Error can be discarded here because the default configuration is always successfully parsed.
-		cfg.censor, _ = censor.NewWithOpts(censor.WithConfig(&censorCfg))
+		cfg.censor, _ = censor.NewWithOpts(censor.WithConfig(&censorCfg)) //nolint:errcheck
 	}
 
 	if cfg.out == nil {
@@ -50,7 +49,6 @@ func NewJSONHandler(opts ...Option) *slog.JSONHandler {
 		case slog.TimeKey, slog.LevelKey, slog.SourceKey:
 			return attr
 		default:
-			fmt.Println("attr.Key", string(json.RawMessage(cfg.censor.Format(attr.Value.Any()))))
 			return slog.Any(attr.Key, json.RawMessage(cfg.censor.Format(attr.Value.Any())))
 		}
 	}

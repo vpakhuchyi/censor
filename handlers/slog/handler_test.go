@@ -113,7 +113,7 @@ func TestNewHandler(t *testing.T) {
 					"level": "TEST",
 					"msg": "test",
     				"payload": {"City": "Kyiv", "Country": "Ukraine", "Street": "[CENSORED]", "Zip": "[CENSORED]"}
-}`
+				 }`
 
 		// WHEN
 		log.Info("test", slog.Any("payload", payload))

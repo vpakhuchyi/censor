@@ -1,6 +1,7 @@
 package zaphandler
 
 import (
+	"fmt"
 	"os"
 	"path"
 	"testing"
@@ -14,7 +15,7 @@ import (
 )
 
 func TestNewHandler(t *testing.T) {
-	// Description of the data that is used in the tests.
+	const logFileName = "test_log"
 
 	c, err := censor.NewWithOpts(censor.WithConfig(&censor.Config{
 		Encoder: encoder.Config{
@@ -30,11 +31,7 @@ func TestNewHandler(t *testing.T) {
 	}))
 	require.NoError(t, err)
 
-	const logFileName = "test_log"
-
-	msg := "some-msg"
-	key := "key"
-
+	msg, key := "some-msg", "key"
 	value := struct {
 		Name  string `censor:"display"`
 		Text  string `censor:"display"`
@@ -45,26 +42,7 @@ func TestNewHandler(t *testing.T) {
 		Email: "example@example.com",
 	}
 
-	// Unsugared logger.
-	t.Run("info example", func(t *testing.T) {
-		// GIVEN.
-		core := zap.WrapCore(func(core zapcore.Core) zapcore.Core {
-			return NewHandler(core, WithCensor(c))
-		})
-
-		cfg := zap.NewProductionConfig()
-		l, err := cfg.Build(core)
-		require.NoError(t, err)
-
-		// WHEN.
-		//l.Info(msg, zap.Any(key, value))
-		//l.Info(msg, zap.String(value.Name, value.Text))
-		l.Info(msg, zap.Any(key, value))
-
-		// THEN.
-	})
-
-	// Unsugared logger.
+	// Un-sugared logger.
 	t.Run("info", func(t *testing.T) {
 		// GIVEN.
 		core := zap.WrapCore(func(core zapcore.Core) zapcore.Core {
@@ -239,153 +217,53 @@ func TestNewHandler(t *testing.T) {
 		require.Contains(t, string(got), want)
 	})
 
-	//// Sugared logger.
-	//t.Run("info", func(t *testing.T) {
-	//	// GIVEN.
-	//	core := zap.WrapCore(func(core zapcore.Core) zapcore.Core {
-	//		return NewHandler(core, WithCensor(c))
-	//	})
-	//	outputPath := path.Join(t.TempDir(), logFileName)
-	//	outputFile, err := os.Create(outputPath)
-	//	require.NoError(t, err)
-	//
-	//	l := newTestProductionZap(t, outputPath, core)
-	//	sl := l.Sugar()
-	//
-	//	// Note: the output of the Sugared logger is different from the output of the Unsugared logger.
-	//	// Censor handler receives a zap.Field not a provided value itself. That's why the output is different.
-	//	want := `"msg":"[CENSORED] msg{[CENSORED] key 23 0  {Petro Perekotypole some text with [CENSORED] data example@example.com}}`
-	//
-	//	// WHEN.
-	//	sl.Info(msg, key, value)
-	//
-	//	// THEN.
-	//	got := readLogs(t, outputFile)
-	//	fmt.Println(string(got))
-	//	require.Contains(t, string(got), want)
-	//})
-	//
-	//t.Run("infof with args", func(t *testing.T) {
-	//	// GIVEN.
-	//	core := zap.WrapCore(func(core zapcore.Core) zapcore.Core {
-	//		return NewHandler(core, WithCensor(c))
-	//	})
-	//	outputPath := path.Join(t.TempDir(), logFileName)
-	//	outputFile, err := os.Create(outputPath)
-	//	require.NoError(t, err)
-	//
-	//	l := newTestProductionZap(t, outputPath, core)
-	//	sl := l.Sugar()
-	//
-	//	// WHEN.
-	//	sl.Infof("key=%v, val=%v", key, value)
-	//
-	//	// THEN.
-	//	got := readLogs(t, outputFile)
-	//
-	//	want := `"msg":"key=[CENSORED] key, val={Petro Perekotypole some text with [CENSORED] data example@example.com}`
-	//
-	//	require.NoError(t, err)
-	//	require.Contains(t, string(got), want)
-	//})
-	//
-	//t.Run("infof with zap.Any()", func(t *testing.T) {
-	//	// GIVEN.
-	//	core := zap.WrapCore(func(core zapcore.Core) zapcore.Core {
-	//		return NewHandler(core, WithCensor(c))
-	//	})
-	//	outputPath := path.Join(t.TempDir(), logFileName)
-	//	outputFile, err := os.Create(outputPath)
-	//	require.NoError(t, err)
-	//
-	//	l := newTestProductionZap(t, outputPath, core)
-	//	sl := l.Sugar()
-	//
-	//	// WHEN.
-	//	sl.Infof("field=%v", zap.Any(key, value))
-	//
-	//	// THEN.
-	//	got := readLogs(t, outputFile)
-	//
-	//	want := `"msg":"field={[CENSORED] key 23 0  {Petro Perekotypole some text with [CENSORED] data example@example.com}}`
-	//
-	//	require.NoError(t, err)
-	//	require.Contains(t, string(got), want)
-	//})
-	//
-	//t.Run("infow with zap.Any()", func(t *testing.T) {
-	//	// GIVEN.
-	//	core := zap.WrapCore(func(core zapcore.Core) zapcore.Core {
-	//		return NewHandler(core, WithCensor(c))
-	//	})
-	//	outputPath := path.Join(t.TempDir(), logFileName)
-	//	outputFile, err := os.Create(outputPath)
-	//	require.NoError(t, err)
-	//
-	//	l := newTestProductionZap(t, outputPath, core)
-	//	sl := l.Sugar()
-	//
-	//	// WHEN.
-	//	sl.Infow(msg, zap.Any(key, value))
-	//
-	//	// THEN.
-	//	got := readLogs(t, outputFile)
-	//
-	//	want := `"msg":"[CENSORED] msg","[CENSORED] key":"{Name: Petro Perekotypole, Text: some text with [CENSORED] data, Email: [CENSORED]}`
-	//
-	//	require.NoError(t, err)
-	//	require.Contains(t, string(got), want)
-	//})
-	//
-	//t.Run("infow with args", func(t *testing.T) {
-	//	// GIVEN.
-	//	core := zap.WrapCore(func(core zapcore.Core) zapcore.Core {
-	//		return NewHandler(core, WithCensor(c))
-	//	})
-	//	outputPath := path.Join(t.TempDir(), logFileName)
-	//	outputFile, err := os.Create(outputPath)
-	//	require.NoError(t, err)
-	//
-	//	l := newTestProductionZap(t, outputPath, core)
-	//	sl := l.Sugar()
-	//
-	//	// WHEN.
-	//	sl.Infow(msg, key, value)
-	//
-	//	// THEN.
-	//	got := readLogs(t, outputFile)
-	//
-	//	want := `"msg":"[CENSORED] msg","[CENSORED] key":"{Name: Petro Perekotypole, Text: some text with [CENSORED] data, Email: [CENSORED]}`
-	//
-	//	require.NoError(t, err)
-	//	require.Contains(t, string(got), want)
-	//})
-	//
-	//t.Run("infoln", func(t *testing.T) {
-	//	// GIVEN.
-	//	core := zap.WrapCore(func(core zapcore.Core) zapcore.Core {
-	//		return NewHandler(core, WithCensor(c))
-	//	})
-	//	outputPath := path.Join(t.TempDir(), logFileName)
-	//	outputFile, err := os.Create(outputPath)
-	//	require.NoError(t, err)
-	//
-	//	l := newTestProductionZap(t, outputPath, core)
-	//	sl := l.Sugar()
-	//
-	//	// WHEN.
-	//	sl.Infoln(msg, key, value)
-	//
-	//	// THEN.
-	//	got := readLogs(t, outputFile)
-	//
-	//	// Note: only censor regexp pattern procesing is supported for Infoln method.
-	//	// That's happened because the Infoln method converts all arguments to a string on the early stage.
-	//	want := `"msg":"[CENSORED] msg [CENSORED] key {Petro Perekotypole some text with [CENSORED] data example@example.com}`
-	//
-	//	require.NoError(t, err)
-	//	require.Contains(t, string(got), want)
-	//})
+	// Sugared logger.
+	t.Run("info", func(t *testing.T) {
+		// GIVEN.
+		core := zap.WrapCore(func(core zapcore.Core) zapcore.Core {
+			return NewHandler(core, WithCensor(c))
+		})
+		outputPath := path.Join(t.TempDir(), logFileName)
+		outputFile, err := os.Create(outputPath)
+		require.NoError(t, err)
+
+		l := newTestProductionZap(t, outputPath, core)
+		sl := l.Sugar()
+
+		want := `"key":{"Name":"Petro Perekotypole","Text":"so\"me text with [CENSORED] data","Email":"[CENSORED]"}`
+
+		// WHEN.
+		//sl.Infow(msg, key, value)
+		sl.With(key, value).Infow(msg, key, value)
+
+		// THEN.
+		got := readLogs(t, outputFile)
+		fmt.Println(string(got))
+		require.Contains(t, string(got), want)
+	})
+
+	t.Run("info with default censor", func(t *testing.T) {
+		// GIVEN.
+		core := zap.WrapCore(func(core zapcore.Core) zapcore.Core {
+			return NewHandler(core)
+		})
+		outputPath := path.Join(t.TempDir(), logFileName)
+		outputFile, err := os.Create(outputPath)
+		require.NoError(t, err)
+
+		l := newTestProductionZap(t, outputPath, core)
+
+		// #sensitive# is not replaced with the mask value because the default censor is used and it
+		// has no configured exclude patterns.
+		want := `"key":{"Name":"Petro Perekotypole","Text":"so\"me text with #sensitive# data","Email":"[CENSORED]"}`
+
+		// WHEN.
+		l.Info(msg, zap.Any(key, value))
+
+		// THEN.
+		got := readLogs(t, outputFile)
+		require.Contains(t, string(got), want)
+	})
 }
 
 // readLogs reads logs from the output file and returns them as a byte slice.

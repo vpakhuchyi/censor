@@ -37,8 +37,6 @@ func NewJSONEncoder(c Config) *JSONEncoder {
 // JSONEncoder is used to encode data to JSON format.
 type JSONEncoder struct {
 	baseEncoder
-
-	enableEscaping bool
 }
 
 // Field is a struct that contains information about a struct field.
@@ -235,44 +233,16 @@ func (e *JSONEncoder) Ptr(b *strings.Builder, v reflect.Value) {
 	e.Encode(b, v.Elem())
 }
 
-// String encodes a string value to JSON format.
-// If the string matches one of the ExcludePatterns, it will be masked with the MaskValue.
+// String encodes the input string by masking any substrings that match the configured exclusion patterns.
+// It replaces matched segments with a predefined mask value to censor sensitive information.
 func (e *JSONEncoder) String(b *strings.Builder, s string) {
-	b.WriteString(e.string(s))
+	b.WriteString(e.baseEncoder.String(s))
 }
 
-func (e *JSONEncoder) string(s string) string {
-	res := s
-	if len(e.ExcludePatterns) != 0 && e.ExcludePatternsCompiled != nil {
-		cached, ok := e.regexpCache.Get(s)
-		if ok {
-			return cached
-		}
-
-		matches := e.ExcludePatternsCompiled.FindAllStringIndex(s, -1)
-		if len(matches) > 0 {
-			bb := builderpool.Get()
-			lastIndex := 0
-			for _, m := range matches {
-				start, end := m[0], m[1]
-				bb.WriteString(s[lastIndex:start] + e.MaskValue)
-				lastIndex = end
-			}
-
-			bb.WriteString(s[lastIndex:])
-			res = bb.String()
-		}
-	}
-
-	e.regexpCache.Set(s, res)
-
-	return res
-}
-
-// StringEscaped encodes a string value to JSON format.
-// If the string matches one of the ExcludePatterns, it will be masked with the MaskValue.
+// StringEscaped encodes and escapes the input string by masking any substrings that match the configured exclusion patterns.
+// It replaces matched segments with a predefined mask value to censor sensitive information.
 func (e *JSONEncoder) StringEscaped(b *strings.Builder, s string) {
-	b.WriteString(e.string(`"`+e.escapeString(s)) + `"`)
+	b.WriteString(e.baseEncoder.String(`"`+e.escapeString(s)) + `"`)
 }
 
 //nolint:exhaustive
@@ -297,6 +267,11 @@ func (e *JSONEncoder) encodeMapKey(b *strings.Builder, f reflect.Value) {
 	}
 }
 
+// escapeString processes the input string by escaping special and control characters to ensure it is safe
+// for JSON encoding. It replaces characters like backslashes, quotes, and control characters with their corresponding
+// escape sequences. If the string contains non-ASCII characters, it ensures they are properly escaped or replaced
+// with the Unicode replacement character if invalid.
+//
 //nolint:gocyclo,mnd,gocognit
 func (e *JSONEncoder) escapeString(s string) string {
 	cached, ok := e.escapedStringsCache.Get(s)
@@ -354,6 +329,8 @@ func (e *JSONEncoder) escapeString(s string) string {
 	return res
 }
 
+// escapeControlChar converts a control character rune into its corresponding Unicode escape sequence.
+// It formats the rune as a four-digit hexadecimal number prefixed with '\u' to comply with JSON string encoding.
 func escapeControlChar(r rune) string {
 	hexStr := strconv.FormatInt(int64(r), 16)
 	for len(hexStr) < 4 {

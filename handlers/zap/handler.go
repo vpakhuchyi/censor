@@ -25,7 +25,12 @@ func NewHandler(core zapcore.Core, opts ...Option) zapcore.Core {
 	}
 
 	if cc.censor == nil {
-		cc.censor = censor.New()
+		censorCfg := censor.DefaultConfig()
+		censorCfg.General.OutputFormat = censor.OutputFormatJSON
+		censorCfg.General.PrintConfigOnInit = false
+
+		// Error can be discarded here because the default configuration is always successfully parsed.
+		cc.censor, _ = censor.NewWithOpts(censor.WithConfig(&censorCfg)) //nolint:errcheck
 	}
 
 	return &cc
@@ -62,6 +67,7 @@ func (h handler) With(fields []zapcore.Field) zapcore.Core {
 		censor: h.censor,
 	}
 }
+
 func (h handler) censorField(f *zapcore.Field) {
 	if f.String != "" {
 		f.String = h.censor.String(f.String)
