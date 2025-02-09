@@ -1,5 +1,5 @@
 general:
-    output-format: text
+    output-format: json 
     print-config-on-init: true
 encoder:
     display-map-type: false

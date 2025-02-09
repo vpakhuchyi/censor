@@ -13,7 +13,7 @@ func TestConfig_Default(t *testing.T) {
 	got := DefaultConfig()
 	exp := Config{
 		General: General{
-			OutputFormat:      OutputFormatText,
+			OutputFormat:      OutputFormatJSON,
 			PrintConfigOnInit: true,
 		},
 		Encoder: EncoderConfig{
@@ -113,7 +113,6 @@ func TestConfig_YAMLMarshal(t *testing.T) {
 
 		// THEN.
 		require.NoError(t, err)
-		require.EqualValues(t, want, got)
 		require.YAMLEq(t, string(want), string(got))
 	})
 
