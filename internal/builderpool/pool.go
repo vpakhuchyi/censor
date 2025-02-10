@@ -5,10 +5,12 @@ import (
 	"sync"
 )
 
-// Define a pool of strings.Builder instances.
+const defaultBufferCapacity = 32
+
+// Define a pool of bytes.Buffer instances.
 var builderPool = sync.Pool{
 	New: func() interface{} {
-		return bytes.NewBuffer(make([]byte, 0, 32))
+		return bytes.NewBuffer(make([]byte, 0, defaultBufferCapacity))
 	},
 }
 
@@ -16,7 +18,7 @@ var builderPool = sync.Pool{
 func Get() *bytes.Buffer {
 	v, ok := builderPool.Get().(*bytes.Buffer)
 	if !ok {
-		v = bytes.NewBuffer(make([]byte, 0, 32))
+		v = bytes.NewBuffer(make([]byte, 0, defaultBufferCapacity))
 	}
 
 	return v

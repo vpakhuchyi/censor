@@ -42,5 +42,5 @@ type handler struct {
 }
 
 func (h *handler) anyMarshal(v interface{}) ([]byte, error) {
-	return []byte(h.censor.Any(v)), nil
+	return h.censor.Any(v), nil
 }

@@ -10,11 +10,9 @@ import (
 )
 
 const (
-	// defaultCensorFieldTag is a default tag name for censor fields.
 	defaultCensorFieldTag = "censor"
-	// unsupportedTypeTmpl is a template for a value that is returned when a given type is not supported.
-	unsupportedTypeTmpl = "unsupported type="
-	display             = "display"
+	unsupportedTypeTmpl   = "unsupported type="
+	display               = "display"
 )
 
 // Encoder is an interface that describes the behavior of the encoder.
