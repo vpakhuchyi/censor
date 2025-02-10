@@ -235,7 +235,7 @@ func TestProcessor_Format(t *testing.T) {
 		got := Format(v)
 
 		// THEN.
-		require.Equal(t, "nil", got)
+		require.Equal(t, "null", got)
 	})
 
 	t.Run("nil type", func(t *testing.T) {

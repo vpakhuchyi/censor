@@ -44,7 +44,7 @@ type EncoderConfig = encoder.Config
 func DefaultConfig() Config {
 	return Config{
 		General: General{
-			OutputFormat:      OutputFormatText,
+			OutputFormat:      OutputFormatJSON,
 			PrintConfigOnInit: true,
 		},
 		Encoder: EncoderConfig{
