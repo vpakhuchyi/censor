@@ -25,3 +25,5 @@ coverage.html
 .vscode/
 .idea/
 .DS_Store
+
+.gotestiful

@@ -223,7 +223,7 @@ func TestTestProcessor_Clone(t *testing.T) {
 	require.Equal(t, original.cfg, clone.cfg)
 	v := []s{{Int64: 123456789, String: "string", Ptr: new(int)}}
 	// Ensure that the original and clone have the same behavior.
-	require.Equal(t, original.Format(v), clone.Format(v))
+	require.Equal(t, original.Any(v), clone.Any(v))
 }
 
 func TestProcessor_Format(t *testing.T) {
@@ -232,10 +232,10 @@ func TestProcessor_Format(t *testing.T) {
 		var v *string = nil
 
 		// WHEN.
-		got := Format(v)
+		got := Any(v)
 
 		// THEN.
-		require.Equal(t, "null", got)
+		require.Equal(t, "null", string(got))
 	})
 
 	t.Run("nil type", func(t *testing.T) {
@@ -243,10 +243,10 @@ func TestProcessor_Format(t *testing.T) {
 		var v interface{} = nil
 
 		// WHEN.
-		got := Format(v)
+		got := Any(v)
 
 		// THEN.
-		require.Equal(t, "nil", got)
+		require.Equal(t, "nil", string(got))
 	})
 }
 

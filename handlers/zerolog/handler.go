@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/rs/zerolog"
+
 	"github.com/vpakhuchyi/censor"
 )
 

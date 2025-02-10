@@ -1,11 +1,11 @@
 package encoder
 
 import (
+	"bytes"
 	"encoding"
 	"encoding/json"
 	"reflect"
 	"strconv"
-	"strings"
 	"unicode/utf8"
 
 	"github.com/shopspring/decimal"
@@ -18,7 +18,7 @@ import (
 func NewJSONEncoder(c Config) *JSONEncoder {
 	e := &JSONEncoder{
 		baseEncoder: baseEncoder{
-			CensorFieldTag:      DefaultCensorFieldTag,
+			CensorFieldTag:      defaultCensorFieldTag,
 			ExcludePatterns:     c.ExcludePatterns,
 			MaskValue:           c.MaskValue,
 			structFieldsCache:   cache.NewSlice[Field](cache.DefaultMaxCacheSize),
@@ -46,7 +46,7 @@ type Field struct {
 }
 
 //nolint:exhaustive,gocyclo
-func (e *JSONEncoder) Encode(b *strings.Builder, f reflect.Value) {
+func (e *JSONEncoder) Encode(b *bytes.Buffer, f reflect.Value) {
 	switch k := f.Kind(); k {
 	case reflect.Struct:
 		if f.CanInterface() {
@@ -81,13 +81,13 @@ func (e *JSONEncoder) Encode(b *strings.Builder, f reflect.Value) {
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 		b.WriteString(strconv.FormatUint(f.Uint(), 10))
 	default:
-		b.WriteString(`"` + UnsupportedTypeTmpl + k.String() + `"`)
+		b.WriteString(`"` + unsupportedTypeTmpl + k.String() + `"`)
 	}
 }
 
 // Struct encodes a struct value to JSON format.
 // Note: this method panics if the provided value is not a map.
-func (e *JSONEncoder) Struct(b *strings.Builder, v reflect.Value) {
+func (e *JSONEncoder) Struct(b *bytes.Buffer, v reflect.Value) {
 	if v.Kind() != reflect.Struct {
 		panic("provided value is not a struct")
 	}
@@ -148,7 +148,7 @@ func (e *JSONEncoder) getStructFields(v reflect.Value) []Field {
 
 // Map encodes a map value to JSON format.
 // Note: this method panics if the provided value is not a map.
-func (e *JSONEncoder) Map(b *strings.Builder, v reflect.Value) {
+func (e *JSONEncoder) Map(b *bytes.Buffer, v reflect.Value) {
 	if v.Kind() != reflect.Map {
 		panic("provided value is not a map")
 	}
@@ -181,7 +181,7 @@ func (e *JSONEncoder) Map(b *strings.Builder, v reflect.Value) {
 // Slice encodes a slice value to JSON format.
 // This function is also can be used to parse an array.
 // Note: this method panics if the provided value is not a slice or array.
-func (e *JSONEncoder) Slice(b *strings.Builder, v reflect.Value) {
+func (e *JSONEncoder) Slice(b *bytes.Buffer, v reflect.Value) {
 	if v.Kind() != reflect.Slice && v.Kind() != reflect.Array {
 		panic("provided value is not a slice/array")
 	}
@@ -199,10 +199,10 @@ func (e *JSONEncoder) Slice(b *strings.Builder, v reflect.Value) {
 }
 
 // Interface encodes an interface value to JSON format.
-// In case of a pointer to unsupported type of value, a string built from UnsupportedTypeTmpl
+// In case of a pointer to unsupported type of value, a string built from unsupportedTypeTmpl
 // is used instead of the real value. That string contains a type of the value.
 // Note: this method panics if the provided value is not an interface.
-func (e *JSONEncoder) Interface(b *strings.Builder, v reflect.Value) {
+func (e *JSONEncoder) Interface(b *bytes.Buffer, v reflect.Value) {
 	if v.Kind() != reflect.Interface {
 		panic("provided value is not an interface")
 	}
@@ -216,10 +216,10 @@ func (e *JSONEncoder) Interface(b *strings.Builder, v reflect.Value) {
 }
 
 // Ptr encodes a pointer value to JSON format.
-// In case of a pointer to unsupported type of value, a string built from UnsupportedTypeTmpl
+// In case of a pointer to unsupported type of value, a string built from unsupportedTypeTmpl
 // is used instead of the real value. That string contains a type of the value.
 // Note: this method panics if the provided value is not a pointer.
-func (e *JSONEncoder) Ptr(b *strings.Builder, v reflect.Value) {
+func (e *JSONEncoder) Ptr(b *bytes.Buffer, v reflect.Value) {
 	if v.Kind() != reflect.Ptr {
 		panic("provided value is not a pointer")
 	}
@@ -235,18 +235,18 @@ func (e *JSONEncoder) Ptr(b *strings.Builder, v reflect.Value) {
 
 // String encodes the input string by masking any substrings that match the configured exclusion patterns.
 // It replaces matched segments with a predefined mask value to censor sensitive information.
-func (e *JSONEncoder) String(b *strings.Builder, s string) {
+func (e *JSONEncoder) String(b *bytes.Buffer, s string) {
 	b.WriteString(e.baseEncoder.String(s))
 }
 
 // StringEscaped encodes and escapes the input string by masking any substrings that match the configured exclusion patterns.
 // It replaces matched segments with a predefined mask value to censor sensitive information.
-func (e *JSONEncoder) StringEscaped(b *strings.Builder, s string) {
+func (e *JSONEncoder) StringEscaped(b *bytes.Buffer, s string) {
 	b.WriteString(e.baseEncoder.String(`"`+e.escapeString(s)) + `"`)
 }
 
 //nolint:exhaustive
-func (e *JSONEncoder) encodeMapKey(b *strings.Builder, f reflect.Value) {
+func (e *JSONEncoder) encodeMapKey(b *bytes.Buffer, f reflect.Value) {
 	switch k := f.Kind(); k {
 	case reflect.String:
 		e.StringEscaped(b, f.String())
@@ -262,7 +262,7 @@ func (e *JSONEncoder) encodeMapKey(b *strings.Builder, f reflect.Value) {
 		if v, ok := f.Interface().(encoding.TextMarshaler); ok {
 			b.WriteString(PrepareTextMarshalerValue(v))
 		} else {
-			b.WriteString(UnsupportedTypeTmpl + k.String())
+			b.WriteString(unsupportedTypeTmpl + k.String())
 		}
 	}
 }
