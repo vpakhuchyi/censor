@@ -1,23 +1,29 @@
 package encoder
 
 import (
+	"bytes"
 	"reflect"
 	"regexp"
-	"strings"
 
 	"github.com/vpakhuchyi/censor/internal/builderpool"
 	"github.com/vpakhuchyi/censor/internal/cache"
 )
 
+const (
+	defaultCensorFieldTag = "censor"
+	unsupportedTypeTmpl   = "unsupported type="
+	display               = "display"
+)
+
 // Encoder is an interface that describes the behavior of the encoder.
 type Encoder interface {
-	Struct(b *strings.Builder, rv reflect.Value)
-	Ptr(b *strings.Builder, rv reflect.Value)
-	Slice(b *strings.Builder, rv reflect.Value)
-	Map(b *strings.Builder, rv reflect.Value)
-	Interface(b *strings.Builder, rv reflect.Value)
-	String(b *strings.Builder, s string)
-	Encode(b *strings.Builder, f reflect.Value)
+	Struct(b *bytes.Buffer, rv reflect.Value)
+	Ptr(b *bytes.Buffer, rv reflect.Value)
+	Slice(b *bytes.Buffer, rv reflect.Value)
+	Map(b *bytes.Buffer, rv reflect.Value)
+	Interface(b *bytes.Buffer, rv reflect.Value)
+	String(b *bytes.Buffer, s string)
+	Encode(b *bytes.Buffer, f reflect.Value)
 }
 
 // Config describes censor Encoder configuration.
@@ -45,7 +51,7 @@ type Config struct {
 
 type baseEncoder struct {
 	// CensorFieldTag is a tag name for censor fields.
-	// The default value is stored in the DefaultCensorFieldTag constant.
+	// The default value is stored in the defaultCensorFieldTag constant.
 	CensorFieldTag string
 	// ExcludePatterns contains regexp patterns that are used to identify strings that must be masked.
 	ExcludePatterns []string

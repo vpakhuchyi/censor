@@ -16,7 +16,7 @@ func TestGet(t *testing.T) {
 	builder2 := Get()
 
 	// THEN.
-	require.Equal(t, "", builder2.String())
+	require.Equal(t, []byte{}, builder2.Bytes())
 	require.Equal(t, 0, builder2.Len())
-	require.Equal(t, 0, builder2.Cap())
+	require.Equal(t, 32, builder2.Cap())
 }

@@ -1,9 +1,9 @@
 package encoder
 
 import (
+	"bytes"
 	"math"
 	"reflect"
-	"strings"
 	"testing"
 	"time"
 
@@ -18,7 +18,7 @@ func TestJSONEncoder_NewJSONEncoder(t *testing.T) {
 	})
 	exp := &JSONEncoder{
 		baseEncoder: baseEncoder{
-			CensorFieldTag:      DefaultCensorFieldTag,
+			CensorFieldTag:      defaultCensorFieldTag,
 			MaskValue:           "[CENSORED]",
 			structFieldsCache:   cache.NewSlice[Field](cache.DefaultMaxCacheSize),
 			escapedStringsCache: cache.New[string](cache.DefaultMaxCacheSize),
@@ -122,7 +122,7 @@ func TestJSONEncoder_Encode(t *testing.T) {
 			ExcludePatterns: []string{`\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`},
 			MaskValue:       "[CENSORED]",
 		})
-		var b strings.Builder
+		var b bytes.Buffer
 		defer b.Reset()
 
 		// WHEN.
@@ -148,7 +148,7 @@ func TestJSONEncoder_Struct(t *testing.T) {
 		require.Panics(t, func() {
 			// GIVEN.
 			e := NewJSONEncoder(Config{})
-			var b strings.Builder
+			var b bytes.Buffer
 			defer b.Reset()
 			v := 26
 
@@ -164,7 +164,7 @@ func TestJSONEncoder_Struct(t *testing.T) {
 		require.NotPanics(t, func() {
 			// GIVEN.
 			e := NewJSONEncoder(Config{})
-			var b strings.Builder
+			var b bytes.Buffer
 			defer b.Reset()
 
 			s := struct {
@@ -189,7 +189,7 @@ func TestJSONEncoder_Map(t *testing.T) {
 		require.Panics(t, func() {
 			// GIVEN.
 			e := NewJSONEncoder(Config{})
-			var b strings.Builder
+			var b bytes.Buffer
 			defer b.Reset()
 			v := 26
 
@@ -205,7 +205,7 @@ func TestJSONEncoder_Map(t *testing.T) {
 		require.Panics(t, func() {
 			// GIVEN.
 			e := NewJSONEncoder(Config{})
-			var b strings.Builder
+			var b bytes.Buffer
 			defer b.Reset()
 
 			// There is no way to create a decimal value from NaN.
@@ -225,7 +225,7 @@ func TestJSONEncoder_Map(t *testing.T) {
 		require.NotPanics(t, func() {
 			// GIVEN.
 			e := NewJSONEncoder(Config{})
-			var b strings.Builder
+			var b bytes.Buffer
 			defer b.Reset()
 
 			v := map[string]string{
@@ -247,7 +247,7 @@ func TestJSONEncoder_Map(t *testing.T) {
 		require.NotPanics(t, func() {
 			// GIVEN.
 			e := NewJSONEncoder(Config{})
-			var b strings.Builder
+			var b bytes.Buffer
 			defer b.Reset()
 
 			var v map[string]string
@@ -267,7 +267,7 @@ func TestJSONEncoder_Slice(t *testing.T) {
 		require.Panics(t, func() {
 			// GIVEN.
 			e := NewJSONEncoder(Config{})
-			var b strings.Builder
+			var b bytes.Buffer
 			defer b.Reset()
 			v := 26
 
@@ -285,7 +285,7 @@ func TestJSONEncoder_Interface(t *testing.T) {
 		require.Panics(t, func() {
 			// GIVEN.
 			e := NewJSONEncoder(Config{})
-			var b strings.Builder
+			var b bytes.Buffer
 			defer b.Reset()
 			v := 26
 
@@ -306,7 +306,7 @@ func TestJSONEncoder_Ptr(t *testing.T) {
 		require.Panics(t, func() {
 			// GIVEN.
 			e := NewJSONEncoder(Config{})
-			var b strings.Builder
+			var b bytes.Buffer
 			defer b.Reset()
 			v := 26
 
@@ -322,7 +322,7 @@ func TestJSONEncoder_Ptr(t *testing.T) {
 		require.NotPanics(t, func() {
 			// GIVEN.
 			e := NewJSONEncoder(Config{})
-			var b strings.Builder
+			var b bytes.Buffer
 			defer b.Reset()
 			var v *string
 

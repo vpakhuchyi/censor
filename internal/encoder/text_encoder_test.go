@@ -1,9 +1,9 @@
 package encoder
 
 import (
+	"bytes"
 	"math"
 	"reflect"
-	"strings"
 	"testing"
 	"time"
 
@@ -16,7 +16,7 @@ func TestTextEncoder_NewTextEncoder(t *testing.T) {
 	got := NewTextEncoder(Config{UseJSONTagName: true})
 	exp := &TextEncoder{
 		baseEncoder: baseEncoder{
-			CensorFieldTag:    DefaultCensorFieldTag,
+			CensorFieldTag:    defaultCensorFieldTag,
 			UseJSONTagName:    true,
 			structFieldsCache: cache.NewSlice[Field](cache.DefaultMaxCacheSize),
 			regexpCache:       cache.New[string](cache.DefaultMaxCacheSize),
@@ -108,7 +108,7 @@ func TestTextEncoder_Encode(t *testing.T) {
 		MaskValue:      "[CENSORED]",
 		UseJSONTagName: false,
 	})
-	var b strings.Builder
+	var b bytes.Buffer
 	defer b.Reset()
 
 	// WHEN.
@@ -136,7 +136,7 @@ func TestTextEncoder_Struct(t *testing.T) {
 		require.Panics(t, func() {
 			// GIVEN.
 			e := NewTextEncoder(Config{})
-			var b strings.Builder
+			var b bytes.Buffer
 			defer b.Reset()
 			v := 26
 
@@ -152,7 +152,7 @@ func TestTextEncoder_Struct(t *testing.T) {
 		require.NotPanics(t, func() {
 			// GIVEN.
 			e := NewTextEncoder(Config{})
-			var b strings.Builder
+			var b bytes.Buffer
 			defer b.Reset()
 
 			s := struct {
@@ -177,7 +177,7 @@ func TestTextEncoder_Map(t *testing.T) {
 		require.Panics(t, func() {
 			// GIVEN.
 			e := NewTextEncoder(Config{})
-			var b strings.Builder
+			var b bytes.Buffer
 			defer b.Reset()
 			v := 26
 
@@ -193,7 +193,7 @@ func TestTextEncoder_Map(t *testing.T) {
 		require.Panics(t, func() {
 			// GIVEN.
 			e := NewTextEncoder(Config{})
-			var b strings.Builder
+			var b bytes.Buffer
 			defer b.Reset()
 
 			// There is no way to create a decimal value from NaN.
@@ -213,7 +213,7 @@ func TestTextEncoder_Map(t *testing.T) {
 		require.NotPanics(t, func() {
 			// GIVEN.
 			e := NewTextEncoder(Config{})
-			var b strings.Builder
+			var b bytes.Buffer
 			defer b.Reset()
 
 			v := map[string]string{
@@ -237,7 +237,7 @@ func TestTextEncoder_Slice(t *testing.T) {
 		require.Panics(t, func() {
 			// GIVEN.
 			e := NewTextEncoder(Config{})
-			var b strings.Builder
+			var b bytes.Buffer
 			defer b.Reset()
 			v := 26
 
@@ -255,7 +255,7 @@ func TestTextEncoder_Interface(t *testing.T) {
 		require.Panics(t, func() {
 			// GIVEN.
 			e := NewTextEncoder(Config{})
-			var b strings.Builder
+			var b bytes.Buffer
 			defer b.Reset()
 			v := 26
 
@@ -273,7 +273,7 @@ func TestTextEncoder_Ptr(t *testing.T) {
 		require.Panics(t, func() {
 			// GIVEN.
 			e := NewTextEncoder(Config{})
-			var b strings.Builder
+			var b bytes.Buffer
 			defer b.Reset()
 			v := 26
 
@@ -289,7 +289,7 @@ func TestTextEncoder_Ptr(t *testing.T) {
 		require.NotPanics(t, func() {
 			// GIVEN.
 			e := NewTextEncoder(Config{})
-			var b strings.Builder
+			var b bytes.Buffer
 			defer b.Reset()
 			var v *string
 

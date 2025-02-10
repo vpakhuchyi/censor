@@ -75,7 +75,7 @@ func main() {
   }
 
   // In this example we're using censor as a global package-level variable with default configuration.
-  fmt.Println(censor.Format(r))
+  fmt.Println(string(censor.Any(r)))
 }
 
 // Here is what we'll see in the log:
