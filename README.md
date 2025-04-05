@@ -5,6 +5,7 @@
 <p align="center">
   <a href="https://goreportcard.com/report/github.com/vpakhuchyi/censor"><img src="https://goreportcard.com/badge/github.com/vpakhuchyi/censor" alt="PkgGoDev"></a>
   <img src="https://raw.githubusercontent.com/vpakhuchyi/censor/badges/.badges/main/coverage.svg">
+  <img src="https://github.com/vpakhuchyi/censor-doc/actions/workflows/deploy.yml/badge.svg?branch=main">
   <a href="https://godoc.org/github.com/vpakhuchyi/censor"><img src="https://godoc.org/github.com/vpakhuchyi/censor?status.svg" alt="Go Report Card" /></a>
 </p>
 
