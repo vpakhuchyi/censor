@@ -1,6 +1,7 @@
 package censor
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -227,6 +228,33 @@ func TestTestProcessor_Clone(t *testing.T) {
 }
 
 func TestProcessor_Format(t *testing.T) {
+	t.Run("test", func(t *testing.T) {
+		// GIVEN.
+
+		type address struct {
+			City    string `censor:"display"`
+			Country string `censor:"display"`
+			Street  string
+			Zip     int
+		}
+		type request struct {
+			UserID   string  `censor:"display"` // Display value.
+			Address  address `censor:"display"`
+			Email    string  // Mask value.
+			FullName string
+		}
+		r := request{
+			UserID:   "123",
+			Address:  address{City: "Kharkiv", Country: "UA", Street: "Nauky Avenue", Zip: 23335},
+			Email:    "viktor.example.email@ggmail.com",
+			FullName: "Viktor Pakhuchyi",
+		}
+
+		fmt.Println(string(Any(r)))
+		//// THEN.
+		//require.Equal(t, "null", string(got))
+	})
+
 	t.Run("nil value", func(t *testing.T) {
 		// GIVEN.
 		var v *string = nil

@@ -80,7 +80,7 @@ func main() {
 }
 
 // Here is what we'll see in the log:
-Output: `{UserID: 123, Address: {City: Kharkiv, Country: UA, Street: [CENSORED], Zip: [CENSORED]}, Email: [CENSORED], FullName: [CENSORED]}`
+// {"UserID": "123","Address": {"City": "Kharkiv","Country": "UA","Street": "[CENSORED]","Zip": "[CENSORED]"},"Email": "[CENSORED]","FullName": "[CENSORED]"}
 
 // All the fields values are masked by default (recursively) except 
 // those fields that has specified `censor:"display"` tag.

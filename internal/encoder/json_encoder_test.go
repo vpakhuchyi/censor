@@ -74,7 +74,7 @@ func TestJSONEncoder_Encode(t *testing.T) {
 	p := payload{
 		String:           `st"ring`,
 		StringMasked:     "string",
-		StringWithRegexp: "bla-bla-example@example.com",
+		StringWithRegexp: "%bla-bla-example@example.com#",
 		Int:              1,
 		Byte:             'a',
 		Int8:             2,
@@ -129,7 +129,7 @@ func TestJSONEncoder_Encode(t *testing.T) {
 		e.Encode(&b, reflect.ValueOf(p))
 
 		// THEN.
-		exp := `{"String": "st\"ring","StringMasked": "[CENSORED]","StringWithRegexp": "[CENSORED]",` +
+		exp := `{"String": "st\"ring","StringMasked": "[CENSORED]","StringWithRegexp": "%[CENSORED]#",` +
 			`"Int": 1,"Byte": 97,"Int8": 2,"Int16": 3,"Int32": 4,"Int64": 5,"Uint": 6,"Uint8": 7,` +
 			`"Uint16": 8,"Uint32": 9,"Uint64": 10,"Rune": 121,"Float32": 1.1,"Float64": 2.2,"Bool": true,` +
 			`"Interface": {"String": "string","Interface": "interface"},` +

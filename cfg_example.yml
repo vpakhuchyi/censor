@@ -1,20 +1,20 @@
 # It's an example of the configuration file for the Censor.
 general:
-  # Specifies the output format: text or json.
-  output-format: text
+  # Specifies the output format: TEXT or JSON.
+  output-format: json
 encoder:
-  # If true, the encoder will write the map type.
+  # If true, the encoder will write the map type in the TEXT format.
   display-map-type: false
-  # If true, '&' (a pointer symbol) will be displayed for pointer types before the pointed value.
+  # If true, '&' (a pointer symbol) will be displayed for pointer types before the pointed value in the TEXT format.
   display-pointer-symbol: false
-  # If true, the encoder will write the struct name (including the last part of the package name).
+  # If true, the encoder will write the struct name (including the last part of the package name) in the TEXT format.
   display-struct-name: false
-  # If true and the output format is set to json, the encoder will write the escaped JSON output.
+  # If true and the output format is set to JSON, the encoder will write the escaped JSON output.
   enable-json-escaping: true
   # Provided regexp patterns will be used to exclude all the matched strings from the output.
   exclude-patterns: []
   # Given string will be used as a mask for sensitive data.
   mask-value: "[CENSORED]"
-  # If true, the encoder will use the json tag name instead of the struct field name.
+  # If true, the encoder will use the JSON tag name instead of the struct field name.
   # In case of absence of json tag, the parser will use the struct field name.
   use-json-tag-name: false
