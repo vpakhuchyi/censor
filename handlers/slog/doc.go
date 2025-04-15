@@ -22,7 +22,7 @@ Usage with default options:
 	log.Info("user", slog.Any("payload", u))
 
 Output:
-{"time":"2023-12-28T20:15:45.893115+01:00","level":"INFO","msg":"user","payload":"{Name: John Doe, Email: [CENSORED]}"}
+{"time":"2023-12-28T20:15:45.893115+01:00","level":"INFO","msg":"user","payload":{"Name": "John Doe","Email": "[CENSORED]"}}
 
 Usage with custom options:
 
@@ -55,7 +55,7 @@ Output:
 	        	"line": "156"
 	    	},
 	    	"msg": "replaced msg",
-	    	"payload": "{Name: John Doe, Email: [CENSORED]}"
+	    	"payload": {"Name": "John Doe","Email": "[CENSORED]"}
 		}
 */
 package sloghandler
