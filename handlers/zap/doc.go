@@ -34,7 +34,7 @@ Example of censor handler initialization:
 	l.Info("user", zap.Any("payload", u))
 
 Output:
-{"level":"info",...,"msg":"user","payload":"{Name: John Doe, Email: [CENSORED]}"}
+{"level":"info",...,"msg":"user","payload":{"Name": "John Doe","Email": "[CENSORED]"}}
 
 Describing the logger usage we can operate with a few keywords: "msg", "key" and "value".
 For example, in a call to `l.Info("payload", zap.Any("addresses", []string{"address1", "address2"}))`:

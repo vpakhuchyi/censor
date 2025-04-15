@@ -32,7 +32,7 @@
 
  Promoted use-case:
 
- Censor is designed to seamlessly integrate with popular loggers (slog is already supported).
+ Censor is designed to seamlessly integrate with popular loggers.
  Its primary use case involves enhancing existing loggers with secure data masking functionality.
  The Censor logger handler can be effortlessly combined with other loggers, ensuring that sensitive
  information within struct fields remains masked, contributing to a more secure logging environment.
@@ -68,7 +68,7 @@
 
 		logger.Info("Sensitive data:", "payload", u)
  	}
- 	Output:	{"time":"2024-01-10T17:01:39.809303+01:00","level":"INFO","msg":"Sensitive data:","payload":"{Name: Ivan Mazepa, Email: [CENSORED]}"}
+ 	Output:	{"time":"2024-01-10T17:01:39.809303+01:00","level":"INFO","msg":"Sensitive data:","payload":{"Name": "Ivan Mazepa","Email": "[CENSORED]"}}
 
  By default, Censor ensures that sensitive information remains masked, providing enhanced security in
  scenarios where data privacy is of utmost importance.
