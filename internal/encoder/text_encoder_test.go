@@ -18,7 +18,7 @@ func TestTextEncoder_NewTextEncoder(t *testing.T) {
 		baseEncoder: baseEncoder{
 			CensorFieldTag:    defaultCensorFieldTag,
 			UseJSONTagName:    true,
-			structFieldsCache: cache.NewSlice[Field](cache.DefaultMaxCacheSize),
+			structFieldsCache: cache.NewTypeCache[[]Field](cache.DefaultMaxCacheSize),
 			regexpCache:       cache.New[string](cache.DefaultMaxCacheSize),
 		},
 	}

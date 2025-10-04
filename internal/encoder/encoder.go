@@ -5,7 +5,6 @@ import (
 	"reflect"
 	"regexp"
 
-	"github.com/vpakhuchyi/censor/internal/builderpool"
 	"github.com/vpakhuchyi/censor/internal/cache"
 )
 
@@ -66,39 +65,53 @@ type baseEncoder struct {
 
 	// structFieldsCache is used to cache struct fields, so we don't need to use reflection every time.
 	// Note: fields of anonymous structs are not cached due to the absence of a name.
-	structFieldsCache *cache.SliceCache[Field]
+	structFieldsCache *cache.TypeCache[[]Field]
 	// escapedStringsCache is used to cache escaped strings, to improve performance.
 	escapedStringsCache *cache.Cache[string]
 	// regexpCache is used to cache compiled regexp patterns, to improve performance.
 	regexpCache *cache.Cache[string]
 }
 
-// String processes the input string by masking any substrings that match the configured exclusion patterns.
-// It replaces matched segments with a predefined mask value to censor sensitive information.
-func (e *baseEncoder) String(s string) string {
-	res := s
-	if len(e.ExcludePatterns) != 0 && e.ExcludePatternsCompiled != nil {
-		cached, ok := e.regexpCache.Get(s)
-		if ok {
-			return cached
-		}
+// Field is a struct that contains information about a struct field.
+type Field struct {
+	Name     string
+	IsMasked bool
+}
 
-		matches := e.ExcludePatternsCompiled.FindAllStringIndex(s, -1)
-		if len(matches) > 0 {
-			bb := builderpool.Get()
-			lastIndex := 0
-			for _, m := range matches {
-				start, end := m[0], m[1]
-				bb.WriteString(s[lastIndex:start] + e.MaskValue)
-				lastIndex = end
-			}
+// WriteString processes the input string by masking any substrings that match the configured exclusion patterns.
+// It replaces matched segments with a predefined mask value and writes the result directly to the buffer.
+func (e *baseEncoder) WriteString(b *bytes.Buffer, s string) {
+	if len(e.ExcludePatterns) == 0 || e.ExcludePatternsCompiled == nil {
+		b.WriteString(s)
 
-			bb.WriteString(s[lastIndex:])
-			res = bb.String()
-		}
+		return
 	}
 
-	e.regexpCache.Set(s, res)
+	cached, ok := e.regexpCache.Get(s)
+	if ok {
+		b.WriteString(cached)
 
-	return res
+		return
+	}
+
+	matches := e.ExcludePatternsCompiled.FindAllStringIndex(s, -1)
+	if len(matches) == 0 {
+		b.WriteString(s)
+		e.regexpCache.Set(s, s)
+
+		return
+	}
+
+	startLen := b.Len()
+	lastIndex := 0
+	for _, m := range matches {
+		start, end := m[0], m[1]
+		b.WriteString(s[lastIndex:start])
+		b.WriteString(e.MaskValue)
+		lastIndex = end
+	}
+	b.WriteString(s[lastIndex:])
+
+	result := b.String()[startLen:]
+	e.regexpCache.Set(s, result)
 }

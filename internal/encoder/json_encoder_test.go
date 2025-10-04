@@ -20,7 +20,7 @@ func TestJSONEncoder_NewJSONEncoder(t *testing.T) {
 		baseEncoder: baseEncoder{
 			CensorFieldTag:      defaultCensorFieldTag,
 			MaskValue:           "[CENSORED]",
-			structFieldsCache:   cache.NewSlice[Field](cache.DefaultMaxCacheSize),
+			structFieldsCache:   cache.NewTypeCache[[]Field](cache.DefaultMaxCacheSize),
 			escapedStringsCache: cache.New[string](cache.DefaultMaxCacheSize),
 			regexpCache:         cache.New[string](cache.DefaultMaxCacheSize),
 		},
@@ -178,9 +178,82 @@ func TestJSONEncoder_Struct(t *testing.T) {
 			e.Struct(&b, reflect.ValueOf(s))
 
 			// THEN.
-			exp := "{{\"\",null}}"
+			// Unexported fields are now skipped entirely, so we get an empty struct
+			exp := "{}"
 			require.Equal(t, exp, b.String())
 		})
+	})
+}
+
+func TestJSONEncoder_Struct_UnexportedFieldsBehavior(t *testing.T) {
+	t.Run("unexported fields are skipped like stdlib", func(t *testing.T) {
+		// GIVEN: A struct with both exported and unexported fields
+		type MixedStruct struct {
+			PublicField    string `censor:"display"`
+			privateField   string
+			AnotherPublic  int `censor:"display"`
+			anotherPrivate bool
+		}
+
+		e := NewJSONEncoder(Config{})
+		var b bytes.Buffer
+		defer b.Reset()
+
+		s := MixedStruct{
+			PublicField:    "visible",
+			privateField:   "hidden",
+			AnotherPublic:  42,
+			anotherPrivate: true,
+		}
+
+		// WHEN
+		e.Struct(&b, reflect.ValueOf(s))
+
+		// THEN: Only exported fields appear in output
+		exp := `{"PublicField": "visible","AnotherPublic": 42}`
+		require.Equal(t, exp, b.String())
+	})
+
+	t.Run("all unexported fields results in empty struct", func(t *testing.T) {
+		// GIVEN: A struct with only unexported fields
+		type AllPrivate struct {
+			field1 string
+			field2 int
+		}
+
+		e := NewJSONEncoder(Config{})
+		var b bytes.Buffer
+		defer b.Reset()
+
+		s := AllPrivate{field1: "hidden", field2: 123}
+
+		// WHEN
+		e.Struct(&b, reflect.ValueOf(s))
+
+		// THEN: Empty struct
+		exp := "{}"
+		require.Equal(t, exp, b.String())
+	})
+
+	t.Run("masked exported fields still appear", func(t *testing.T) {
+		// GIVEN: Struct with exported masked field and unexported field
+		type SecureConfig struct {
+			APIKey     string // No display tag = masked by default
+			privateKey string // Unexported = skipped
+		}
+
+		e := NewJSONEncoder(Config{MaskValue: "[CENSORED]"})
+		var b bytes.Buffer
+		defer b.Reset()
+
+		s := SecureConfig{APIKey: "secret123", privateKey: "hidden"}
+
+		// WHEN
+		e.Struct(&b, reflect.ValueOf(s))
+
+		// THEN: APIKey is masked but present, privateKey is completely skipped
+		exp := `{"APIKey": "[CENSORED]"}`
+		require.Equal(t, exp, b.String())
 	})
 }
 
@@ -335,62 +408,319 @@ func TestJSONEncoder_Ptr(t *testing.T) {
 	})
 }
 
-func Test_escapeString(t *testing.T) {
-	e := NewJSONEncoder(Config{})
-
-	tests := map[string]struct {
-		input string
-		exp   string
-	}{
-		"double-quote":         {input: `"`, exp: `\"`},
-		"backslash":            {input: `\`, exp: `\\`},
-		"backspace":            {input: "foo\bbar", exp: "foo\\bbar"},
-		"form-feed":            {input: "foo\fbar", exp: "foo\\fbar"},
-		"newline":              {input: "foo\nbar", exp: "foo\\nbar"},
-		"carriage-return":      {input: "foo\rbar", exp: "foo\\rbar"},
-		"tab":                  {input: "foo\tbar", exp: "foo\\tbar"},
-		"control-char-0x01":    {input: string([]byte{0x01}), exp: `\u0001`},
-		"control-char-0x7F":    {input: string([]byte{0x7F}), exp: `\u007f`},
-		"invalid_utf8-char":    {input: string([]byte{0xC0}), exp: string([]byte{0xEF, 0xBF, 0xBD})},
-		"non-ascii-valid":      {input: "ñ", exp: `\u00f1`},
-		"u2028-line-separator": {input: "\u2028", exp: `\u2028`},
-	}
-	for name, tt := range tests {
-		t.Run(name, func(t *testing.T) {
-			got := e.escapeString(tt.input)
-			require.Equal(t, tt.exp, got)
-		})
-	}
-}
-
-func Test_escapeString_cache(t *testing.T) {
-	t.Run("set cache", func(t *testing.T) {
-		// GIVEN.
+func TestJSONEncoder_StringEscaped(t *testing.T) {
+	t.Run("no escaping needed", func(t *testing.T) {
+		// GIVEN: An encoder and a plain string without special characters.
 		e := NewJSONEncoder(Config{})
+		var b bytes.Buffer
+		defer b.Reset()
 
-		// WHEN.
-		value := "foo\bbar"
-		escaped := e.escapeString(value)
+		// WHEN: escapeString is called.
+		e.escapeString(&b, "hello")
 
-		// THEN.
-		cacheValue, ok := e.escapedStringsCache.Get(value)
-		require.Equal(t, escaped, cacheValue)
-		require.True(t, ok)
+		// THEN: The string should be written as-is.
+		require.Equal(t, "hello", b.String())
 	})
 
-	t.Run("get from cache", func(t *testing.T) {
-		// GIVEN.
+	t.Run("escape double quote", func(t *testing.T) {
+		// GIVEN: An encoder and a string with a double quote.
 		e := NewJSONEncoder(Config{})
-		// To verify that value is taken from the cache, we set it there unescaped.
-		// If we get back the same value, it means that it was taken from the cache.
-		// If the returned value is escaped, it means that the cache was not used.
-		s, escaped := "foo\bbar", "foo\bbbar"
-		e.escapedStringsCache.Set(s, escaped)
+		var b bytes.Buffer
+		defer b.Reset()
 
-		// WHEN.
-		got := e.escapeString(s)
+		// WHEN: escapeString is called.
+		e.escapeString(&b, `"`)
 
-		// THEN.
-		require.Equal(t, escaped, got)
+		// THEN: The quote should be escaped.
+		require.Equal(t, `\"`, b.String())
+	})
+
+	t.Run("escape backslash", func(t *testing.T) {
+		// GIVEN: An encoder and a string with a backslash.
+		e := NewJSONEncoder(Config{})
+		var b bytes.Buffer
+		defer b.Reset()
+
+		// WHEN: escapeString is called.
+		e.escapeString(&b, `\`)
+
+		// THEN: The backslash should be escaped.
+		require.Equal(t, `\\`, b.String())
+	})
+
+	t.Run("escape backspace", func(t *testing.T) {
+		// GIVEN: An encoder and a string with a backspace character.
+		e := NewJSONEncoder(Config{})
+		var b bytes.Buffer
+		defer b.Reset()
+
+		// WHEN: escapeString is called.
+		e.escapeString(&b, "foo\bbar")
+
+		// THEN: The backspace should be escaped.
+		require.Equal(t, "foo\\bbar", b.String())
+	})
+
+	t.Run("escape form feed", func(t *testing.T) {
+		// GIVEN: An encoder and a string with a form feed character.
+		e := NewJSONEncoder(Config{})
+		var b bytes.Buffer
+		defer b.Reset()
+
+		// WHEN: escapeString is called.
+		e.escapeString(&b, "foo\fbar")
+
+		// THEN: The form feed should be escaped.
+		require.Equal(t, "foo\\fbar", b.String())
+	})
+
+	t.Run("escape newline", func(t *testing.T) {
+		// GIVEN: An encoder and a string with a newline character.
+		e := NewJSONEncoder(Config{})
+		var b bytes.Buffer
+		defer b.Reset()
+
+		// WHEN: escapeString is called.
+		e.escapeString(&b, "foo\nbar")
+
+		// THEN: The newline should be escaped.
+		require.Equal(t, "foo\\nbar", b.String())
+	})
+
+	t.Run("escape carriage return", func(t *testing.T) {
+		// GIVEN: An encoder and a string with a carriage return character.
+		e := NewJSONEncoder(Config{})
+		var b bytes.Buffer
+		defer b.Reset()
+
+		// WHEN: escapeString is called.
+		e.escapeString(&b, "foo\rbar")
+
+		// THEN: The carriage return should be escaped.
+		require.Equal(t, "foo\\rbar", b.String())
+	})
+
+	t.Run("escape tab", func(t *testing.T) {
+		// GIVEN: An encoder and a string with a tab character.
+		e := NewJSONEncoder(Config{})
+		var b bytes.Buffer
+		defer b.Reset()
+
+		// WHEN: escapeString is called.
+		e.escapeString(&b, "foo\tbar")
+
+		// THEN: The tab should be escaped.
+		require.Equal(t, "foo\\tbar", b.String())
+	})
+
+	t.Run("escape control char 0x01", func(t *testing.T) {
+		// GIVEN: An encoder and a string with a low control character.
+		e := NewJSONEncoder(Config{})
+		var b bytes.Buffer
+		defer b.Reset()
+
+		// WHEN: escapeString is called.
+		e.escapeString(&b, string([]byte{0x01}))
+
+		// THEN: The control character should be escaped as unicode.
+		require.Equal(t, `\u0001`, b.String())
+	})
+
+	t.Run("escape control char 0x7F", func(t *testing.T) {
+		// GIVEN: An encoder and a string with a DEL control character.
+		e := NewJSONEncoder(Config{})
+		var b bytes.Buffer
+		defer b.Reset()
+
+		// WHEN: escapeString is called.
+		e.escapeString(&b, string([]byte{0x7F}))
+
+		// THEN: The DEL character should be escaped as unicode.
+		require.Equal(t, `\u007f`, b.String())
+	})
+
+	t.Run("escape invalid utf8 char", func(t *testing.T) {
+		// GIVEN: An encoder and a string with an invalid UTF-8 byte.
+		e := NewJSONEncoder(Config{})
+		var b bytes.Buffer
+		defer b.Reset()
+
+		// WHEN: escapeString is called.
+		e.escapeString(&b, string([]byte{0xC0}))
+
+		// THEN: The invalid byte should be replaced with the replacement character.
+		require.Equal(t, string([]byte{0xEF, 0xBF, 0xBD}), b.String())
+	})
+
+	t.Run("escape valid non-ascii", func(t *testing.T) {
+		// GIVEN: An encoder and a string with a valid non-ASCII character.
+		e := NewJSONEncoder(Config{})
+		var b bytes.Buffer
+		defer b.Reset()
+
+		// WHEN: escapeString is called.
+		e.escapeString(&b, "ñ")
+
+		// THEN: The non-ASCII character should be escaped as unicode.
+		require.Equal(t, `\u00f1`, b.String())
+	})
+
+	t.Run("escape unicode line separator", func(t *testing.T) {
+		// GIVEN: An encoder and a string with a unicode line separator.
+		e := NewJSONEncoder(Config{})
+		var b bytes.Buffer
+		defer b.Reset()
+
+		// WHEN: escapeString is called.
+		e.escapeString(&b, "\u2028")
+
+		// THEN: The line separator should be escaped as unicode.
+		require.Equal(t, `\u2028`, b.String())
+	})
+
+	t.Run("cache escaped string", func(t *testing.T) {
+		// GIVEN: An encoder with empty cache.
+		e := NewJSONEncoder(Config{})
+		var b bytes.Buffer
+		defer b.Reset()
+		value := "foo\bbar"
+
+		// WHEN: escapeStringWithCache is called.
+		e.escapeStringWithCache(&b, value)
+
+		// THEN: The escaped string should be cached and written to buffer.
+		cacheValue, ok := e.escapedStringsCache.Get(value)
+		require.True(t, ok)
+		require.Equal(t, "foo\\bbar", cacheValue)
+		require.Equal(t, "foo\\bbar", b.String())
+	})
+
+	t.Run("cache non-escaped string", func(t *testing.T) {
+		// GIVEN: An encoder with empty cache.
+		e := NewJSONEncoder(Config{})
+		var b bytes.Buffer
+		defer b.Reset()
+		value := "hello"
+
+		// WHEN: escapeStringWithCache is called with a string that needs no escaping.
+		e.escapeStringWithCache(&b, value)
+
+		// THEN: The original string should be cached and written to buffer.
+		cacheValue, ok := e.escapedStringsCache.Get(value)
+		require.True(t, ok)
+		require.Equal(t, "hello", cacheValue)
+		require.Equal(t, "hello", b.String())
+	})
+
+	t.Run("retrieve from cache", func(t *testing.T) {
+		// GIVEN: An encoder with a pre-populated cache.
+		e := NewJSONEncoder(Config{})
+		var b bytes.Buffer
+		defer b.Reset()
+		s, cached := "foo\bbar", "cached_value"
+		e.escapedStringsCache.Set(s, cached)
+
+		// WHEN: escapeStringWithCache is called.
+		e.escapeStringWithCache(&b, s)
+
+		// THEN: The cached value should be used without re-escaping.
+		require.Equal(t, cached, b.String())
+	})
+
+	t.Run("simple string", func(t *testing.T) {
+		// GIVEN: An encoder without censoring patterns.
+		e := NewJSONEncoder(Config{})
+		var b bytes.Buffer
+		defer b.Reset()
+
+		// WHEN: StringEscaped is called with a simple string.
+		e.StringEscaped(&b, "hello")
+
+		// THEN: The string should be wrapped in quotes.
+		require.Equal(t, `"hello"`, b.String())
+	})
+
+	t.Run("empty string", func(t *testing.T) {
+		// GIVEN: An encoder without censoring patterns.
+		e := NewJSONEncoder(Config{})
+		var b bytes.Buffer
+		defer b.Reset()
+
+		// WHEN: StringEscaped is called with an empty string.
+		e.StringEscaped(&b, "")
+
+		// THEN: The result should be empty quotes.
+		require.Equal(t, `""`, b.String())
+	})
+
+	t.Run("string with quotes", func(t *testing.T) {
+		// GIVEN: An encoder without censoring patterns.
+		e := NewJSONEncoder(Config{})
+		var b bytes.Buffer
+		defer b.Reset()
+
+		// WHEN: StringEscaped is called with a string containing quotes.
+		e.StringEscaped(&b, `say "hello"`)
+
+		// THEN: The quotes should be escaped and the string wrapped in quotes.
+		require.Equal(t, `"say \"hello\""`, b.String())
+	})
+
+	t.Run("string with newline", func(t *testing.T) {
+		// GIVEN: An encoder without censoring patterns.
+		e := NewJSONEncoder(Config{})
+		var b bytes.Buffer
+		defer b.Reset()
+
+		// WHEN: StringEscaped is called with a string containing a newline.
+		e.StringEscaped(&b, "line1\nline2")
+
+		// THEN: The newline should be escaped and the string wrapped in quotes.
+		require.Equal(t, `"line1\nline2"`, b.String())
+	})
+
+	t.Run("unicode string", func(t *testing.T) {
+		// GIVEN: An encoder without censoring patterns.
+		e := NewJSONEncoder(Config{})
+		var b bytes.Buffer
+		defer b.Reset()
+
+		// WHEN: StringEscaped is called with a unicode string.
+		e.StringEscaped(&b, "café")
+
+		// THEN: The unicode characters should be escaped and the string wrapped in quotes.
+		require.Equal(t, `"caf\u00e9"`, b.String())
+	})
+
+	t.Run("string with email pattern", func(t *testing.T) {
+		// GIVEN: An encoder with email censoring pattern.
+		e := NewJSONEncoder(Config{
+			ExcludePatterns: []string{`\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`},
+			MaskValue:       "[CENSORED]",
+		})
+		var b bytes.Buffer
+		defer b.Reset()
+
+		// WHEN: StringEscaped is called with a string containing an email.
+		e.StringEscaped(&b, "contact: user@example.com")
+
+		// THEN: The email should be censored and the string wrapped in quotes.
+		require.Equal(t, `"contact: [CENSORED]"`, b.String())
+	})
+
+	t.Run("string with email and escaping", func(t *testing.T) {
+		// GIVEN: An encoder with email censoring pattern.
+		e := NewJSONEncoder(Config{
+			ExcludePatterns: []string{`\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b`},
+			MaskValue:       "[CENSORED]",
+		})
+		var b bytes.Buffer
+		defer b.Reset()
+
+		// WHEN: StringEscaped is called with a string containing both email and quotes.
+		e.StringEscaped(&b, "say \"email: user@example.com\"")
+
+		// THEN: The email should be censored, quotes escaped, and string wrapped in quotes.
+		require.Equal(t, `"say \"email: [CENSORED]\""`, b.String())
 	})
 }

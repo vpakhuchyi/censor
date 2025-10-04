@@ -1,12 +1,12 @@
 module github.com/vpakhuchyi/censor
 
-go 1.22
+go 1.25
 
 require (
-	github.com/rs/zerolog v1.33.0
+	github.com/rs/zerolog v1.34.0
 	github.com/shopspring/decimal v1.3.1
 	github.com/stretchr/testify v1.8.4
-	go.uber.org/zap v1.26.0
+	go.uber.org/zap v1.27.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 

@@ -3,6 +3,7 @@ package censor
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"gopkg.in/yaml.v3"
@@ -61,6 +62,20 @@ func DefaultConfig() Config {
 // ConfigFromFile reads a configuration from the given .yml file.
 // It returns an error if the file cannot be read or unmarshalled.
 func ConfigFromFile(path string) (Config, error) {
+	if path == "" {
+		return Config{}, fmt.Errorf("config file path cannot be empty")
+	}
+
+	cleanPath := filepath.Clean(path)
+	if strings.Contains(cleanPath, "..") {
+		return Config{}, fmt.Errorf("invalid config file path: directory traversal detected")
+	}
+
+	ext := filepath.Ext(cleanPath)
+	if ext != ".yml" && ext != ".yaml" {
+		return Config{}, fmt.Errorf("config file must have .yml or .yaml extension")
+	}
+
 	file, err := os.ReadFile(path)
 	if err != nil {
 		return Config{}, fmt.Errorf("failed to read file: %w", err)
