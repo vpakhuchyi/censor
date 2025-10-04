@@ -11,16 +11,15 @@ run:
 output:
   formats:
     text:
-      colors: true
+      path: stdout
       print-linter-name: true
-      print-issued-lines: false
-  path-prefix: ""
+      print-issued-lines: true
+      colors: true
   sort-order:
     - linter
     - file
 
 linters:
-  disable-all: true
   enable:
     - bodyclose
     - dogsled
