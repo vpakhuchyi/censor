@@ -10,7 +10,6 @@ import (
 
 	"github.com/shopspring/decimal"
 
-	"github.com/vpakhuchyi/censor/internal/builderpool"
 	"github.com/vpakhuchyi/censor/internal/cache"
 )
 
@@ -21,7 +20,7 @@ func NewJSONEncoder(c Config) *JSONEncoder {
 			CensorFieldTag:      defaultCensorFieldTag,
 			ExcludePatterns:     c.ExcludePatterns,
 			MaskValue:           c.MaskValue,
-			structFieldsCache:   cache.NewSlice[Field](cache.DefaultMaxCacheSize),
+			structFieldsCache:   cache.NewTypeCache[[]Field](cache.DefaultMaxCacheSize),
 			escapedStringsCache: cache.New[string](cache.DefaultMaxCacheSize),
 			regexpCache:         cache.New[string](cache.DefaultMaxCacheSize),
 		},
@@ -37,12 +36,6 @@ func NewJSONEncoder(c Config) *JSONEncoder {
 // JSONEncoder is used to encode data to JSON format.
 type JSONEncoder struct {
 	baseEncoder
-}
-
-// Field is a struct that contains information about a struct field.
-type Field struct {
-	Name     string
-	IsMasked bool
 }
 
 //nolint:exhaustive,gocyclo
@@ -62,7 +55,7 @@ func (e *JSONEncoder) Encode(b *bytes.Buffer, f reflect.Value) {
 		e.Struct(b, f)
 	case reflect.Slice, reflect.Array:
 		e.Slice(b, f)
-	case reflect.Ptr:
+	case reflect.Pointer:
 		e.Ptr(b, f)
 	case reflect.Map:
 		e.Map(b, f)
@@ -92,55 +85,62 @@ func (e *JSONEncoder) Struct(b *bytes.Buffer, v reflect.Value) {
 		panic("provided value is not a struct")
 	}
 
+	t := v.Type()
 	var fields []Field
-	key := v.Type().PkgPath() + v.Type().Name()
-	if key == "" {
+
+	if t.PkgPath() == "" {
 		fields = e.getStructFields(v)
 	} else {
 		var found bool
-		fields, found = e.structFieldsCache.Get(key)
+		fields, found = e.structFieldsCache.Get(t)
 		if !found {
 			fields = e.getStructFields(v)
-			e.structFieldsCache.Set(key, fields)
+			e.structFieldsCache.Set(t, fields)
 		}
 	}
 
-	b.WriteString(`{`)
+	b.WriteByte('{')
 
-	for i := 0; i < len(fields); i++ {
-		b.WriteString(fields[i].Name)
+	firstField := true
+	for i, field := range fields {
+		if field.Name == "" {
+			continue
+		}
 
-		if fields[i].IsMasked {
-			b.WriteString(`"` + e.MaskValue + `"`)
+		if !firstField {
+			b.WriteByte(',')
+		}
+		firstField = false
+
+		b.WriteByte('"')
+		b.WriteString(field.Name)
+		b.WriteString(`": `)
+
+		if field.IsMasked {
+			b.WriteByte('"')
+			b.WriteString(e.MaskValue)
+			b.WriteByte('"')
 		} else {
 			e.Encode(b, v.Field(i))
 		}
-
-		if i < len(fields)-1 {
-			b.WriteString(`,`)
-		}
 	}
-
-	b.WriteString(`}`)
+	b.WriteByte('}')
 }
 
 func (e *JSONEncoder) getStructFields(v reflect.Value) []Field {
-	fields := make([]Field, v.NumField())
+	numFields := v.NumField()
+	fields := make([]Field, numFields)
 
-	b := builderpool.Get()
-	for i := 0; i < v.NumField(); i++ {
+	for i := 0; i < numFields; i++ {
 		field := v.Type().Field(i)
-
 		if !v.Field(i).CanInterface() {
 			continue
 		}
-		b.WriteString(`"` + field.Name + `": `)
 
 		fields[i] = Field{
-			Name:     b.String(),
+			Name:     field.Name,
 			IsMasked: field.Tag.Get(e.CensorFieldTag) != display,
 		}
-		b.Reset()
 	}
 
 	return fields
@@ -159,23 +159,22 @@ func (e *JSONEncoder) Map(b *bytes.Buffer, v reflect.Value) {
 		return
 	}
 
-	b.WriteString("{")
+	b.WriteByte('{')
 
-	var addComma bool
+	first := true
 	for iter := v.MapRange(); iter.Next(); {
-		if addComma {
-			b.WriteString(`,`)
+		if !first {
+			b.WriteByte(',')
 		}
+		first = false
 
 		key, value := iter.Key(), iter.Value()
 
 		e.encodeMapKey(b, key)
-		b.WriteString(`:`)
+		b.WriteByte(':')
 		e.Encode(b, value)
-		addComma = true
 	}
-
-	b.WriteString("}")
+	b.WriteByte('}')
 }
 
 // Slice encodes a slice value to JSON format.
@@ -186,16 +185,17 @@ func (e *JSONEncoder) Slice(b *bytes.Buffer, v reflect.Value) {
 		panic("provided value is not a slice/array")
 	}
 
-	b.WriteString("[")
+	b.WriteByte('[')
 	length := v.Len()
 	for i := 0; i < length; i++ {
 		e.Encode(b, v.Index(i))
 
 		if i < length-1 {
-			b.WriteString(", ")
+			b.WriteByte(',')
+			b.WriteByte(' ')
 		}
 	}
-	b.WriteString("]")
+	b.WriteByte(']')
 }
 
 // Interface encodes an interface value to JSON format.
@@ -220,7 +220,7 @@ func (e *JSONEncoder) Interface(b *bytes.Buffer, v reflect.Value) {
 // is used instead of the real value. That string contains a type of the value.
 // Note: this method panics if the provided value is not a pointer.
 func (e *JSONEncoder) Ptr(b *bytes.Buffer, v reflect.Value) {
-	if v.Kind() != reflect.Ptr {
+	if v.Kind() != reflect.Pointer {
 		panic("provided value is not a pointer")
 	}
 
@@ -236,13 +236,107 @@ func (e *JSONEncoder) Ptr(b *bytes.Buffer, v reflect.Value) {
 // String encodes the input string by masking any substrings that match the configured exclusion patterns.
 // It replaces matched segments with a predefined mask value to censor sensitive information.
 func (e *JSONEncoder) String(b *bytes.Buffer, s string) {
-	b.WriteString(e.baseEncoder.String(s))
+	e.WriteString(b, s)
 }
 
 // StringEscaped encodes and escapes the input string by masking any substrings that match the configured exclusion patterns.
 // It replaces matched segments with a predefined mask value to censor sensitive information.
 func (e *JSONEncoder) StringEscaped(b *bytes.Buffer, s string) {
-	b.WriteString(e.baseEncoder.String(`"`+e.escapeString(s)) + `"`)
+	b.WriteByte('"')
+	e.writeEscapedCensoredString(b, s)
+	b.WriteByte('"')
+}
+
+// writeEscapedCensoredString applies censoring and escaping in one pass.
+func (e *JSONEncoder) writeEscapedCensoredString(b *bytes.Buffer, s string) {
+	if len(e.ExcludePatterns) == 0 || e.ExcludePatternsCompiled == nil {
+		e.escapeString(b, s)
+
+		return
+	}
+
+	cached, ok := e.regexpCache.Get(s)
+	if ok {
+		e.escapeStringWithCache(b, cached)
+
+		return
+	}
+
+	matches := e.ExcludePatternsCompiled.FindAllStringIndex(s, -1)
+	if len(matches) == 0 {
+		e.escapeStringWithCache(b, s)
+		e.regexpCache.Set(s, s)
+
+		return
+	}
+
+	lastIndex := 0
+	for _, m := range matches {
+		start, end := m[0], m[1]
+		e.escapeString(b, s[lastIndex:start])
+		e.escapeString(b, e.MaskValue)
+		lastIndex = end
+	}
+	e.escapeString(b, s[lastIndex:])
+}
+
+// escapeString processes the input string by escaping special and control characters to ensure it is safe
+// for JSON encoding. It replaces characters like backslashes, quotes, and control characters with their corresponding
+// escape sequences. If the string contains non-ASCII characters, it ensures they are properly escaped or replaced
+// with the Unicode replacement character if invalid.
+//
+//nolint:gocyclo,mnd
+func (e *JSONEncoder) escapeString(b *bytes.Buffer, s string) {
+	for _, r := range s {
+		switch r {
+		case '\\', '"':
+			b.WriteByte('\\')
+			b.WriteRune(r)
+		case '\b':
+			b.WriteByte('\\')
+			b.WriteByte('b')
+		case '\f':
+			b.WriteByte('\\')
+			b.WriteByte('f')
+		case '\n':
+			b.WriteByte('\\')
+			b.WriteByte('n')
+		case '\r':
+			b.WriteByte('\\')
+			b.WriteByte('r')
+		case '\t':
+			b.WriteByte('\\')
+			b.WriteByte('t')
+		default:
+			switch {
+			case (r >= 0x00 && r <= 0x1F) || r == 0x7F:
+				b.WriteString(escapeControlChar(r))
+			case r > 0x7F:
+				if utf8.ValidRune(r) && r != utf8.RuneError {
+					b.WriteString(escapeControlChar(r))
+				} else {
+					b.WriteRune('\uFFFD')
+				}
+			default:
+				b.WriteRune(r)
+			}
+		}
+	}
+}
+
+// escapeStringWithCache escapes string content with caching.
+func (e *JSONEncoder) escapeStringWithCache(b *bytes.Buffer, s string) {
+	if cached, ok := e.escapedStringsCache.Get(s); ok {
+		b.WriteString(cached)
+
+		return
+	}
+
+	startLen := b.Len()
+	e.escapeString(b, s)
+
+	escaped := b.String()[startLen:]
+	e.escapedStringsCache.Set(s, escaped)
 }
 
 //nolint:exhaustive
@@ -265,68 +359,6 @@ func (e *JSONEncoder) encodeMapKey(b *bytes.Buffer, f reflect.Value) {
 			b.WriteString(unsupportedTypeTmpl + k.String())
 		}
 	}
-}
-
-// escapeString processes the input string by escaping special and control characters to ensure it is safe
-// for JSON encoding. It replaces characters like backslashes, quotes, and control characters with their corresponding
-// escape sequences. If the string contains non-ASCII characters, it ensures they are properly escaped or replaced
-// with the Unicode replacement character if invalid.
-//
-//nolint:gocyclo,mnd,gocognit
-func (e *JSONEncoder) escapeString(s string) string {
-	cached, ok := e.escapedStringsCache.Get(s)
-	if ok {
-		return cached
-	}
-
-	buf := builderpool.Get()
-	for _, r := range s {
-		switch r {
-		case '\\', '"':
-			buf.WriteByte('\\')
-			buf.WriteRune(r)
-		case '\b':
-			buf.WriteByte('\\')
-			buf.WriteByte('b')
-		case '\f':
-			buf.WriteByte('\\')
-			buf.WriteByte('f')
-		case '\n':
-			buf.WriteByte('\\')
-			buf.WriteByte('n')
-		case '\r':
-			buf.WriteByte('\\')
-			buf.WriteByte('r')
-		case '\t':
-			buf.WriteByte('\\')
-			buf.WriteByte('t')
-		default:
-			if (r >= 0x00 && r <= 0x1F) || r == 0x7F {
-				buf.WriteString(escapeControlChar(r))
-
-				continue
-			}
-
-			if r > 0x7F {
-				if utf8.ValidRune(r) && r != utf8.RuneError {
-					buf.WriteString(escapeControlChar(r))
-				} else {
-					buf.WriteRune('\uFFFD')
-				}
-
-				continue
-			}
-
-			buf.WriteRune(r)
-		}
-	}
-
-	res := buf.String()
-	builderpool.Put(buf)
-
-	e.escapedStringsCache.Set(s, res)
-
-	return res
 }
 
 // escapeControlChar converts a control character rune into its corresponding Unicode escape sequence.

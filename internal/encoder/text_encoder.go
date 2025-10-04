@@ -34,7 +34,7 @@ func NewTextEncoder(c Config) *TextEncoder {
 			ExcludePatterns:   c.ExcludePatterns,
 			MaskValue:         c.MaskValue,
 			UseJSONTagName:    c.UseJSONTagName,
-			structFieldsCache: cache.NewSlice[Field](cache.DefaultMaxCacheSize),
+			structFieldsCache: cache.NewTypeCache[[]Field](cache.DefaultMaxCacheSize),
 			regexpCache:       cache.New[string](cache.DefaultMaxCacheSize),
 		},
 		DisplayMapType:       c.DisplayMapType,
@@ -60,7 +60,7 @@ func (e *TextEncoder) Encode(b *bytes.Buffer, f reflect.Value) {
 		}
 	case reflect.Slice, reflect.Array:
 		e.Slice(b, f)
-	case reflect.Ptr:
+	case reflect.Pointer:
 		e.Ptr(b, f)
 	case reflect.Map:
 		e.Map(b, f)
@@ -97,15 +97,17 @@ func (e *TextEncoder) Struct(b *bytes.Buffer, v reflect.Value) {
 	structName := t.Name()
 
 	var fields []Field
-	key := structPath + structName
-	if key == "" {
+	// Check if this is an anonymous struct (no package path)
+	if structPath == "" {
+		// Anonymous structs are not cached
 		fields = e.getStructFields(v, t)
 	} else {
+		// Try to get from cache using Type directly (no string allocation)
 		var found bool
-		fields, found = e.structFieldsCache.Get(key)
+		fields, found = e.structFieldsCache.Get(t)
 		if !found {
 			fields = e.getStructFields(v, t)
-			e.structFieldsCache.Set(key, fields)
+			e.structFieldsCache.Set(t, fields)
 		}
 	}
 
@@ -144,11 +146,12 @@ func (e *TextEncoder) Struct(b *bytes.Buffer, v reflect.Value) {
 		}
 
 		if i < len(fields)-1 {
-			b.WriteString(`, `)
+			b.WriteByte(',')
+			b.WriteByte(' ')
 		}
 	}
 
-	b.WriteString("}")
+	b.WriteByte('}')
 }
 
 func (e *TextEncoder) getStructFields(v reflect.Value, t reflect.Type) []Field {
@@ -183,23 +186,25 @@ func (e *TextEncoder) Map(b *bytes.Buffer, rv reflect.Value) {
 		panic("provided value is not a map")
 	}
 
-	b.WriteString(rv.Type().String() + "{")
-
+	b.WriteString(rv.Type().String())
+	b.WriteByte('{')
 	var addComma bool
 	for iter := rv.MapRange(); iter.Next(); {
 		if addComma {
-			b.WriteString(", ")
+			b.WriteByte(',')
+			b.WriteByte(' ')
 		}
 
 		key, value := iter.Key(), iter.Value()
 
 		e.Encode(b, key)
-		b.WriteString(": ")
+		b.WriteByte(':')
+		b.WriteByte(' ')
 		e.Encode(b, value)
 		addComma = true
 	}
 
-	b.WriteString("}")
+	b.WriteByte('}')
 }
 
 // Slice encodes a slice value to TEXT format.
@@ -210,16 +215,18 @@ func (e *TextEncoder) Slice(b *bytes.Buffer, rv reflect.Value) {
 		panic("provided value is not a slice/array")
 	}
 
-	b.WriteString("[")
+	b.WriteByte('[')
 
 	for i := 0; i < rv.Len(); i++ {
 		e.Encode(b, rv.Index(i))
 
 		if i < rv.Len()-1 {
-			b.WriteString(", ")
+			b.WriteByte(',')
+			b.WriteByte(' ')
 		}
 	}
-	b.WriteString("]")
+
+	b.WriteByte(']')
 }
 
 // Interface encodes an interface value to TEXT format.
@@ -244,7 +251,7 @@ func (e *TextEncoder) Interface(b *bytes.Buffer, rv reflect.Value) {
 // is used instead of the real value. That string contains a type of the value.
 // Note: this method panics if the provided value is not a pointer.
 func (e *TextEncoder) Ptr(b *bytes.Buffer, rv reflect.Value) {
-	if rv.Kind() != reflect.Ptr {
+	if rv.Kind() != reflect.Pointer {
 		panic("provided value is not a pointer")
 	}
 
@@ -255,7 +262,7 @@ func (e *TextEncoder) Ptr(b *bytes.Buffer, rv reflect.Value) {
 	}
 
 	if e.DisplayPointerSymbol {
-		b.WriteString("&")
+		b.WriteByte('&')
 	}
 	e.Encode(b, rv.Elem())
 }
@@ -263,5 +270,5 @@ func (e *TextEncoder) Ptr(b *bytes.Buffer, rv reflect.Value) {
 // String formats a value as a string.
 // If the string matches one of the ExcludePatterns, it will be masked with the MaskValue.
 func (e *TextEncoder) String(b *bytes.Buffer, s string) {
-	b.WriteString(e.baseEncoder.String(s))
+	e.WriteString(b, s)
 }

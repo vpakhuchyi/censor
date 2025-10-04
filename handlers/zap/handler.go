@@ -43,7 +43,7 @@ func (h handler) Write(e zapcore.Entry, fields []zapcore.Field) error {
 
 // Check adds this handler to the CheckedEntry (if the entry should be logged) and returns the result.
 func (h handler) Check(e zapcore.Entry, ce *zapcore.CheckedEntry) *zapcore.CheckedEntry {
-	if h.Core.Enabled(e.Level) {
+	if h.Enabled(e.Level) {
 		return ce.AddCore(e, h)
 	}
 

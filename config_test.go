@@ -87,6 +87,54 @@ func TestConfig_FromFile(t *testing.T) {
 			want:    Config{},
 			wantErr: true,
 		},
+		"directory_traversal_attack": {
+			args: args{
+				path: "../../../etc/passwd",
+			},
+			want:    Config{},
+			wantErr: true,
+		},
+		"directory_traversal_with_dots": {
+			args: args{
+				path: "./testdata/../../../etc/passwd",
+			},
+			want:    Config{},
+			wantErr: true,
+		},
+		"invalid_extension_txt": {
+			args: args{
+				path: "./testdata/config.txt",
+			},
+			want:    Config{},
+			wantErr: true,
+		},
+		"invalid_extension_json": {
+			args: args{
+				path: "./testdata/config.json",
+			},
+			want:    Config{},
+			wantErr: true,
+		},
+		"valid_yaml_extension": {
+			args: args{
+				path: "./testdata/cfg.yaml",
+			},
+			want: Config{
+				General: General{
+					OutputFormat:      OutputFormatText,
+					PrintConfigOnInit: true,
+				},
+				Encoder: EncoderConfig{
+					DisplayMapType:       true,
+					DisplayPointerSymbol: true,
+					DisplayStructName:    true,
+					ExcludePatterns:      []string{`\d`, `^\w$`},
+					MaskValue:            "[CENSORED]",
+					UseJSONTagName:       true,
+				},
+			},
+			wantErr: false,
+		},
 	}
 
 	for name, tt := range tests {

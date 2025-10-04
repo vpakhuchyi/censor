@@ -9,7 +9,7 @@ const defaultBufferCapacity = 32
 
 // Define a pool of bytes.Buffer instances.
 var builderPool = sync.Pool{
-	New: func() interface{} {
+	New: func() any {
 		return bytes.NewBuffer(make([]byte, 0, defaultBufferCapacity))
 	},
 }

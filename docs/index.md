@@ -64,7 +64,7 @@ type address struct {
 }
 
 // Here is a request struct that contains sensitive information: Email, FullName and Password.
-// We could log only UserID, but it's much easier to control what we're displaying by using Censor 
+// We could log only UserID, but it's much easier to control what we're displaying by using Censor
 // instead of checking each line and making sure that we're not showing any sensitive information.
 func main() {
   r := request{
@@ -177,14 +177,14 @@ Table below shows the names of the configuration options:
 
 | Go name              | YML name               | Default value | Description                                                                                                                                                  |
 |----------------------|------------------------|---------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| OutputFormat         | output-format          | text          | The output format that will be used for the formatted values (text or json).                                                                                 | 
+| OutputFormat         | output-format          | text          | The output format that will be used for the formatted values (text or json).                                                                                 |
 | PrintConfigOnInit    | print-config-on-init   | true          | If true, the configuration will be printed when any of available constructors is used.                                                                       |
 | UseJSONTagName       | use-json-tag-name      | false         | If true, the JSON tag name will be used instead of the Go struct field name.                                                                                 |
 | MaskValue            | mask-value             | [CENSORED]    | The value that will be used to mask the sensitive information.                                                                                               |
 | DisplayStructName    | display-struct-name    | false         | If true, the struct name will be displayed in the output.                                                                                                    |
 | DisplayMapType       | display-map-type       | false         | If true, the map type will be displayed in the output.                                                                                                       |
 | DisplayPointerSymbol | display-pointer-symbol | false         | If true, '&' (the pointer symbol) will be displayed in the output.                                                                                           |
-| EnableJSONEscaping   | enable-json-escaping   | true          | If true, the JSON escaping will be enabled.                                                                                                                  | 
+| EnableJSONEscaping   | enable-json-escaping   | true          | If true, the JSON escaping will be enabled.                                                                                                                  |
 | ExcludePatterns      | exclude-patterns       | []            | A list of regular expressions that will be compared against all the string values. <br/>If a value matches any of the patterns, that section will be masked. |
 
 
@@ -506,7 +506,7 @@ func main() {
     Encoder: censor.EncoderConfig{
       MaskValue: censor.DefaultMaskValue,
       // If you want to display the pointer symbol before the pointed value in the output,
-      // you can use the `DisplayPointerSymbol` configuration option. 
+      // you can use the `DisplayPointerSymbol` configuration option.
       // In this case, the output will look like this:
       DisplayPointerSymbol: true,
     },
