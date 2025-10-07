@@ -1,8 +1,6 @@
 package zaphandler
 
 import (
-	"encoding/json"
-
 	"go.uber.org/zap/zapcore"
 
 	"github.com/vpakhuchyi/censor"
@@ -34,7 +32,7 @@ func NewHandler(core zapcore.Core, opts ...Option) zapcore.Core {
 // Write applies censoring to the log entry and fields, overriding the original values.
 // Future processing of the log entry and fields will use the given zap core.
 func (h handler) Write(e zapcore.Entry, fields []zapcore.Field) error {
-	for i := 0; i < len(fields); i++ {
+	for i := range fields {
 		h.censorField(&fields[i])
 	}
 
@@ -52,23 +50,36 @@ func (h handler) Check(e zapcore.Entry, ce *zapcore.CheckedEntry) *zapcore.Check
 
 // With applies censoring to the log fields, overriding the original values before passing them to the core.
 func (h handler) With(fields []zapcore.Field) zapcore.Core {
-	for i := 0; i < len(fields); i++ {
+	for i := range fields {
 		h.censorField(&fields[i])
 	}
 
-	return handler{
+	return &handler{
 		Core: h.Core.With(fields),
 		// Censor instance is shared between the handler instances to avoid additional allocations.
 		censor: h.censor,
 	}
 }
 
+//nolint:exhaustive
 func (h handler) censorField(f *zapcore.Field) {
-	if f.String != "" {
-		f.String = string(h.censor.String(f.String))
+	switch f.Type {
+	case zapcore.StringType:
+		if f.String != "" {
+			f.String = string(h.censor.String(f.String))
+		}
+	case zapcore.ReflectType:
+		if f.Interface != nil {
+			f.Interface = &rawJSONValue{data: h.censor.Any(f.Interface)}
+		}
+	default:
 	}
+}
 
-	if f.Interface != nil {
-		f.Interface = json.RawMessage(h.censor.Any(f.Interface))
-	}
+type rawJSONValue struct {
+	data []byte
+}
+
+func (r *rawJSONValue) MarshalJSON() ([]byte, error) {
+	return r.data, nil
 }
