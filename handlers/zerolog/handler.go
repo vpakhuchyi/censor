@@ -41,6 +41,6 @@ type handler struct {
 	log    *zerolog.Logger
 }
 
-func (h *handler) anyMarshal(v interface{}) ([]byte, error) {
+func (h *handler) anyMarshal(v any) ([]byte, error) {
 	return h.censor.Any(v), nil
 }
