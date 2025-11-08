@@ -3,6 +3,7 @@ package censor
 import (
 	"fmt"
 	"reflect"
+	"sync"
 
 	"github.com/vpakhuchyi/censor/internal/builderpool"
 	"github.com/vpakhuchyi/censor/internal/encoder"
@@ -16,7 +17,10 @@ type Processor struct {
 
 // Censor pkg contains a global instance of Processor.
 // This globalInstance is used by the package-level functions.
-var globalInstance = New()
+var (
+	globalInstanceMu sync.RWMutex
+	globalInstance   = New()
+)
 
 // New returns a new instance of Processor with default configuration.
 func New() *Processor {
@@ -56,11 +60,16 @@ func NewWithOpts(opts ...Option) (*Processor, error) {
 
 // SetGlobalInstance sets a given Processor as a global instance.
 func SetGlobalInstance(p *Processor) {
+	globalInstanceMu.Lock()
 	globalInstance = p
+	globalInstanceMu.Unlock()
 }
 
 // GetGlobalInstance returns a global instance of Processor.
 func GetGlobalInstance() *Processor {
+	globalInstanceMu.RLock()
+	defer globalInstanceMu.RUnlock()
+
 	return globalInstance
 }
 
@@ -93,7 +102,11 @@ func newProcessor(cfg Config) *Processor {
 //
 // For bug reports or feedback, please contribute to the project at https://github.com/vpakhuchyi/censor.
 func Any(val any) []byte {
-	return globalInstance.Any(val)
+	globalInstanceMu.RLock()
+	instance := globalInstance
+	globalInstanceMu.RUnlock()
+
+	return instance.Any(val)
 }
 
 // Any returns a byte slice representation of the given value with sensitive data masked.
@@ -115,7 +128,11 @@ func (p *Processor) Any(val any) []byte {
 // Any segments matching these patterns are replaced with the mask value, and the resulting string
 // is returned as a byte slice.
 func String(s string) []byte {
-	return globalInstance.String(s)
+	globalInstanceMu.RLock()
+	instance := globalInstance
+	globalInstanceMu.RUnlock()
+
+	return instance.String(s)
 }
 
 // String returns a byte slice containing the processed version of the input string,
