@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"gopkg.in/yaml.v3"
@@ -34,19 +35,37 @@ type General struct {
 	OutputFormat string `yaml:"output-format"`
 	// PrintConfigOnInit sets whether to print the configuration on initialization stage.
 	// If true, on Processor initialization, the configuration will be printed to stdout.
-	// The default value is true.
+	// The default value is false.
 	PrintConfigOnInit bool `yaml:"print-config-on-init"`
 }
 
 // EncoderConfig describes censor Encoder configuration.
-type EncoderConfig = encoder.Config
+type EncoderConfig struct {
+	DisplayMapType       bool     `yaml:"display-map-type"`
+	DisplayPointerSymbol bool     `yaml:"display-pointer-symbol"`
+	DisplayStructName    bool     `yaml:"display-struct-name"`
+	ExcludePatterns      []string `yaml:"exclude-patterns"`
+	MaskValue            string   `yaml:"mask-value"`
+	UseJSONTagName       bool     `yaml:"use-json-tag-name"`
+}
+
+func (c EncoderConfig) toEncoderConfig() encoder.Config {
+	return encoder.Config{
+		DisplayMapType:       c.DisplayMapType,
+		DisplayPointerSymbol: c.DisplayPointerSymbol,
+		DisplayStructName:    c.DisplayStructName,
+		ExcludePatterns:      c.ExcludePatterns,
+		MaskValue:            c.MaskValue,
+		UseJSONTagName:       c.UseJSONTagName,
+	}
+}
 
 // DefaultConfig returns a default configuration.
 func DefaultConfig() Config {
 	return Config{
 		General: General{
 			OutputFormat:      OutputFormatJSON,
-			PrintConfigOnInit: true,
+			PrintConfigOnInit: false,
 		},
 		Encoder: EncoderConfig{
 			DisplayMapType:       false,
@@ -57,6 +76,33 @@ func DefaultConfig() Config {
 			UseJSONTagName:       false,
 		},
 	}
+}
+
+const maxRegExPatterns = 50
+
+// Validate checks whether the configuration is valid.
+func (c Config) Validate() error {
+	switch c.General.OutputFormat {
+	case OutputFormatText, OutputFormatJSON:
+	default:
+		return fmt.Errorf("invalid output format: %q, must be %q or %q", c.General.OutputFormat, OutputFormatText, OutputFormatJSON)
+	}
+
+	if c.Encoder.MaskValue == "" {
+		return fmt.Errorf("mask value cannot be empty")
+	}
+
+	if len(c.Encoder.ExcludePatterns) > maxRegExPatterns {
+		return fmt.Errorf("too many exclude patterns (max %d): %d", maxRegExPatterns, len(c.Encoder.ExcludePatterns))
+	}
+
+	for _, pattern := range c.Encoder.ExcludePatterns {
+		if _, err := regexp.Compile(pattern); err != nil {
+			return fmt.Errorf("invalid exclude pattern %q: %w", pattern, err)
+		}
+	}
+
+	return nil
 }
 
 // ConfigFromFile reads a configuration from the given .yml file.

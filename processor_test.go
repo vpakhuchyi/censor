@@ -13,6 +13,7 @@ import (
 func TestNewWithConfig(t *testing.T) {
 	cfg := Config{
 		General: General{
+			OutputFormat:      OutputFormatText,
 			PrintConfigOnInit: true,
 		},
 		Encoder: EncoderConfig{
@@ -37,11 +38,26 @@ func TestNewWithConfig(t *testing.T) {
 	}
 
 	exp := &Processor{
-		encoder: encoder.NewTextEncoder(encConfig),
+		encoder: encoder.NewTextEncoder(encConfig.toEncoderConfig()),
 		cfg:     cfg,
 	}
 
 	require.Equal(t, exp, got)
+
+	t.Run("invalid_config", func(t *testing.T) {
+		cfg := Config{
+			General: General{
+				OutputFormat: OutputFormatText,
+			},
+			Encoder: EncoderConfig{
+				MaskValue: "",
+			},
+		}
+
+		p, err := NewWithOpts(WithConfig(&cfg))
+		require.Nil(t, p)
+		require.EqualError(t, err, "invalid configuration: mask value cannot be empty")
+	})
 }
 
 func TestNewWithFileConfig(t *testing.T) {
@@ -66,7 +82,7 @@ func TestNewWithFileConfig(t *testing.T) {
 
 		// THEN.
 		want := Processor{
-			encoder: encoder.NewTextEncoder(encConfig),
+			encoder: encoder.NewTextEncoder(encConfig.toEncoderConfig()),
 			cfg:     cfg,
 		}
 		require.NoError(t, err)
@@ -105,12 +121,8 @@ func TestNewWithFileConfig(t *testing.T) {
 		p, err := NewWithOpts(WithConfigPath("./testdata/empty.yml"))
 
 		// THEN.
-		want := &Processor{
-			encoder: encoder.NewTextEncoder(EncoderConfig{}),
-			cfg:     Config{},
-		}
-		require.NoError(t, err)
-		require.EqualValues(t, want.encoder, p.encoder)
+		require.Error(t, err)
+		require.Nil(t, p)
 	})
 }
 
@@ -194,6 +206,7 @@ func TestTestProcessor_Clone(t *testing.T) {
 	// GIVEN.
 	cfg := Config{
 		General: General{
+			OutputFormat:      OutputFormatText,
 			PrintConfigOnInit: false,
 		},
 		Encoder: EncoderConfig{
@@ -284,7 +297,13 @@ func TestProcessor_GetGlobalInstance(t *testing.T) {
 		want, err := NewWithOpts(
 			WithConfig(
 				&Config{
-					General: General{PrintConfigOnInit: true},
+					General: General{
+						OutputFormat:      OutputFormatText,
+						PrintConfigOnInit: true,
+					},
+					Encoder: EncoderConfig{
+						MaskValue: DefaultMaskValue,
+					},
 				},
 			),
 		)

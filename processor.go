@@ -24,7 +24,12 @@ var (
 
 // New returns a new instance of Processor with default configuration.
 func New() *Processor {
-	return newProcessor(DefaultConfig())
+	cfg := DefaultConfig()
+	if err := cfg.Validate(); err != nil {
+		panic(fmt.Sprintf("censor: invalid default configuration: %v", err))
+	}
+
+	return newProcessor(cfg)
 }
 
 // NewWithOpts returns a new instance of Processor, options can be passed to it.
@@ -49,7 +54,13 @@ func NewWithOpts(opts ...Option) (*Processor, error) {
 	if cfg == nil {
 		c := DefaultConfig()
 		cfg = &c
-	} else if cfg.General.PrintConfigOnInit {
+	}
+
+	if err := cfg.Validate(); err != nil {
+		return nil, fmt.Errorf("invalid configuration: %w", err)
+	}
+
+	if cfg.General.PrintConfigOnInit {
 		// We want to print the configuration only if it differs from the default one
 		// and the corresponding flag is set to true.
 		fmt.Print(cfg.ToString())
@@ -79,9 +90,9 @@ func newProcessor(cfg Config) *Processor {
 	}
 
 	if cfg.General.OutputFormat == "json" {
-		p.encoder = encoder.NewJSONEncoder(cfg.Encoder)
+		p.encoder = encoder.NewJSONEncoder(cfg.Encoder.toEncoderConfig())
 	} else {
-		p.encoder = encoder.NewTextEncoder(cfg.Encoder)
+		p.encoder = encoder.NewTextEncoder(cfg.Encoder.toEncoderConfig())
 	}
 
 	return p
