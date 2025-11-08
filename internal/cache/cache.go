@@ -1,6 +1,9 @@
 package cache
 
-import "container/list"
+import (
+	"container/list"
+	"sync"
+)
 
 // DefaultMaxCacheSize is the default maximum cache size.
 const DefaultMaxCacheSize = 500
@@ -16,6 +19,7 @@ func New[T comparable](size int) *Cache[T] {
 
 // Cache is a cache for type T.
 type Cache[T comparable] struct {
+	mu    sync.RWMutex
 	size  int
 	keys  *list.List
 	cache map[string]T
@@ -25,7 +29,10 @@ type Cache[T comparable] struct {
 // If the cache size exceeds the defaultMaxCacheSize, the oldest key-value pair is removed.
 // If the key already exists in the cache, the function will return immediately.
 // If the key does not exist in the cache, the key-value pair is added.
-func (c Cache[T]) Set(key string, value T) {
+func (c *Cache[T]) Set(key string, value T) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	if _, found := c.cache[key]; found {
 		return
 	}
@@ -42,7 +49,10 @@ func (c Cache[T]) Set(key string, value T) {
 
 // Get returns the value for the given key.
 // If the key does not exist in the cache, the second return value is false.
-func (c Cache[T]) Get(key string) (T, bool) {
+func (c *Cache[T]) Get(key string) (T, bool) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
 	value, found := c.cache[key]
 
 	return value, found
