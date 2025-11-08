@@ -14,7 +14,7 @@ func TestConfig_Default(t *testing.T) {
 	exp := Config{
 		General: General{
 			OutputFormat:      OutputFormatJSON,
-			PrintConfigOnInit: true,
+			PrintConfigOnInit: false,
 		},
 		Encoder: EncoderConfig{
 			DisplayMapType:       false,
@@ -145,6 +145,87 @@ func TestConfig_FromFile(t *testing.T) {
 				require.Error(t, err)
 			} else {
 				require.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestConfig_Validate(t *testing.T) {
+	tests := map[string]struct {
+		cfg             Config
+		wantErr         string
+		wantErrContains bool
+	}{
+		"default": {
+			cfg: DefaultConfig(),
+		},
+		"text_format": {
+			cfg: func() Config {
+				cfg := DefaultConfig()
+				cfg.General.OutputFormat = OutputFormatText
+				return cfg
+			}(),
+		},
+		"empty_output_format": {
+			cfg: func() Config {
+				cfg := DefaultConfig()
+				cfg.General.OutputFormat = ""
+				return cfg
+			}(),
+			wantErr: "invalid output format: \"\", must be \"text\" or \"json\"",
+		},
+		"mask_value_empty": {
+			cfg: func() Config {
+				cfg := DefaultConfig()
+				cfg.Encoder.MaskValue = ""
+				return cfg
+			}(),
+			wantErr: "mask value cannot be empty",
+		},
+		"invalid_output_format": {
+			cfg: func() Config {
+				cfg := DefaultConfig()
+				cfg.General.OutputFormat = "xml"
+				return cfg
+			}(),
+			wantErr: "invalid output format: \"xml\", must be \"text\" or \"json\"",
+		},
+		"too_many_patterns": {
+			cfg: func() Config {
+				cfg := DefaultConfig()
+				patterns := make([]string, 51)
+				for i := range patterns {
+					patterns[i] = "pattern"
+				}
+				cfg.Encoder.ExcludePatterns = patterns
+				return cfg
+			}(),
+			wantErr: "too many exclude patterns (max 50): 51",
+		},
+		"invalid_pattern": {
+			cfg: func() Config {
+				cfg := DefaultConfig()
+				cfg.Encoder.ExcludePatterns = []string{"("}
+				return cfg
+			}(),
+			wantErr:         "invalid exclude pattern \"(\"",
+			wantErrContains: true,
+		},
+	}
+
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			err := tt.cfg.Validate()
+			if tt.wantErr == "" {
+				require.NoError(t, err)
+				return
+			}
+
+			require.Error(t, err)
+			if tt.wantErrContains {
+				require.ErrorContains(t, err, tt.wantErr)
+			} else {
+				require.EqualError(t, err, tt.wantErr)
 			}
 		})
 	}

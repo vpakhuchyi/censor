@@ -11,14 +11,13 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"github.com/vpakhuchyi/censor"
-	"github.com/vpakhuchyi/censor/internal/encoder"
 )
 
 func TestNewHandler(t *testing.T) {
 	const logFileName = "test_log"
 
 	c, err := censor.NewWithOpts(censor.WithConfig(&censor.Config{
-		Encoder: encoder.Config{
+		Encoder: censor.EncoderConfig{
 			MaskValue:            censor.DefaultMaskValue,
 			DisplayPointerSymbol: false,
 			DisplayStructName:    false,
