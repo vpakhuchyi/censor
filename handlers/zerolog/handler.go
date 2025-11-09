@@ -30,6 +30,7 @@ func New(opts ...Option) *zerolog.Logger {
 // GetMarshalFunc returns a MarshalFunc that applies Censor before delegating to zerolog.
 func GetMarshalFunc(opts ...Option) MarshalFunc {
 	cfg := resolveOptions(opts...)
+
 	return func(v any) ([]byte, error) {
 		return cfg.censor.Any(v), nil
 	}
