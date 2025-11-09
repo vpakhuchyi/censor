@@ -23,6 +23,7 @@ go get -u github.com/vpakhuchyi/censor
 - [x] Supports output in Text and JSON formats.
 - [x] Censor handlers for loggers:
     - `log/slog`
+    - `github.com/rs/zerolog`
     - `go.uber.org/zap`
 - [x] Wide range of supported types:
     - `struct`, `map`, `slice`, `array`, `pointer`, `string`
@@ -237,6 +238,47 @@ func main() {
 ```
 
 ## Censor handler for loggers
+
+### Handler for `github.com/rs/zerolog`
+
+The `github.com/vpakhuchyi/censor/handlers/zerolog` package integrates Censor with zerolog without mutating the global state implicitly. To enable censoring for `Any` and `Interface` fields you should:
+
+1. Build or reuse a `*censor.Processor` or rely on defaults.
+2. Obtain a marshal function with `zerologhandler.GetMarshalFunc(...)`.
+3. Install it via `zerologhandler.InstallMarshalFunc`, which returns a restore callback you can defer when the override is no longer needed.
+
+```go
+package main
+
+import (
+  "os"
+
+  "github.com/rs/zerolog"
+  "github.com/vpakhuchyi/censor"
+  zerologhandler "github.com/vpakhuchyi/censor/handlers/zerolog"
+)
+
+func main() {
+  processor := censor.New()
+
+  marshal := zerologhandler.GetMarshalFunc(
+    zerologhandler.WithCensor(processor),
+  )
+
+  restore := zerologhandler.InstallMarshalFunc(marshal)
+  defer restore()
+
+  logger := zerolog.New(os.Stdout)
+
+  logger.Info().
+    Any("payload", map[string]string{"secret": "value"}).
+    Msg("redacted payload")
+}
+```
+
+> **Important:** Installing the marshal function affects all zerolog loggers in the process until you call the restore function. Always restore the previous marshal function when you no longer need Censor to avoid surprising other components (such as tests) that rely on the default behavior.
+
+You can still build a logger with `zerologhandler.New(...)` to reuse option helpers; just remember that censoring will only take effect after you install the marshal function.
 
 ### Handler for `go.uber.org/zap`
 

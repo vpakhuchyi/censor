@@ -37,6 +37,9 @@ func TestNewHandler(t *testing.T) {
 		// GIVEN
 		var buf bytes.Buffer
 		out := bufio.NewWriter(&buf)
+		marshal := GetMarshalFunc()
+		restore := InstallMarshalFunc(marshal)
+		t.Cleanup(restore)
 		handler := New().Output(out)
 
 		// WHEN
@@ -56,6 +59,9 @@ func TestNewHandler(t *testing.T) {
 		// GIVEN
 		var buf bytes.Buffer
 		out := bufio.NewWriter(&buf)
+		marshal := GetMarshalFunc()
+		restore := InstallMarshalFunc(marshal)
+		t.Cleanup(restore)
 		handler := New().Output(out)
 
 		// WHEN
@@ -76,6 +82,9 @@ func TestNewHandler(t *testing.T) {
 		var buf bytes.Buffer
 		out := bufio.NewWriter(&buf)
 		zl := zerolog.New(&buf).With().Str("key", "value").Logger()
+		marshal := GetMarshalFunc(WithZerolog(&zl))
+		restore := InstallMarshalFunc(marshal)
+		t.Cleanup(restore)
 		log := New(WithZerolog(&zl))
 		handler := log.Output(out)
 
@@ -98,6 +107,9 @@ func TestNewHandler(t *testing.T) {
 		var buf bytes.Buffer
 		out := bufio.NewWriter(&buf)
 		censor := censor.New()
+		marshal := GetMarshalFunc(WithCensor(censor))
+		restore := InstallMarshalFunc(marshal)
+		t.Cleanup(restore)
 		log := New(WithCensor(censor))
 		handler := log.Output(out)
 
@@ -112,6 +124,38 @@ func TestNewHandler(t *testing.T) {
 					"message":"test"
 				}`
 		require.JSONEq(t, want, prepareLogEntry(t, buf.String()))
+	})
+
+	t.Run("install marshal func restores previous function", func(t *testing.T) {
+		original := zerolog.InterfaceMarshalFunc
+		defer func() {
+			marshalMu.Lock()
+			zerolog.InterfaceMarshalFunc = original
+			marshalMu.Unlock()
+		}()
+
+		baselineInput := map[string]string{"foo": "bar"}
+		expectedBaseline, err := original(baselineInput)
+		require.NoError(t, err)
+
+		called := false
+		restore := InstallMarshalFunc(func(v any) ([]byte, error) {
+			called = true
+			return []byte(`"custom"`), nil
+		})
+
+		output, err := zerolog.InterfaceMarshalFunc("value")
+		require.True(t, called)
+		require.NoError(t, err)
+		require.Equal(t, `"custom"`, string(output))
+
+		restore()
+		called = false
+
+		output, err = zerolog.InterfaceMarshalFunc(baselineInput)
+		require.NoError(t, err)
+		require.False(t, called)
+		require.Equal(t, string(expectedBaseline), string(output))
 	})
 }
 

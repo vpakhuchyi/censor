@@ -13,14 +13,14 @@ func TestWithCensor(t *testing.T) {
 	t.Run("should apply option with provided censor instance", func(t *testing.T) {
 		// GIVEN
 		censorInstance := censor.New()
-		h := handler{}
+		cfg := options{}
 
 		// WHEN
 		got := WithCensor(censorInstance)
-		got(&h)
+		got(&cfg)
 
 		// THEN
-		require.Equal(t, handler{censor: censorInstance}, h)
+		require.Equal(t, options{censor: censorInstance}, cfg)
 	})
 }
 
@@ -28,13 +28,13 @@ func TestWithZerolog(t *testing.T) {
 	t.Run("should apply option with provided zerolog logger instance", func(t *testing.T) {
 		// GIVEN
 		log := zerolog.New(os.Stdout)
-		h := handler{}
+		cfg := options{}
 
 		// WHEN
 		got := WithZerolog(&log)
-		got(&h)
+		got(&cfg)
 
 		// THEN
-		require.Equal(t, handler{log: &log}, h)
+		require.Equal(t, options{logger: &log}, cfg)
 	})
 }
