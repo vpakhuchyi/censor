@@ -5,23 +5,24 @@ import (
 	"github.com/vpakhuchyi/censor"
 )
 
-// Option represents a function that can be used to configure a Handler.
-// These options can be applied during the initialization of the Handler to modify
-// its configuration.
-type Option func(h *handler)
+type options struct {
+	censor *censor.Processor
+	logger *zerolog.Logger
+}
 
-// WithCensor sets the Censor processor instance for the Handler. If not provided,
-// a default Censor processor will be used.
-func WithCensor(censor *censor.Processor) Option {
-	return func(h *handler) {
-		h.censor = censor
+// Option configures the zerolog handler via a shared options struct.
+type Option func(cfg *options)
+
+// WithCensor stores the provided Censor processor on the options struct.
+func WithCensor(processor *censor.Processor) Option {
+	return func(cfg *options) {
+		cfg.censor = processor
 	}
 }
 
-// WithZerolog sets the Zerolog logger instance for the Handler. If not provided,
-// a default Zerolog logger will be used.
-func WithZerolog(log *zerolog.Logger) Option {
-	return func(h *handler) {
-		h.log = log
+// WithZerolog stores the provided zerolog logger on the options struct.
+func WithZerolog(logger *zerolog.Logger) Option {
+	return func(cfg *options) {
+		cfg.logger = logger
 	}
 }
