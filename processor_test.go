@@ -287,6 +287,36 @@ func TestProcessor_Format(t *testing.T) {
 		got := Any(v)
 
 		// THEN.
+		require.Equal(t, "null", string(got))
+	})
+
+	t.Run("processor method nil value", func(t *testing.T) {
+		// GIVEN.
+		processor := New()
+
+		// WHEN.
+		got := processor.Any(nil)
+
+		// THEN.
+		require.Equal(t, "null", string(got))
+	})
+
+	t.Run("nil type with text encoder", func(t *testing.T) {
+		// GIVEN.
+		processor, err := NewWithOpts(WithConfig(&Config{
+			General: General{
+				OutputFormat: OutputFormatText,
+			},
+			Encoder: EncoderConfig{
+				MaskValue: DefaultMaskValue,
+			},
+		}))
+		require.NoError(t, err)
+
+		// WHEN.
+		got := processor.Any(nil)
+
+		// THEN.
 		require.Equal(t, "nil", string(got))
 	})
 }

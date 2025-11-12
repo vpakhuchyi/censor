@@ -40,6 +40,12 @@ type JSONEncoder struct {
 
 //nolint:exhaustive,gocyclo
 func (e *JSONEncoder) Encode(b *bytes.Buffer, f reflect.Value) {
+	if !f.IsValid() {
+		b.WriteString("null")
+
+		return
+	}
+
 	switch k := f.Kind(); k {
 	case reflect.Struct:
 		if f.CanInterface() {

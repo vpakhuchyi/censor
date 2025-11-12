@@ -50,6 +50,12 @@ func NewTextEncoder(c Config) *TextEncoder {
 
 //nolint:exhaustive,gocyclo
 func (e *TextEncoder) Encode(b *bytes.Buffer, f reflect.Value) {
+	if !f.IsValid() {
+		b.WriteString("nil")
+
+		return
+	}
+
 	switch k := f.Kind(); k {
 	case reflect.Struct:
 		// If a field implements encoding.TextMarshaler interface, then it should be marshaled to string.
