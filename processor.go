@@ -123,7 +123,6 @@ func Any(val any) []byte {
 // Any returns a byte slice representation of the given value with sensitive data masked.
 // It behaves the same as the global Any function — recursively processing and masking values.
 func (p *Processor) Any(val any) []byte {
-
 	b := builderpool.Get()
 	defer builderpool.Put(b)
 
