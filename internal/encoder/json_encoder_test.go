@@ -724,3 +724,39 @@ func TestJSONEncoder_StringEscaped(t *testing.T) {
 		require.Equal(t, `"say \"email: [CENSORED]\""`, b.String())
 	})
 }
+
+func TestJSONEncoder_Struct_UseJSONTagName(t *testing.T) {
+	type payload struct {
+		Tagged  string `json:"alias,omitempty" censor:"display"`
+		Skipped string `json:"-" censor:"display"`
+		Empty   string `json:",omitempty" censor:"display"`
+		Default string `censor:"display"`
+	}
+
+	value := payload{
+		Tagged:  "tagged",
+		Skipped: "skipped",
+		Empty:   "empty",
+		Default: "default",
+	}
+
+	t.Run("disabled uses Go field names", func(t *testing.T) {
+		e := NewJSONEncoder(Config{})
+		var b bytes.Buffer
+		defer b.Reset()
+
+		e.Struct(&b, reflect.ValueOf(value))
+
+		require.Equal(t, `{"Tagged": "tagged","Skipped": "skipped","Empty": "empty","Default": "default"}`, b.String())
+	})
+
+	t.Run("enabled uses json tags and skips dash tag", func(t *testing.T) {
+		e := NewJSONEncoder(Config{UseJSONTagName: true})
+		var b bytes.Buffer
+		defer b.Reset()
+
+		e.Struct(&b, reflect.ValueOf(value))
+
+		require.Equal(t, `{"alias": "tagged","Empty": "empty","Default": "default"}`, b.String())
+	})
+}

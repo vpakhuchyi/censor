@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"reflect"
 	"strconv"
+	"strings"
 	"unicode/utf8"
 
 	"github.com/shopspring/decimal"
@@ -20,6 +21,7 @@ func NewJSONEncoder(c Config) *JSONEncoder {
 			CensorFieldTag:      defaultCensorFieldTag,
 			ExcludePatterns:     c.ExcludePatterns,
 			MaskValue:           c.MaskValue,
+			UseJSONTagName:      c.UseJSONTagName,
 			structFieldsCache:   cache.NewTypeCache[[]Field](cache.DefaultMaxCacheSize),
 			escapedStringsCache: cache.New[string](cache.DefaultMaxCacheSize),
 			regexpCache:         cache.New[string](cache.DefaultMaxCacheSize),
@@ -133,6 +135,7 @@ func (e *JSONEncoder) Struct(b *bytes.Buffer, v reflect.Value) {
 	b.WriteByte('}')
 }
 
+//nolint:gocognit
 func (e *JSONEncoder) getStructFields(v reflect.Value) []Field {
 	numFields := v.NumField()
 	fields := make([]Field, numFields)
@@ -143,8 +146,27 @@ func (e *JSONEncoder) getStructFields(v reflect.Value) []Field {
 			continue
 		}
 
+		name := field.Name
+
+		if e.UseJSONTagName {
+			tagValue := field.Tag.Get("json")
+			if tagValue != "" {
+				if commaIdx := strings.Index(tagValue, ","); commaIdx != -1 {
+					tagValue = tagValue[:commaIdx]
+				}
+
+				if tagValue == "-" {
+					continue
+				}
+
+				if tagValue != "" {
+					name = tagValue
+				}
+			}
+		}
+
 		fields[i] = Field{
-			Name:     field.Name,
+			Name:     name,
 			IsMasked: field.Tag.Get(e.CensorFieldTag) != display,
 		}
 	}

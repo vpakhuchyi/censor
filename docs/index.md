@@ -180,7 +180,7 @@ Table below shows the names of the configuration options:
 |----------------------|------------------------|---------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | OutputFormat         | output-format          | text          | The output format that will be used for the formatted values (text or json).                                                                                 |
 | PrintConfigOnInit    | print-config-on-init   | false         | If true, the configuration will be printed when any of available constructors is used.                                                                       |
-| UseJSONTagName       | use-json-tag-name      | false         | If true, the JSON tag name will be used instead of the Go struct field name.                                                                                 |
+| UseJSONTagName       | use-json-tag-name      | false         | If true, struct fields encoded as JSON reuse their `json` tag name. Fields tagged with `json:"-"` stay hidden, and tags without a name fall back to the Go identifier. |
 | MaskValue            | mask-value             | [CENSORED]    | The value that will be used to mask the sensitive information.                                                                                               |
 | DisplayStructName    | display-struct-name    | false         | If true, the struct name will be displayed in the output.                                                                                                    |
 | DisplayMapType       | display-map-type       | false         | If true, the map type will be displayed in the output.                                                                                                       |
@@ -188,6 +188,8 @@ Table below shows the names of the configuration options:
 | EnableJSONEscaping   | enable-json-escaping   | true          | If true, the JSON escaping will be enabled.                                                                                                                  |
 | ExcludePatterns      | exclude-patterns       | []            | A list of regular expressions that will be compared against all the string values. <br/>If a value matches any of the patterns, that section will be masked. Up to 50 patterns are allowed. |
 
+
+Enabling `UseJSONTagName` mirrors Go's `encoding/json`: only the portion before the first comma is used for the field name, `json:"-"` keeps the field hidden, and tags without an explicit name fall back to the original identifier.
 
 ### Using the `censor.Config` struct
 
