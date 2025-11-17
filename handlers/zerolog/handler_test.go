@@ -119,11 +119,29 @@ func TestNewHandler(t *testing.T) {
 		// THEN
 		require.NoError(t, out.Flush())
 		want := `{
-					"level":"info",
-					"payload":{"City": "Kyiv","Country": "Ukraine","Street": "[CENSORED]","Zip": "[CENSORED]"},
-					"message":"test"
-				}`
+				"level":"info",
+				"payload":{"City": "Kyiv","Country": "Ukraine","Street": "[CENSORED]","Zip": "[CENSORED]"},
+				"message":"test"
+			}`
 		require.JSONEq(t, want, prepareLogEntry(t, buf.String()))
+	})
+
+	t.Run("with text censor panics", func(t *testing.T) {
+		textCfg := censor.Config{
+			General: censor.General{
+				OutputFormat: censor.OutputFormatText,
+			},
+			Encoder: censor.EncoderConfig{
+				MaskValue: censor.DefaultMaskValue,
+			},
+		}
+
+		textProcessor, err := censor.NewWithOpts(censor.WithConfig(&textCfg))
+		require.NoError(t, err)
+
+		require.PanicsWithValue(t, "zerologhandler: censor processor must use json output format", func() {
+			GetMarshalFunc(WithCensor(textProcessor))
+		})
 	})
 
 	t.Run("install marshal func restores previous function", func(t *testing.T) {

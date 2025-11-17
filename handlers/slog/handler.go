@@ -29,6 +29,10 @@ func NewJSONHandler(opts ...Option) *slog.JSONHandler {
 		cfg.censor = censor.New()
 	}
 
+	if cfg.censor.OutputFormat() != censor.OutputFormatJSON {
+		panic("sloghandler: censor processor must use json output format")
+	}
+
 	if cfg.out == nil {
 		cfg.out = os.Stdout
 	}

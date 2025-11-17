@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/vpakhuchyi/censor"
 )
 
 type source struct {
@@ -122,6 +123,24 @@ func TestNewHandler(t *testing.T) {
 		require.NoError(t, out.Flush())
 		got := buf.String()
 		require.JSONEq(t, want, prepareLogEntry(t, got))
+	})
+
+	t.Run("text censor panics", func(t *testing.T) {
+		textCfg := censor.Config{
+			General: censor.General{
+				OutputFormat: censor.OutputFormatText,
+			},
+			Encoder: censor.EncoderConfig{
+				MaskValue: censor.DefaultMaskValue,
+			},
+		}
+
+		textProcessor, err := censor.NewWithOpts(censor.WithConfig(&textCfg))
+		require.NoError(t, err)
+
+		require.PanicsWithValue(t, "sloghandler: censor processor must use json output format", func() {
+			NewJSONHandler(WithCensor(textProcessor))
+		})
 	})
 }
 

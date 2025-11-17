@@ -27,7 +27,7 @@ Typical workflow:
 		payload := User{
 			Name:       "Hryhorii Skovoroda",
 			Department: "Philosophy",
-			Email:      "h.skovoroda@example.com",
+			Email:      "hryhorii.skovoroda@example.com",
 			Token:      "S3cr3t!",
 		}
 
@@ -47,6 +47,8 @@ Important considerations:
   - The handler defaults to JSON output writing to os.Stdout. Use WithOut to point it at another io.Writer, or
     WithAddSource to include caller information.
   - Providing WithCensor lets you reuse an existing *censor.Processor, keeping configuration consistent across services.
+  - The JSON handler requires a processor configured with OutputFormatJSON; supplying a text encoder will panic to avoid
+    producing invalid slog JSON.
   - WithReplaceAttr is applied after censoring. If you replace the value with a string, ensure you do not reintroduce
     sensitive information.
 
