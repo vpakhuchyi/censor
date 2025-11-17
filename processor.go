@@ -89,7 +89,7 @@ func newProcessor(cfg Config) *Processor {
 		cfg: cfg,
 	}
 
-	if cfg.General.OutputFormat == "json" {
+	if cfg.General.OutputFormat == OutputFormatJSON {
 		p.encoder = encoder.NewJSONEncoder(cfg.Encoder.toEncoderConfig())
 	} else {
 		p.encoder = encoder.NewTextEncoder(cfg.Encoder.toEncoderConfig())
@@ -152,6 +152,15 @@ func (p *Processor) String(s string) []byte {
 	p.encoder.String(b, s)
 
 	return b.Bytes()
+}
+
+// OutputFormat returns the configured output format (OutputFormatJSON or OutputFormatText).
+func (p *Processor) OutputFormat() string {
+	if p == nil {
+		panic("censor: processor is nil")
+	}
+
+	return p.cfg.General.OutputFormat
 }
 
 // Clone returns a new instance of Processor with the same configuration as the original one.

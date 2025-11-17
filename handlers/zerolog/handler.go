@@ -44,7 +44,7 @@ func InstallMarshalFunc(fn MarshalFunc) func() {
 
 	marshalMu.Lock()
 	previous := zerolog.InterfaceMarshalFunc
-	zerolog.InterfaceMarshalFunc = func(v interface{}) ([]byte, error) {
+	zerolog.InterfaceMarshalFunc = func(v any) ([]byte, error) {
 		return fn(v)
 	}
 	marshalMu.Unlock()
@@ -64,6 +64,10 @@ func resolveOptions(opts ...Option) options {
 
 	if cfg.censor == nil {
 		cfg.censor = censor.New()
+	}
+
+	if cfg.censor.OutputFormat() != censor.OutputFormatJSON {
+		panic("zerologhandler: censor processor must use json output format")
 	}
 
 	if cfg.logger == nil {

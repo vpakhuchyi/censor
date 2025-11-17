@@ -321,6 +321,36 @@ func TestProcessor_Format(t *testing.T) {
 	})
 }
 
+func TestProcessor_OutputFormat(t *testing.T) {
+	t.Run("json output", func(t *testing.T) {
+		p := New()
+		require.Equal(t, OutputFormatJSON, p.OutputFormat())
+	})
+
+	t.Run("text output", func(t *testing.T) {
+		cfg := Config{
+			General: General{
+				OutputFormat: OutputFormatText,
+			},
+			Encoder: EncoderConfig{
+				MaskValue: DefaultMaskValue,
+			},
+		}
+
+		p, err := NewWithOpts(WithConfig(&cfg))
+		require.NoError(t, err)
+		require.Equal(t, OutputFormatText, p.OutputFormat())
+	})
+
+	t.Run("nil processor", func(t *testing.T) {
+		var p *Processor
+
+		require.PanicsWithValue(t, "censor: processor is nil", func() {
+			p.OutputFormat()
+		})
+	})
+}
+
 func TestProcessor_GetGlobalInstance(t *testing.T) {
 	t.Run("successful", func(t *testing.T) {
 		// GIVEN.

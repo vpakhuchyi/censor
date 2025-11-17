@@ -26,6 +26,10 @@ func NewHandler(core zapcore.Core, opts ...Option) zapcore.Core {
 		cc.censor = censor.New()
 	}
 
+	if cc.censor.OutputFormat() != censor.OutputFormatJSON {
+		panic("zaphandler: censor processor must use json output format")
+	}
+
 	return &cc
 }
 

@@ -53,6 +53,8 @@ Important considerations:
   - The handler sanitizes zap.Field values (strings, reflective payloads, etc.) before delegating to the wrapped core.
     Message strings and key names are untouched, so review them separately if they may contain sensitive data.
   - WithCensor allows you to reuse a shared *censor.Processor; if omitted, NewHandler falls back to a default processor.
+  - The handler requires a processor configured with OutputFormatJSON; providing a text encoder panics to avoid emitting
+    invalid JSON.
   - Because the handler wraps the supplied core, it inherits that core’s encoder, sampling, and level configuration.
     Apply those settings before wrapping.
   - Zap’s formatting helpers that collapse arguments into a single string (for example, Infof or Infoln) are not

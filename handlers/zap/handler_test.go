@@ -263,6 +263,24 @@ func TestNewHandler(t *testing.T) {
 		got := readLogs(t, outputFile)
 		require.Contains(t, string(got), want)
 	})
+
+	t.Run("text censor panics", func(t *testing.T) {
+		textCfg := censor.Config{
+			General: censor.General{
+				OutputFormat: censor.OutputFormatText,
+			},
+			Encoder: censor.EncoderConfig{
+				MaskValue: censor.DefaultMaskValue,
+			},
+		}
+
+		textProcessor, err := censor.NewWithOpts(censor.WithConfig(&textCfg))
+		require.NoError(t, err)
+
+		require.PanicsWithValue(t, "zaphandler: censor processor must use json output format", func() {
+			NewHandler(zapcore.NewNopCore(), WithCensor(textProcessor))
+		})
+	})
 }
 
 // readLogs reads logs from the output file and returns them as a byte slice.

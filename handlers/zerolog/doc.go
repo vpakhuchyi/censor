@@ -60,6 +60,8 @@ Important considerations:
     test cleanup).
   - Options such as WithCensor and WithZerolog can be supplied to New and GetMarshalFunc so that loggers and marshal
     functions share the same configuration.
+  - The marshal helper requires a processor configured with OutputFormatJSON; text-mode processors will panic to
+    prevent zerolog from emitting invalid JSON.
   - Types other than Any/Interface are still serialized by zerolog itself; they will not pass through Censor unless
     zerolog exposes dedicated hooks for them in the future.
 */
