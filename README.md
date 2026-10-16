@@ -75,8 +75,10 @@ func main() {
     FullName: "Viktor Pakhuchyi",
   }
 
+  c := censor.New()
+
   // In this example we're using censor as a global package-level variable with default configuration.
-  fmt.Println(string(censor.Any(r)))
+  fmt.Println(c.Format(r))
 }
 
 // Here is what we'll see in the log:
